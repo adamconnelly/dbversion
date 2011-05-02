@@ -5,6 +5,8 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace DatabaseVersion
 {
@@ -19,35 +21,36 @@ namespace DatabaseVersion
             Validate.NotNull(manifestPath, "manifestPath");
 
             XmlReader reader = XmlReader.Create(stream);
-            reader.Read();
-            
-            string version = reader.GetAttribute("version");
+            reader.MoveToContent();
+            XElement element = XElement.ReadFrom(reader) as XElement;
+
+            string version = element.Attributes().First(a => a.Name == "version").Value;
 
             List<IDatabaseTask> tasks = new List<IDatabaseTask>();
 
-            reader = reader.ReadSubtree();
-            while (reader.Read() && reader.NodeType == XmlNodeType.Element)
+            if (element.Elements().Count() > 0)
             {
-                IDatabaseTask task = this.CreateTask(reader);
-                if (task != null)
+                foreach (XElement child in element.Elements())
                 {
-                    tasks.Add(task);
+                    IDatabaseTask task = this.CreateTask(child);
+                    if (task != null)
+                    {
+                        tasks.Add(task);
+                    }
                 }
             }
 
             return new DatabaseVersion(version, manifestPath, tasks);
         }
 
-        private IDatabaseTask CreateTask(XmlReader reader)
+        private IDatabaseTask CreateTask(XElement element)
         {
             if (this.Factories != null)
             {
-                foreach (IDatabaseTaskFactory factory in this.Factories)
+                IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanHandle(element));
+                if (factory != null)
                 {
-                    if (factory.CanHandle(reader))
-                    {
-                        return factory.Create(reader);
-                    }
+                    return factory.Create(element);
                 }
             }
 

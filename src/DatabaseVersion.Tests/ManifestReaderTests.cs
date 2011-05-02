@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using Moq;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace DatabaseVersion.Tests
 {
@@ -75,8 +76,8 @@ namespace DatabaseVersion.Tests
 
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
-            factory.Setup(f => f.CanHandle(It.IsAny<XmlReader>())).Returns(true);
-            factory.Setup(f => f.Create(It.IsAny<XmlReader>())).Returns(task.Object);
+            factory.Setup(f => f.CanHandle(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
+            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"))).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 

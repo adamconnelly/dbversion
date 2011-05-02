@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="ManifestReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptTask\ScriptTaskFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
@@ -56,10 +57,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ExampleManifests\example.xml" />
+    <EmbeddedResource Include="ExampleManifests\example.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ExampleManifests\oneTask.xml" />
+    <EmbeddedResource Include="ExampleManifests\oneTask.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
