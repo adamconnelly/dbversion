@@ -1,0 +1,3 @@
+<database version="14">
+	<script file="schema/ddl.sql"/>
+</database>

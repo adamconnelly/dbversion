@@ -1,0 +1,17 @@
+<database version="14">
+	<script file="schema/ddl.sql"/>
+	<script file="code/storedprocedures.sql"/>
+	<script file="code/views.sql"/>
+	<include file="data/tableA.xml"/>
+	<include file="data/tableB.xml"/>
+	
+	<!-- In another file -->
+	<data table="tableA">
+		<key>
+			<column name="tableAId" value="1"/>
+		</key>
+		<column name="name" value="Adam"/>
+		<column name="age" value="24"/>
+		<column name="picture" file="data/tableA/adam.png"/>
+	</data>
+</database>
