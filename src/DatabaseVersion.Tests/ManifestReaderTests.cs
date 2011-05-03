@@ -16,6 +16,8 @@ namespace DatabaseVersion.Tests
         private const string ManifestPath = "DatabaseVersion.Tests.ExampleManifests.example.xml";
         private const string OneTaskManifestPath = "DatabaseVersion.Tests.ExampleManifests.oneTask.xml";
 
+        private Mock<IDatabaseArchive> databaseArchive = new Mock<IDatabaseArchive>();
+
         [Fact]
         public void ShouldSetVersionFromManifest()
         {
@@ -23,7 +25,7 @@ namespace DatabaseVersion.Tests
             ManifestReader reader = new ManifestReader();
 
             // Act
-            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath);
+            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
 
             // Assert
             Assert.Equal("14", version.Version);
@@ -36,7 +38,7 @@ namespace DatabaseVersion.Tests
             ManifestReader reader = new ManifestReader();
 
             // Act
-            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath);
+            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
 
             // Assert
             Assert.Equal(ManifestPath, version.ManifestPath);
@@ -49,7 +51,7 @@ namespace DatabaseVersion.Tests
             ManifestReader reader = new ManifestReader();
 
             // Act
-            Exception exception = Record.Exception(() => reader.Read(null, ManifestPath));
+            Exception exception = Record.Exception(() => reader.Read(null, ManifestPath, databaseArchive.Object));
             
             // Assert
             Assert.IsType<ArgumentNullException>(exception);
@@ -62,7 +64,20 @@ namespace DatabaseVersion.Tests
             ManifestReader reader = new ManifestReader();
 
             // Act
-            Exception exception = Record.Exception(() => reader.Read(GetManifest(), null));
+            Exception exception = Record.Exception(() => reader.Read(GetManifest(), null, databaseArchive.Object));
+
+            // Assert
+            Assert.IsType<ArgumentNullException>(exception);
+        }
+
+        [Fact]
+        public void ShouldThrowExceptionIfDatabaseArchiveIsNull()
+        {
+            // Arrange
+            ManifestReader reader = new ManifestReader();
+
+            // Act
+            Exception exception = Record.Exception(() => reader.Read(GetManifest(), ManifestPath, null));
 
             // Assert
             Assert.IsType<ArgumentNullException>(exception);
@@ -77,12 +92,12 @@ namespace DatabaseVersion.Tests
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
             factory.Setup(f => f.CanCreate(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
-            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0)).Returns(task.Object);
+            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0, It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 
             // Act
-            IDatabaseVersion version = reader.Read(GetManifest(OneTaskManifestPath), OneTaskManifestPath);
+            IDatabaseVersion version = reader.Read(GetManifest(OneTaskManifestPath), OneTaskManifestPath, this.databaseArchive.Object);
 
             // Assert
             Assert.Same(task.Object, version.Tasks.Single());
@@ -97,20 +112,33 @@ namespace DatabaseVersion.Tests
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
             factory.Setup(f => f.CanCreate(It.IsAny<XElement>())).Returns(true);
-            factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>())).Returns(task.Object);
+            factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>(), It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 
             // Act
-            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath);
+            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, this.databaseArchive.Object);
 
             // Assert
             int expectedOrder = 0;
             foreach (IDatabaseTask createdTask in version.Tasks)
             {
-                factory.Verify(f => f.Create(It.IsAny<XElement>(), expectedOrder));
+                factory.Verify(f => f.Create(It.IsAny<XElement>(), expectedOrder, It.IsAny<IDatabaseVersion>()));
                 expectedOrder++;
             }
+        }
+
+        [Fact]
+        public void ShouldSetDatabaseArchiveInReturnedVersion()
+        {
+            // Arrange
+            ManifestReader reader = new ManifestReader();
+
+            // Act
+            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
+
+            // Assert
+            Assert.Equal(databaseArchive.Object, version.Archive);
         }
 
         private Stream GetManifest()

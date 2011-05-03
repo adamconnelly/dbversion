@@ -15,10 +15,11 @@ namespace DatabaseVersion
         [ImportMany]
         public IEnumerable<IDatabaseTaskFactory> Factories { get; set; }
 
-        public IDatabaseVersion Read(Stream stream, string manifestPath)
+        public IDatabaseVersion Read(Stream stream, string manifestPath, IDatabaseArchive archive)
         {
             Validate.NotNull(stream, "stream");
             Validate.NotNull(manifestPath, "manifestPath");
+            Validate.NotNull(archive, "archive");
 
             XmlReader reader = XmlReader.Create(stream);
             reader.MoveToContent();
@@ -26,24 +27,27 @@ namespace DatabaseVersion
 
             string version = element.Attributes().First(a => a.Name == "version").Value;
 
-            return new DatabaseVersion(version, manifestPath, CreateTasks(element));
+            DatabaseVersion databaseVersion = new DatabaseVersion(version, manifestPath, archive);
+            databaseVersion.Tasks = CreateTasks(element, databaseVersion);
+
+            return databaseVersion;
         }
 
-        private IEnumerable<IDatabaseTask> CreateTasks(XElement element)
+        private IEnumerable<IDatabaseTask> CreateTasks(XElement element, IDatabaseVersion version)
         {
             return element.Elements()
-                .Select(e => this.CreateTask(e))
+                .Select(e => this.CreateTask(e, version))
                 .OfType<IDatabaseTask>(); // Use to remove nulls
         }
 
-        private IDatabaseTask CreateTask(XElement element)
+        private IDatabaseTask CreateTask(XElement element, IDatabaseVersion version)
         {
             if (this.Factories != null)
             {
                 IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanCreate(element));
                 if (factory != null)
                 {
-                    return factory.Create(element, element.ElementsBeforeSelf().Count());
+                    return factory.Create(element, element.ElementsBeforeSelf().Count(), version);
                 }
             }
 

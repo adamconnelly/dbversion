@@ -7,17 +7,19 @@ namespace DatabaseVersion
 {
     public class DatabaseVersion : IDatabaseVersion
     {
-        public DatabaseVersion(string version, string manifestPath, IEnumerable<IDatabaseTask> tasks)
+        public DatabaseVersion(string version, string manifestPath, IDatabaseArchive archive)
         {
             this.Version = version;
             this.ManifestPath = manifestPath;
-            this.Tasks = tasks;
+            this.Archive = archive;
         }
 
         public string Version { get; private set; }
 
         public string ManifestPath { get; private set; }
 
-        public IEnumerable<IDatabaseTask> Tasks { get; private set; }
+        public IDatabaseArchive Archive { get; private set; }
+
+        public IEnumerable<IDatabaseTask> Tasks { get; set; }
     }
 }
