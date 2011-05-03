@@ -76,8 +76,8 @@ namespace DatabaseVersion.Tests
 
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
-            factory.Setup(f => f.CanHandle(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
-            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"))).Returns(task.Object);
+            factory.Setup(f => f.CanCreate(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
+            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0)).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 
@@ -86,6 +86,31 @@ namespace DatabaseVersion.Tests
 
             // Assert
             Assert.Same(task.Object, version.Tasks.Single());
+        }
+
+        [Fact]
+        public void ShouldCreateTasksWithCorrectExecutionOrder()
+        {
+            // Arrange
+            ManifestReader reader = new ManifestReader();
+
+            Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
+            Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
+            factory.Setup(f => f.CanCreate(It.IsAny<XElement>())).Returns(true);
+            factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>())).Returns(task.Object);
+
+            reader.Factories = new[] { factory.Object };
+
+            // Act
+            IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath);
+
+            // Assert
+            int expectedOrder = 0;
+            foreach (IDatabaseTask createdTask in version.Tasks)
+            {
+                factory.Verify(f => f.Create(It.IsAny<XElement>(), expectedOrder));
+                expectedOrder++;
+            }
         }
 
         private Stream GetManifest()

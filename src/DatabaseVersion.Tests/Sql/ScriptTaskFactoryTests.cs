@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using Xunit;
 using System.Xml.Linq;
-using DatabaseVersion.ScriptTask;
-using st = DatabaseVersion.ScriptTask.ScriptTask;
+using DatabaseVersion.Sql;
 
-namespace DatabaseVersion.Tests.ScriptTask
+namespace DatabaseVersion.Tests.Sql
 {
     public class ScriptTaskFactoryTests
     {
@@ -21,7 +20,7 @@ namespace DatabaseVersion.Tests.ScriptTask
             XElement element = new XElement(XName.Get("script"));
 
             // Act
-            bool canHandle = factory.CanHandle(element);
+            bool canHandle = factory.CanCreate(element);
 
             // Assert
             Assert.True(canHandle);
@@ -34,7 +33,7 @@ namespace DatabaseVersion.Tests.ScriptTask
             XElement element = new XElement(XName.Get("include"));
 
             // Act
-            bool canHandle = factory.CanHandle(element);
+            bool canHandle = factory.CanCreate(element);
 
             // Assert
             Assert.False(canHandle);
@@ -47,7 +46,7 @@ namespace DatabaseVersion.Tests.ScriptTask
             XElement element = null;
 
             // Act
-            bool canHandle = factory.CanHandle(element);
+            bool canHandle = factory.CanCreate(element);
 
             // Assert
             Assert.False(canHandle);
@@ -63,10 +62,40 @@ namespace DatabaseVersion.Tests.ScriptTask
                 new XAttribute(XName.Get("file"), "path/file.sql"));
 
             // Act
-            IDatabaseTask task = this.factory.Create(element);
+            IDatabaseTask task = this.factory.Create(element, 0);
 
             // Assert
-            Assert.IsType<st>(task);
+            Assert.IsType<ScriptTask>(task);
+        }
+
+        [Fact]
+        public void ShouldSetFileNameOfScript()
+        {
+            // Arrange
+            XElement element = new XElement(
+                XName.Get("script"),
+                new XAttribute(XName.Get("file"), "path/file.sql"));
+
+            // Act
+            IDatabaseTask task = this.factory.Create(element, 0);
+
+            // Assert
+            Assert.Equal("path/file.sql", ((ScriptTask)task).FileName);
+        }
+
+        [Fact]
+        public void ShouldSetExecutionOrderOfTask()
+        {
+            // Arrange
+            XElement element = new XElement(
+                XName.Get("script"),
+                new XAttribute(XName.Get("file"), "path/file.sql"));
+
+            // Act
+            IDatabaseTask task = this.factory.Create(element, 25);
+
+            // Assert
+            Assert.Equal(25, task.ExecutionOrder);
         }
     }
 }

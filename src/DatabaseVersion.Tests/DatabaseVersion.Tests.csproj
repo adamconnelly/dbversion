@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="ManifestReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptTask\ScriptTaskFactoryTests.cs" />
+    <Compile Include="Sql\ScriptTaskFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">

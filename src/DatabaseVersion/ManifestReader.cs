@@ -26,31 +26,24 @@ namespace DatabaseVersion
 
             string version = element.Attributes().First(a => a.Name == "version").Value;
 
-            List<IDatabaseTask> tasks = new List<IDatabaseTask>();
+            return new DatabaseVersion(version, manifestPath, CreateTasks(element));
+        }
 
-            if (element.Elements().Count() > 0)
-            {
-                foreach (XElement child in element.Elements())
-                {
-                    IDatabaseTask task = this.CreateTask(child);
-                    if (task != null)
-                    {
-                        tasks.Add(task);
-                    }
-                }
-            }
-
-            return new DatabaseVersion(version, manifestPath, tasks);
+        private IEnumerable<IDatabaseTask> CreateTasks(XElement element)
+        {
+            return element.Elements()
+                .Select(e => this.CreateTask(e))
+                .OfType<IDatabaseTask>(); // Use to remove nulls
         }
 
         private IDatabaseTask CreateTask(XElement element)
         {
             if (this.Factories != null)
             {
-                IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanHandle(element));
+                IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanCreate(element));
                 if (factory != null)
                 {
-                    return factory.Create(element);
+                    return factory.Create(element, element.ElementsBeforeSelf().Count());
                 }
             }
 
