@@ -5,11 +5,31 @@ using System.Text;
 using System.Data;
 using System.IO;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace DatabaseVersion.Sql
 {
     public class ScriptTask : IDatabaseTask
     {
+        /// <summary>
+        /// The string that separates the script into batches.
+        /// </summary>
+        private const string BatchSeparator = "go";
+
+        /// <summary>
+        /// The regex to use to split the script into batches.
+        /// </summary>
+        private const string SeparatorRegexFormat =
+            "{0}{1}|{0}{1}{0}|{1}{0}";
+
+        /// <summary>
+        /// The regex object created from the regex format.
+        /// </summary>
+        private readonly Regex StringSplitRegex;
+
+        /// <summary>
+        /// The database version that specifies that the script should be run.
+        /// </summary>
         private readonly IDatabaseVersion version;
 
         public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version)
@@ -17,6 +37,13 @@ namespace DatabaseVersion.Sql
             this.FileName = fileName;
             this.ExecutionOrder = executionOrder;
             this.version = version;
+
+            this.StringSplitRegex = GetStringSplitRegex();
+        }
+
+        private Regex GetStringSplitRegex()
+        {
+            return new Regex(string.Format(SeparatorRegexFormat, Environment.NewLine, BatchSeparator), RegexOptions.IgnoreCase);
         }
 
         public string FileName
@@ -41,14 +68,17 @@ namespace DatabaseVersion.Sql
                 IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
                 foreach (string batch in batches)
                 {
-                    ExecuteQueryBatch(batch, connection);
+                    this.ExecuteQueryBatch(batch, connection);
                 }
             }
         }
 
         private IEnumerable<string> GetQueryBatches(string scriptContents)
         {
-            return scriptContents.Split(new[] { "GO" }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim());
+            return this.StringSplitRegex
+                .Split(scriptContents)
+                .Where(b => !string.IsNullOrWhiteSpace(b))
+                .Select(b => b.Trim());
         }
 
         private void ExecuteQueryBatch(string batch, IDbConnection connection)

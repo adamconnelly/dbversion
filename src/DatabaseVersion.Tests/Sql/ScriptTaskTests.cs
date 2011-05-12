@@ -74,6 +74,126 @@ namespace DatabaseVersion.Tests.Sql
             command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(2));
         }
 
+        private static readonly string ScriptWithDifferentCasedSeparators =
+            "ABCDE" + Environment.NewLine +
+            "GO" + Environment.NewLine +
+            "FGHIJ" + Environment.NewLine +
+            "go" + Environment.NewLine +
+            "DEFJAB" + Environment.NewLine +
+            "Go" + Environment.NewLine +
+            "LDKSIE" + Environment.NewLine +
+            "gO" + Environment.NewLine +
+            "dkjsaks";
+
+        [Fact]
+        public void ShouldIgnoreSeparatorCaseWhenExecuting()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithDifferentCasedSeparators));
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            Mock<IDbConnection> connection = new Mock<IDbConnection>();
+            Mock<IDbCommand> command = new Mock<IDbCommand>();
+            command.SetupProperty(c => c.CommandText);
+            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+
+            // Act
+            task.Execute(connection.Object);
+
+            // Assert
+            command.VerifySet(c => c.CommandText = "ABCDE");
+            command.VerifySet(c => c.CommandText = "FGHIJ");
+            command.VerifySet(c => c.CommandText = "DEFJAB");
+            command.VerifySet(c => c.CommandText = "LDKSIE");
+            command.VerifySet(c => c.CommandText = "dkjsaks");
+            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(5));
+        }
+
+        private static readonly string ScriptWithSeparatorsWithinLines =
+            "insert into books (name) values ('Great Book');" + Environment.NewLine +
+            "GO" + Environment.NewLine +
+            "update books set name = 'Good to go' where name = 'Great Book';" + Environment.NewLine +
+            "go" + Environment.NewLine +
+            "delete from books;";
+
+        [Fact]
+        public void ShouldOnlySplitSeparatorsOnNewLinesWhenExecuting()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorsWithinLines));
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            Mock<IDbConnection> connection = new Mock<IDbConnection>();
+            Mock<IDbCommand> command = new Mock<IDbCommand>();
+            command.SetupProperty(c => c.CommandText);
+            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+
+            // Act
+            task.Execute(connection.Object);
+
+            // Assert
+            command.VerifySet(c => c.CommandText = "insert into books (name) values ('Great Book');");
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
+            command.VerifySet(c => c.CommandText = "delete from books;");
+            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(3));
+        }
+
+        private static readonly string ScriptWithSeparatorAtStartOfScript =
+            "GO" + Environment.NewLine +
+            "update books set name = 'Good to go' where name = 'Great Book';";
+
+        [Fact]
+        public void ShouldAllowSeparatorAtStartOfScriptWhenExecuting()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorAtStartOfScript));
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            Mock<IDbConnection> connection = new Mock<IDbConnection>();
+            Mock<IDbCommand> command = new Mock<IDbCommand>();
+            command.SetupProperty(c => c.CommandText);
+            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+
+            // Act
+            task.Execute(connection.Object);
+
+            // Assert
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
+            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(1));
+        }
+
+        private static readonly string ScriptWithSeparatorAtEndOfScript =
+            "update books set name = 'Good to go' where name = 'Great Book';" + Environment.NewLine +
+            "go";
+
+        [Fact]
+        public void ShouldAllowSeparatorAtEndOfScriptWhenExecuting()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorAtEndOfScript));
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            Mock<IDbConnection> connection = new Mock<IDbConnection>();
+            Mock<IDbCommand> command = new Mock<IDbCommand>();
+            command.SetupProperty(c => c.CommandText);
+            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+
+            // Act
+            task.Execute(connection.Object);
+
+            // Assert
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
+            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(1));
+        }
+
         private Stream GetStream(string contents)
         {
             return new MemoryStream(Encoding.Default.GetBytes(contents));

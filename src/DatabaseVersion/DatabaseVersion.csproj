@@ -46,6 +46,7 @@
     <Compile Include="IDatabaseTask.cs" />
     <Compile Include="IDatabaseTaskFactory.cs" />
     <Compile Include="IDatabaseVersion.cs" />
+    <Compile Include="IVersionProvider.cs" />
     <Compile Include="ManifestReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\ScriptTask.cs" />
