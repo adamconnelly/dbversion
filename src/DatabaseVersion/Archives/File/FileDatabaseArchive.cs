@@ -2,30 +2,104 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+using System.ComponentModel.Composition;
+using DatabaseVersion.Manifests;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace DatabaseVersion.Archives.File
 {
+    /// <summary>
+    /// A file based database archive.
+    /// </summary>
     public class FileDatabaseArchive : IDatabaseArchive
     {
+        /// <summary>
+        /// The backing store for <see cref="Versions"/>.
+        /// </summary>
+        private ConcurrentBag<IDatabaseVersion> versions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileDatabaseArchive"/> class.
+        /// </summary>
+        /// <param name="archivePath">The root directory of the archive.</param>
         public FileDatabaseArchive(string archivePath)
         {
             this.ArchivePath = archivePath;
         }
 
+        /// <summary>
+        /// The reader used to create the <see cref="IDatabaseVersion"/> objects.
+        /// </summary>
+        [Import]
+        public IManifestReader ManifestReader
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets the list of database versions from the archive.
+        /// </summary>
         public IEnumerable<IDatabaseVersion> Versions
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (this.versions == null)
+                {
+                    this.versions = new ConcurrentBag<IDatabaseVersion>();
+                    DirectoryInfo info = new DirectoryInfo(this.ArchivePath);
+                    var manifests = info.GetFiles("database.xml", SearchOption.AllDirectories);
+
+                    Parallel.ForEach(manifests, ParseManifest);
+                }
+
+                return this.versions;
+            }
         }
 
-        public System.IO.Stream GetFile(string path)
+        /// <summary>
+        /// Gets the file at the specified path from the archive.
+        /// </summary>
+        /// <param name="path">The path of the file.</param>
+        /// <returns>The stream containing the file contents.</returns>
+        public Stream GetFile(string path)
         {
-            throw new NotImplementedException();
+            var fileInfo = new FileInfo(Path.Combine(this.ArchivePath, path));
+
+            if (fileInfo.Exists)
+            {
+                return fileInfo.Open(FileMode.Open);
+            }
+
+            return null;
         }
 
+        /// <summary>
+        /// The path to the archive.
+        /// </summary>
         public string ArchivePath
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// Parses the manifest at the specified location and adds the result to
+        /// the list of database versions.
+        /// </summary>
+        /// <param name="manifestInfo">The manifest to parse.</param>
+        private void ParseManifest(FileInfo manifestInfo)
+        {
+            using (Stream fileStream = manifestInfo.Open(FileMode.Open))
+            {
+                IDatabaseVersion version = this.ManifestReader.Read(
+                    fileStream, manifestInfo.FullName, this);
+
+                this.versions.Add(version);
+            }
         }
     }
 }

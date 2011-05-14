@@ -6,6 +6,7 @@ using Xunit;
 using DatabaseVersion.Archives.File;
 using System.IO;
 using DatabaseVersion.Archives;
+using DatabaseVersion.Tests.Utils;
 
 namespace DatabaseVersion.Tests.Archives.File
 {
@@ -17,7 +18,7 @@ namespace DatabaseVersion.Tests.Archives.File
         {
             // Arrange
             FileDatabaseArchiveFactory factory = new FileDatabaseArchiveFactory();
-            DirectoryInfo testDirectory = this.CreateTempDirectory();
+            DirectoryInfo testDirectory = FileUtil.CreateTempDirectory();
 
             // Act
             bool canCreate = factory.CanCreate(testDirectory.FullName);
@@ -77,7 +78,7 @@ namespace DatabaseVersion.Tests.Archives.File
         {
             // Arrange
             FileDatabaseArchiveFactory factory = new FileDatabaseArchiveFactory();
-            DirectoryInfo testDirectory = CreateTempDirectory();
+            DirectoryInfo testDirectory = FileUtil.CreateTempDirectory();
 
             // Act
             IDatabaseArchive archive = factory.Create(testDirectory.FullName);
@@ -117,7 +118,7 @@ namespace DatabaseVersion.Tests.Archives.File
         {
             // Arrange
             FileDatabaseArchiveFactory factory = new FileDatabaseArchiveFactory();
-            DirectoryInfo testDirectory = CreateTempDirectory();
+            DirectoryInfo testDirectory = FileUtil.CreateTempDirectory();
 
             // Act
             IDatabaseArchive archive = factory.Create(testDirectory.FullName);
@@ -128,23 +129,5 @@ namespace DatabaseVersion.Tests.Archives.File
             testDirectory.Delete();
         }
         #endregion
-
-        private DirectoryInfo CreateTempDirectory()
-        {
-            DirectoryInfo info = null;
-            string tempDirectory = Path.GetTempPath();
-
-            do
-            {
-                string directoryName = Path.GetRandomFileName();
-
-                info = new DirectoryInfo(Path.Combine(tempDirectory, directoryName));
-            }
-            while (info.Exists);
-
-            info.Create();
-
-            return info;
-        }
     }
 }

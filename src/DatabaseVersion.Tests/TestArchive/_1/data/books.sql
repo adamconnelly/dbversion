@@ -1,0 +1,1 @@
+﻿insert into books (bookId, name, authorId, description, ISBN) values (1, 'The Rogue', 1, 'Description of the Rogue', 'ABCD-1234-sdDS');

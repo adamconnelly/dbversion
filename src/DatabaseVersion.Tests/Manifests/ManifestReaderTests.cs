@@ -9,34 +9,37 @@ using Moq;
 using System.Xml;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
+using DatabaseVersion.Manifests;
 
-namespace DatabaseVersion.Tests
+namespace DatabaseVersion.Tests.Manifests
 {
     public class ManifestReaderTests
     {
         private const string ManifestPath = "DatabaseVersion.Tests.ExampleManifests.example.xml";
         private const string OneTaskManifestPath = "DatabaseVersion.Tests.ExampleManifests.oneTask.xml";
 
-        private Mock<IDatabaseArchive> databaseArchive = new Mock<IDatabaseArchive>();
+        private readonly Mock<IDatabaseArchive> databaseArchive = new Mock<IDatabaseArchive>();
+        private readonly Mock<IVersionProvider> versionProvider = new Mock<IVersionProvider>();
 
         [Fact]
-        public void ShouldSetVersionFromManifest()
+        public void ShouldUseProviderToCreateVersion()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
+            versionProvider.Setup(v => v.CreateVersion("14")).Returns(14);
 
             // Act
             IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
 
             // Assert
-            Assert.Equal("14", version.Version);
+            Assert.Equal(14, version.Version);
         }
 
         [Fact]
         public void ShouldSetManifestPath()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             // Act
             IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
@@ -49,7 +52,7 @@ namespace DatabaseVersion.Tests
         public void ShouldThrowExceptionIfManifestStreamIsNull()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             // Act
             Exception exception = Record.Exception(() => reader.Read(null, ManifestPath, databaseArchive.Object));
@@ -62,7 +65,7 @@ namespace DatabaseVersion.Tests
         public void ShouldThrowExceptionIfManifestPathIsNull()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             // Act
             Exception exception = Record.Exception(() => reader.Read(GetManifest(), null, databaseArchive.Object));
@@ -75,7 +78,7 @@ namespace DatabaseVersion.Tests
         public void ShouldThrowExceptionIfDatabaseArchiveIsNull()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             // Act
             Exception exception = Record.Exception(() => reader.Read(GetManifest(), ManifestPath, null));
@@ -88,7 +91,7 @@ namespace DatabaseVersion.Tests
         public void ShouldUseTaskFactoryToCreateTasks()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
@@ -108,7 +111,7 @@ namespace DatabaseVersion.Tests
         public void ShouldCreateTasksWithCorrectExecutionOrder()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
@@ -133,7 +136,7 @@ namespace DatabaseVersion.Tests
         public void ShouldSetDatabaseArchiveInReturnedVersion()
         {
             // Arrange
-            ManifestReader reader = new ManifestReader();
+            ManifestReader reader = this.CreateManifestReader();
 
             // Act
             IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
@@ -152,6 +155,13 @@ namespace DatabaseVersion.Tests
             Assembly assembly = Assembly.GetExecutingAssembly();
 
             return assembly.GetManifestResourceStream(path);
+        }
+
+        private ManifestReader CreateManifestReader()
+        {
+            ManifestReader reader = new ManifestReader();
+            reader.VersionProvider = versionProvider.Object;
+            return reader;
         }
     }
 }

@@ -47,10 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Archives\File\FileDatabaseArchiveFactoryTests.cs" />
-    <Compile Include="ManifestReaderTests.cs" />
+    <Compile Include="Archives\File\FileDatabaseArchiveTests.cs" />
+    <Compile Include="Manifests\ManifestReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\ScriptTaskFactoryTests.cs" />
     <Compile Include="Sql\ScriptTaskTests.cs" />
+    <Compile Include="Utils\AssemblyUtil.cs" />
+    <Compile Include="Utils\FileUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
@@ -68,6 +71,22 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestArchive\_1\database.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestArchive\_2\database.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="TestArchive\_1\data\authors.sql" />
+    <EmbeddedResource Include="TestArchive\_1\data\books.sql" />
+    <EmbeddedResource Include="TestArchive\_1\schema\ddl.sql" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

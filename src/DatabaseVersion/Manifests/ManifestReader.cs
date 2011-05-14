@@ -9,10 +9,14 @@ using System.Diagnostics;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
 
-namespace DatabaseVersion
+namespace DatabaseVersion.Manifests
 {
-    public class ManifestReader
+    [Export(typeof(IManifestReader))]
+    public class ManifestReader : IManifestReader
     {
+        [Import]
+        public IVersionProvider VersionProvider { get; set; }
+
         [ImportMany]
         public IEnumerable<IDatabaseTaskFactory> Factories { get; set; }
 
@@ -26,7 +30,8 @@ namespace DatabaseVersion
             reader.MoveToContent();
             XElement element = XElement.ReadFrom(reader) as XElement;
 
-            string version = element.Attributes().First(a => a.Name == "version").Value;
+            string versionString = element.Attributes().First(a => a.Name == "version").Value;
+            object version = this.VersionProvider.CreateVersion(versionString);
 
             DatabaseVersion databaseVersion = new DatabaseVersion(version, manifestPath, archive);
             databaseVersion.Tasks = CreateTasks(element, databaseVersion);

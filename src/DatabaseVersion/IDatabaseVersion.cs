@@ -11,7 +11,7 @@ namespace DatabaseVersion
         /// <summary>
         /// Gets the version.
         /// </summary>
-        string Version { get; }
+        object Version { get; }
 
         /// <summary>
         /// Gets the path to the manifest file.
