@@ -7,7 +7,7 @@ using System.ComponentModel.Composition;
 
 namespace DatabaseVersion.Sql
 {
-    [Export]
+    [Export(typeof(IDatabaseTaskFactory))]
     public class ScriptTaskFactory : IDatabaseTaskFactory
     {
         public bool CanCreate(XElement element)

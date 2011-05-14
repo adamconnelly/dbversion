@@ -8,6 +8,7 @@ using System.Reflection;
 using Moq;
 using System.Xml;
 using System.Xml.Linq;
+using DatabaseVersion.Archives;
 
 namespace DatabaseVersion.Tests
 {

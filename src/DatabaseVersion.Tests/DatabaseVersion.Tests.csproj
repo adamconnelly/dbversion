@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Archives\File\FileDatabaseArchiveFactoryTests.cs" />
     <Compile Include="ManifestReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql\ScriptTaskFactoryTests.cs" />

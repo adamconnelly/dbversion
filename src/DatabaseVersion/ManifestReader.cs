@@ -7,6 +7,7 @@ using System.Xml;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Xml.Linq;
+using DatabaseVersion.Archives;
 
 namespace DatabaseVersion
 {
@@ -17,9 +18,9 @@ namespace DatabaseVersion
 
         public IDatabaseVersion Read(Stream stream, string manifestPath, IDatabaseArchive archive)
         {
-            Validate.NotNull(stream, "stream");
-            Validate.NotNull(manifestPath, "manifestPath");
-            Validate.NotNull(archive, "archive");
+            Validate.NotNull(() => stream);
+            Validate.NotNull(() => manifestPath);
+            Validate.NotNull(() => archive);
 
             XmlReader reader = XmlReader.Create(stream);
             reader.MoveToContent();

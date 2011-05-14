@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Archives\File\FileDatabaseArchive.cs" />
     <Compile Include="DatabaseVersion.cs" />
-    <Compile Include="IDatabaseArchive.cs" />
+    <Compile Include="Archives\File\FileDatabaseArchiveFactory.cs" />
+    <Compile Include="Archives\IDatabaseArchive.cs" />
+    <Compile Include="Archives\IDatabaseArchiveFactory.cs" />
     <Compile Include="IDatabaseTask.cs" />
     <Compile Include="IDatabaseTaskFactory.cs" />
     <Compile Include="IDatabaseVersion.cs" />

@@ -4,10 +4,15 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace DatabaseVersion
+namespace DatabaseVersion.Archives
 {
     public interface IDatabaseArchive
     {
+        /// <summary>
+        /// Gets the path to the archive.
+        /// </summary>
+        string ArchivePath { get; }
+
         /// <summary>
         /// Gets the database versions present in the archive.
         /// </summary>
