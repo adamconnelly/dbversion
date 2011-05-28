@@ -4,12 +4,20 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel.Composition;
 using System.IO;
+using DatabaseVersion.Manifests;
 
 namespace DatabaseVersion.Archives.File
 {
     [Export(typeof(IDatabaseArchiveFactory))]
     public class FileDatabaseArchiveFactory : IDatabaseArchiveFactory
     {
+        [Import]
+        public IManifestReader ManifestReader
+        {
+            get;
+            set;
+        }
+
         public bool CanCreate(string path)
         {
             return path != null && new DirectoryInfo(path).Exists;
@@ -19,7 +27,7 @@ namespace DatabaseVersion.Archives.File
         {
             Validate.NotEmpty(() => path);
 
-            return new FileDatabaseArchive(path);
+            return new FileDatabaseArchive(path, this.ManifestReader);
         }
     }
 }

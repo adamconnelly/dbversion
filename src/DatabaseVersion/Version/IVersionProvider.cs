@@ -34,7 +34,7 @@ namespace DatabaseVersion
         /// The latest version installed in the database or null if
         /// no versions have been installed.
         /// </returns>
-        object GetLatestVersion(IDbConnection connection);
+        object GetCurrentVersion(IDbConnection connection);
 
         /// <summary>
         /// Creates the version table.

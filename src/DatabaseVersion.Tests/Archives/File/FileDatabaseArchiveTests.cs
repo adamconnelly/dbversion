@@ -22,7 +22,7 @@ namespace DatabaseVersion.Tests.Archives.File
             // Arrange
             var testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
-            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName);
+            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, null);
             Stream expectedStream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("DatabaseVersion.Tests.TestArchive._1.data.authors.sql");
 
@@ -39,7 +39,7 @@ namespace DatabaseVersion.Tests.Archives.File
         public void ShouldReturnNullFromGetFileIfFileDoesNotExist()
         {
             // Arrange
-            FileDatabaseArchive archive = new FileDatabaseArchive("aDirectory");
+            FileDatabaseArchive archive = new FileDatabaseArchive("aDirectory", null);
 
             // Act
             Stream stream = archive.GetFile("_1/data/authors.sql");
@@ -55,14 +55,13 @@ namespace DatabaseVersion.Tests.Archives.File
             // Arrange
             var testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
-            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName);
 
             Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
             manifestReader.Setup(
                 m => m.Read(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<IDatabaseArchive>()))
                 .Returns(new Mock<IDatabaseVersion>().Object);
 
-            archive.ManifestReader = manifestReader.Object;
+            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, manifestReader.Object);
 
             // Act
             var versions = archive.Versions;
@@ -79,20 +78,19 @@ namespace DatabaseVersion.Tests.Archives.File
             // Arrange
             var testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
-            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName);
 
-            DatabaseVersion version1 = new DatabaseVersion("1", "_1\\database.xml", archive);
-            DatabaseVersion version2 = new DatabaseVersion("2", "_2\\database.xml", archive);
+            DatabaseVersion version1 = new DatabaseVersion("1", "_1\\database.xml", null);
+            DatabaseVersion version2 = new DatabaseVersion("2", "_2\\database.xml", null);
 
             Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
             manifestReader.Setup(
-                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_1\\database.xml", archive))
+                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_1\\database.xml", It.IsAny<IDatabaseArchive>()))
                 .Returns(version1);
             manifestReader.Setup(
-                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_2\\database.xml", archive))
+                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_2\\database.xml", It.IsAny<IDatabaseArchive>()))
                 .Returns(version2);
 
-            archive.ManifestReader = manifestReader.Object;
+            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, manifestReader.Object);
 
             // Act
             var versions = archive.Versions;

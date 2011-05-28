@@ -17,6 +17,11 @@ namespace DatabaseVersion.Archives.File
     public class FileDatabaseArchive : IDatabaseArchive
     {
         /// <summary>
+        /// The reader used to create the <see cref="IDatabaseVersion"/> objects.
+        /// </summary>
+        private readonly IManifestReader manifestReader;
+
+        /// <summary>
         /// The backing store for <see cref="Versions"/>.
         /// </summary>
         private ConcurrentBag<IDatabaseVersion> versions;
@@ -25,19 +30,10 @@ namespace DatabaseVersion.Archives.File
         /// Initializes a new instance of the <see cref="FileDatabaseArchive"/> class.
         /// </summary>
         /// <param name="archivePath">The root directory of the archive.</param>
-        public FileDatabaseArchive(string archivePath)
+        public FileDatabaseArchive(string archivePath, IManifestReader manifestReader)
         {
             this.ArchivePath = archivePath;
-        }
-
-        /// <summary>
-        /// The reader used to create the <see cref="IDatabaseVersion"/> objects.
-        /// </summary>
-        [Import]
-        public IManifestReader ManifestReader
-        {
-            get;
-            set;
+            this.manifestReader = manifestReader;
         }
 
         /// <summary>
@@ -95,7 +91,7 @@ namespace DatabaseVersion.Archives.File
         {
             using (Stream fileStream = manifestInfo.Open(FileMode.Open))
             {
-                IDatabaseVersion version = this.ManifestReader.Read(
+                IDatabaseVersion version = this.manifestReader.Read(
                     fileStream, manifestInfo.FullName, this);
 
                 this.versions.Add(version);

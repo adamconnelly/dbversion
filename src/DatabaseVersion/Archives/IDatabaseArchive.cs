@@ -6,6 +6,9 @@ using System.IO;
 
 namespace DatabaseVersion.Archives
 {
+    /// <summary>
+    /// An archive containing a collection of database versions.
+    /// </summary>
     public interface IDatabaseArchive
     {
         /// <summary>

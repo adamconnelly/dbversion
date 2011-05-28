@@ -42,6 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Archives\File\FileDatabaseArchive.cs" />
+    <Compile Include="Connections\DbConnectionFactory.cs" />
+    <Compile Include="Connections\IDbConnectionCreator.cs" />
+    <Compile Include="Connections\IDbConnectionFactory.cs" />
+    <Compile Include="Connections\SqlServerConnectionCreator.cs" />
+    <Compile Include="Connections\UnsupportedConnectionStringException.cs" />
     <Compile Include="DatabaseCreator.cs" />
     <Compile Include="DatabaseVersion.cs" />
     <Compile Include="Archives\File\FileDatabaseArchiveFactory.cs" />
@@ -56,6 +61,7 @@
     <Compile Include="Sql\ScriptTask.cs" />
     <Compile Include="Sql\ScriptTaskFactory.cs" />
     <Compile Include="Validate.cs" />
+    <Compile Include="Version\IDbParameter.cs" />
     <Compile Include="Version\IVersionProvider.cs" />
     <Compile Include="Version\NumericVersionProvider.cs" />
   </ItemGroup>
