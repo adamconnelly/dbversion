@@ -1,5 +1,6 @@
 ﻿using CommandLine.OptParse;
 using System.ComponentModel;
+using System;
 namespace DatabaseVersion.Console
 {
     /// <summary>
@@ -14,6 +15,21 @@ namespace DatabaseVersion.Console
         [OptDef(OptValType.ValueReq)]
         [Description("The connection string for the database.")]
         public string ConnectionString { get; set; }
+
+        /// <summary>
+        /// The type of database to connect to.
+        /// </summary>
+        [ShortOptionName('t')]
+        [OptDef(OptValType.ValueReq)]
+        [Description("The type of database to connect to.")]
+        public string ConnectionType { get; set; }
+
+        /// <summary>
+        /// Lists the available connection types.
+        /// </summary>
+        [OptDef(OptValType.Flag)]
+        [Description("Lists the available connection types.")]
+        public bool ListConnectionTypes { get; set; }
 
         /// <summary>
         /// The archive containing the database scripts.
@@ -34,9 +50,29 @@ namespace DatabaseVersion.Console
         /// <summary>
         /// The mode to use.
         /// </summary>
+        public CreationMode CreationMode { get; set; }
+
+        /// <summary>
+        /// The string value of the CreationMode argument.
+        /// </summary>
         [ShortOptionName('m')]
         [OptDef(OptValType.ValueReq)]
         [Description("Whether to create a new database or upgrade an existing one.")]
-        public CreationMode CreationMode { get; set; }
+        public string CreationModeString
+        {
+            get
+            {
+                return this.CreationMode.ToString();
+            }
+
+            set
+            {
+                CreationMode mode;
+
+                Enum.TryParse<CreationMode>(value, out mode);
+
+                this.CreationMode = mode;
+            }
+        }
     }
 }

@@ -7,9 +7,12 @@ namespace DatabaseVersion.Connections
     [Export(typeof(IDbConnectionCreator))]
     public class SqlServerConnectionCreator : IDbConnectionCreator
     {
-        public bool CanCreate(string connectionString)
+        public string ConnectionType
         {
-            return true;
+            get
+            {
+                return "SqlServer";
+            }
         }
 
         public IDbConnection Create(string connectionString)

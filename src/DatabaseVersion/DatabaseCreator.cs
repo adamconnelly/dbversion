@@ -59,14 +59,25 @@ namespace DatabaseVersion
         /// Creates a database at the specified version.
         /// </summary>
         /// <param name="version">The version of database to create.</param>
-        public void Create(string version, string connectionString)
+        public void Create(string version, string connectionString, string connectionType)
         {
-            IDbConnection connection = this.ConnectionFactory.Create(connectionString);
+            IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);
+            connection.Open();
             //object currentVersion = this.VersionProvider.GetCurrentVersion(connection);
 
             // Throw exception if currentVersion exists because we are creating a database from scratch
-
-            object targetVersion = this.VersionProvider.CreateVersion(version);
+            object targetVersion;
+            if (string.IsNullOrEmpty(version))
+            {
+                targetVersion = this.Archive.Versions
+                    .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
+                    .First()
+                    .Version;
+            }
+            else
+            {
+                targetVersion = this.VersionProvider.CreateVersion(version);
+            }
 
             // Throw VersionNotFoundException if targetVersion can't be found in the list of versions
 
@@ -78,9 +89,13 @@ namespace DatabaseVersion
             {
                 foreach (var task in v.Tasks.OrderBy(t => t.ExecutionOrder))
                 {
-                    //task.Execute(connection);
+                    task.Execute(connection);
                 }
+
+                //this.VersionProvider.InsertVersion(v.Version, connection);
             }
+
+            connection.Close();
         }
 
         public void Upgrade()
@@ -122,7 +137,6 @@ namespace DatabaseVersion
             }
 
             this.Archive = archiveFactory.Create(archivePath);
-            IDatabaseVersion version = this.Archive.Versions.FirstOrDefault();
         }
     }
 }

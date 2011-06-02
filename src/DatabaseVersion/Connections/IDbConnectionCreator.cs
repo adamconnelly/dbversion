@@ -8,12 +8,9 @@
     public interface IDbConnectionCreator
     {
         /// <summary>
-        /// Indicates whether the creator can create a connection based on the supplied
-        /// connection string.
+        /// Gets the name of the connection type that this creator supports.
         /// </summary>
-        /// <param name="connectionString">The connection string.</param>
-        /// <returns>True if a connection can be created, false otherwise.</returns>
-        bool CanCreate(string connectionString);
+        string ConnectionType { get; }
 
         /// <summary>
         /// Creates a new database connection from the supplied connection string.

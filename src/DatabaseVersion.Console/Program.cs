@@ -9,6 +9,12 @@ namespace DatabaseVersion.Console
         {
             Arguments arguments = new Arguments();
             Parser parser = ParserFactory.BuildParser(arguments);
+            parser.OptStyle = OptStyle.Unix;
+
+            if (args.Length <= 0)
+            {
+                PrintUsage(parser);
+            }
 
             try
             {
@@ -16,29 +22,34 @@ namespace DatabaseVersion.Console
             }
             catch (Exception)
             {
-                UsageBuilder usageBuilder = new UsageBuilder();
-                usageBuilder.BeginSection("Name");
-                usageBuilder.AddParagraph(Assembly.GetExecutingAssembly().GetName().Name + " - Database Creator / Upgrader");
-                usageBuilder.EndSection();
-
-                usageBuilder.BeginSection("Arguments");
-                usageBuilder.AddOptions(parser);
-                usageBuilder.EndSection();
-
-                System.Console.WriteLine(usageBuilder.ToString());
-                Environment.Exit(0);
+                PrintUsage(parser);
             }
 
             DatabaseCreator creator = new DatabaseCreator("plugins", arguments.Archive);
 
             if (arguments.CreationMode == CreationMode.Create)
             {
-                creator.Create(arguments.Version);
+                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
             }
             else
             {
                 creator.Upgrade(arguments.Version);
             }
+        }
+
+        private static void PrintUsage(Parser parser)
+        {
+            UsageBuilder usageBuilder = new UsageBuilder();
+            usageBuilder.BeginSection("Name");
+            usageBuilder.AddParagraph(Assembly.GetExecutingAssembly().GetName().Name + " - Database Creator / Upgrader");
+            usageBuilder.EndSection();
+
+            usageBuilder.BeginSection("Arguments");
+            usageBuilder.AddOptions(parser);
+            usageBuilder.EndSection();
+
+            usageBuilder.ToText(System.Console.Out, OptStyle.Unix, true);
+            Environment.Exit(0);
         }
     }
 }

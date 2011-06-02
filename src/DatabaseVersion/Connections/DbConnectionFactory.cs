@@ -11,9 +11,9 @@
         [ImportMany]
         public IEnumerable<IDbConnectionCreator> Creators { get; set; }
 
-        public IDbConnection Create(string connectionString)
+        public IDbConnection Create(string connectionString, string connectionType)
         {
-            var creator = this.Creators.FirstOrDefault(c => c.CanCreate(connectionString));
+            var creator = this.Creators.FirstOrDefault(c => c.ConnectionType == connectionType);
 
             if (creator == null)
             {
