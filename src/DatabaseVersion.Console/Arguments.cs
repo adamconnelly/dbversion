@@ -8,6 +8,11 @@ namespace DatabaseVersion.Console
     /// </summary>
     public class Arguments
     {
+        public Arguments()
+        {
+            this.PluginDirectory = "plugins";
+        }
+
         /// <summary>
         /// The connection string to the database.
         /// </summary>
@@ -46,33 +51,18 @@ namespace DatabaseVersion.Console
         [OptDef(OptValType.ValueOpt)]
         [Description("The version to create or upgrade to. If not specified the latest version is used.")]
         public string Version { get; set; }
-
+        
         /// <summary>
-        /// The mode to use.
+        /// Gets or sets the directory that plugins will be loaded from.
         /// </summary>
-        public CreationMode CreationMode { get; set; }
-
-        /// <summary>
-        /// The string value of the CreationMode argument.
-        /// </summary>
-        [ShortOptionName('m')]
-        [OptDef(OptValType.ValueReq)]
-        [Description("Whether to create a new database or upgrade an existing one.")]
-        public string CreationModeString
+        [ShortOptionName('p')]
+        [OptDef(OptValType.ValueOpt)]
+        [Description("The directory that plugins will be loaded from.")]
+        [DefaultValue("plugins")]
+        public string PluginDirectory
         {
-            get
-            {
-                return this.CreationMode.ToString();
-            }
-
-            set
-            {
-                CreationMode mode;
-
-                Enum.TryParse<CreationMode>(value, out mode);
-
-                this.CreationMode = mode;
-            }
+            get;
+            set;
         }
     }
 }

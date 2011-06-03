@@ -2,25 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel.Composition;
 using DatabaseVersion.Archives;
-using System.ComponentModel.Composition.Hosting;
 using System.Reflection;
 using System.IO;
 using System.Data;
 using DatabaseVersion.Manifests;
 using DatabaseVersion.Connections;
+using System.ComponentModel.Composition;
 
 namespace DatabaseVersion
 {
     public class DatabaseCreator
     {
-        public DatabaseCreator(string pluginPath, string archivePath)
-        {
-            this.CreateContainer(pluginPath);
-            this.CreateArchive(archivePath);
-        }
-
         [ImportMany]
         public IEnumerable<IDatabaseArchiveFactory> ArchiveFactories
         {
@@ -56,14 +49,20 @@ namespace DatabaseVersion
         }
 
         /// <summary>
-        /// Creates a database at the specified version.
+        /// Creates a database at the specified version or upgrades the existing database to the specified version.
         /// </summary>
         /// <param name="version">The version of database to create.</param>
         public void Create(string version, string connectionString, string connectionType)
         {
             IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);
             connection.Open();
-            //object currentVersion = this.VersionProvider.GetCurrentVersion(connection);
+
+            if (!this.VersionProvider.VersionTableExists(connection))
+            {
+                this.VersionProvider.CreateVersionTable(connection);
+            }
+
+            object currentVersion = this.VersionProvider.GetCurrentVersion(connection);
 
             // Throw exception if currentVersion exists because we are creating a database from scratch
             object targetVersion;
@@ -83,6 +82,7 @@ namespace DatabaseVersion
 
             IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
                 .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
+                .Where(v => currentVersion == null || this.VersionProvider.GetComparer().Compare(currentVersion, v.Version) < 0)
                 .TakeWhile(v => this.VersionProvider.GetComparer().Compare(targetVersion, v.Version) >= 0);
 
             foreach (IDatabaseVersion v in versionsToExecute)
@@ -92,43 +92,13 @@ namespace DatabaseVersion
                     task.Execute(connection);
                 }
 
-                //this.VersionProvider.InsertVersion(v.Version, connection);
+                this.VersionProvider.InsertVersion(v.Version, connection);
             }
 
             connection.Close();
         }
 
-        public void Upgrade()
-        {
-        }
-
-        public void Upgrade(string version)
-        {
-        }
-
-        private IDatabaseArchiveFactory GetArchiveFactory(string archivePath)
-        {
-            // TODO: Throw UnknownArchiveTypeException if no handlers found
-            return this.ArchiveFactories.First(f => f.CanCreate(archivePath));
-        }
-
-        private void CreateContainer(string pluginPath)
-        {
-            DirectoryInfo pluginPathInfo = new DirectoryInfo(pluginPath);
-            if (!pluginPathInfo.Exists)
-            {
-                pluginPathInfo.Create();
-            }
-
-            var assemblyCatalog = new AssemblyCatalog(Assembly.GetExecutingAssembly());
-            var directoryCatalog = new DirectoryCatalog(pluginPath);
-            var aggregateCatalog = new AggregateCatalog(assemblyCatalog, directoryCatalog);
-
-            var container = new CompositionContainer(aggregateCatalog);
-            container.ComposeParts(this);
-        }
-
-        private void CreateArchive(string archivePath)
+        public void LoadArchive(string archivePath)
         {
             IDatabaseArchiveFactory archiveFactory = this.GetArchiveFactory(archivePath);
             if (archiveFactory == null)
@@ -137,6 +107,12 @@ namespace DatabaseVersion
             }
 
             this.Archive = archiveFactory.Create(archivePath);
+        }
+
+        private IDatabaseArchiveFactory GetArchiveFactory(string archivePath)
+        {
+            // TODO: Throw UnknownArchiveTypeException if no handlers found
+            return this.ArchiveFactories.First(f => f.CanCreate(archivePath));
         }
     }
 }

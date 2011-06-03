@@ -17,7 +17,13 @@ namespace DatabaseVersion.Version
 
         public bool VersionTableExists(System.Data.IDbConnection connection)
         {
-            throw new NotImplementedException();
+            using (IDbCommand command = connection.CreateCommand())
+            {
+                command.CommandText = "select count(1) from information_schema.tables where table_name = 'version'";
+                var count = (int)command.ExecuteScalar();
+
+                return count == 1;
+            }
         }
 
         public object GetCurrentVersion(System.Data.IDbConnection connection)
@@ -26,7 +32,14 @@ namespace DatabaseVersion.Version
             {
                 command.CommandText = "select max(version) from version";
 
-                return (int)command.ExecuteScalar();
+                object version = command.ExecuteScalar();
+
+                if (version == DBNull.Value)
+                {
+                    return null;
+                }
+
+                return (int)version;
             }
         }
 
@@ -34,7 +47,7 @@ namespace DatabaseVersion.Version
         {
             using (IDbCommand command = connection.CreateCommand())
             {
-                command.CommandText = "create table version(version int not null, updatedOn datetime not null)";
+                command.CommandText = "create table version(version int primary key, updatedOn datetime not null)";
                 command.ExecuteNonQuery();
             }
         }
@@ -46,8 +59,10 @@ namespace DatabaseVersion.Version
                 command.CommandText = string.Format("insert into version(version, updatedOn) values({0}, @updatedOn)", version);
                 IDbDataParameter parameter = command.CreateParameter();
                 parameter.DbType = DbType.DateTime;
-                parameter.ParameterName = "@updatedOn";
+                parameter.ParameterName = "updatedOn";
                 parameter.Value = DateTime.UtcNow;
+
+                command.Parameters.Add(parameter);
 
                 command.ExecuteNonQuery();
             }

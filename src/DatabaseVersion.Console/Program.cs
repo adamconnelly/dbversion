@@ -1,11 +1,27 @@
 ﻿using CommandLine.OptParse;
 using System;
 using System.Reflection;
+using System.IO;
+using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition;
+
 namespace DatabaseVersion.Console
 {
     public class Program
     {
         public static void Main(string[] args)
+        {
+            Arguments arguments = ParseArguments(ref args);
+            var container = CreateContainer(arguments.PluginDirectory);
+
+            DatabaseCreator creator = new DatabaseCreator();
+            container.ComposeParts(creator);
+            creator.LoadArchive(arguments.Archive);
+
+            creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
+        }
+
+        private static Arguments ParseArguments(ref string[] args)
         {
             Arguments arguments = new Arguments();
             Parser parser = ParserFactory.BuildParser(arguments);
@@ -24,17 +40,23 @@ namespace DatabaseVersion.Console
             {
                 PrintUsage(parser);
             }
+            return arguments;
+        }
 
-            DatabaseCreator creator = new DatabaseCreator("plugins", arguments.Archive);
+        private static CompositionContainer CreateContainer(string pluginPath)
+        {
+            DirectoryInfo pluginPathInfo = new DirectoryInfo(pluginPath);
+            if (!pluginPathInfo.Exists)
+            {
+                pluginPathInfo.Create();
+            }
 
-            if (arguments.CreationMode == CreationMode.Create)
-            {
-                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
-            }
-            else
-            {
-                creator.Upgrade(arguments.Version);
-            }
+            var aggregateCatalog = new AggregateCatalog(
+                new AssemblyCatalog(Assembly.GetExecutingAssembly()),
+                new AssemblyCatalog(typeof(DatabaseCreator).Assembly),
+                new DirectoryCatalog(pluginPath));
+
+            return new CompositionContainer(aggregateCatalog);
         }
 
         private static void PrintUsage(Parser parser)
