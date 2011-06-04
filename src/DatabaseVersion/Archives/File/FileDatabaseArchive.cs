@@ -57,6 +57,15 @@ namespace DatabaseVersion.Archives.File
         }
 
         /// <summary>
+        /// The path to the archive.
+        /// </summary>
+        public string ArchivePath
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
         /// Gets the file at the specified path from the archive.
         /// </summary>
         /// <param name="path">The path of the file.</param>
@@ -74,12 +83,13 @@ namespace DatabaseVersion.Archives.File
         }
 
         /// <summary>
-        /// The path to the archive.
+        /// Checks whether the archive contains the specified version.
         /// </summary>
-        public string ArchivePath
+        /// <param name="version">The version to look for.</param>
+        /// <returns>true if the version is contained within the archive, false otherwise.</returns>
+        public bool ContainsVersion(object version)
         {
-            get;
-            private set;
+            return this.Versions.FirstOrDefault(v => object.Equals(v.Version, version)) != null;
         }
 
         /// <summary>

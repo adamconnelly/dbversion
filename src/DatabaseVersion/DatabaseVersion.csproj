@@ -31,6 +31,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=1.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\FluentNHibernate\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\lib\FluentNHibernate\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.ByteCode.Castle">
+      <HintPath>..\..\lib\FluentNHibernate\NHibernate.ByteCode.Castle.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -61,9 +74,11 @@
     <Compile Include="Sql\ScriptTask.cs" />
     <Compile Include="Sql\ScriptTaskFactory.cs" />
     <Compile Include="Validate.cs" />
-    <Compile Include="Version\IDbParameter.cs" />
     <Compile Include="Version\IVersionProvider.cs" />
-    <Compile Include="Version\NumericVersionProvider.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersion.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionMap.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionProvider.cs" />
+    <Compile Include="Version\VersionNotFoundException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

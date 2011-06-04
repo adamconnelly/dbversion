@@ -4,6 +4,8 @@ using System.Reflection;
 using System.IO;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
+using DatabaseVersion.Version;
+using System.Linq;
 
 namespace DatabaseVersion.Console
 {
@@ -16,9 +18,26 @@ namespace DatabaseVersion.Console
 
             DatabaseCreator creator = new DatabaseCreator();
             container.ComposeParts(creator);
-            creator.LoadArchive(arguments.Archive);
 
-            creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
+            if (arguments.ListConnectionTypes)
+            {
+                foreach (var connectionCreator in creator.ConnectionFactory.Creators)
+                {
+                    System.Console.WriteLine(connectionCreator.ConnectionType);
+                }
+
+                Environment.Exit(0);
+            }
+
+            try
+            {
+                creator.LoadArchive(arguments.Archive);
+                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
+            }
+            catch (VersionNotFoundException e)
+            {
+                System.Console.WriteLine(e.Message);
+            }
         }
 
         private static Arguments ParseArguments(ref string[] args)

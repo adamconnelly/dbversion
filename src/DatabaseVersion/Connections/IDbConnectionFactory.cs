@@ -1,6 +1,7 @@
 ﻿namespace DatabaseVersion.Connections
 {
     using System.Data;
+    using System.Collections.Generic;
 
     /// <summary>
     /// A factory for creating database connections.
@@ -18,5 +19,10 @@
         /// the supplied connection string.
         /// </exception>
         IDbConnection Create(string connectionString, string connectionType);
+
+        /// <summary>
+        /// Gets the available connection creators.
+        /// </summary>
+        IEnumerable<IDbConnectionCreator> Creators { get; }
     }
 }

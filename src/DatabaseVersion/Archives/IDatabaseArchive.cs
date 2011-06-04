@@ -27,5 +27,12 @@ namespace DatabaseVersion.Archives
         /// <param name="path">The path relative to the root of the archive.</param>
         /// <returns>The file stream or null if the file does not exist.</returns>
         Stream GetFile(string path);
+
+        /// <summary>
+        /// Checks whether the archive contains the specified version.
+        /// </summary>
+        /// <param name="version">The version.</param>
+        /// <returns>true if the archive contains the version, false otherwise.</returns>
+        bool ContainsVersion(object version);
     }
 }

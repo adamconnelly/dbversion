@@ -52,6 +52,9 @@ namespace DatabaseVersion
         /// Creates a database at the specified version or upgrades the existing database to the specified version.
         /// </summary>
         /// <param name="version">The version of database to create.</param>
+        /// <exception cref="VersionNotFoundException">
+        /// Thrown if the version to create could not be found.
+        /// </exception>
         public void Create(string version, string connectionString, string connectionType)
         {
             IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);
@@ -64,7 +67,6 @@ namespace DatabaseVersion
 
             object currentVersion = this.VersionProvider.GetCurrentVersion(connection);
 
-            // Throw exception if currentVersion exists because we are creating a database from scratch
             object targetVersion;
             if (string.IsNullOrEmpty(version))
             {
@@ -78,7 +80,10 @@ namespace DatabaseVersion
                 targetVersion = this.VersionProvider.CreateVersion(version);
             }
 
-            // Throw VersionNotFoundException if targetVersion can't be found in the list of versions
+            if (!this.Archive.ContainsVersion(targetVersion))
+            {
+                throw new Version.VersionNotFoundException(targetVersion);
+            }
 
             IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
                 .OrderBy(v => v.Version, this.VersionProvider.GetComparer())

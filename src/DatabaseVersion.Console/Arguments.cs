@@ -33,6 +33,8 @@ namespace DatabaseVersion.Console
         /// Lists the available connection types.
         /// </summary>
         [OptDef(OptValType.Flag)]
+        [UseNameAsLongOption(false)]
+        [LongOptionName("listConnectionTypes")]
         [Description("Lists the available connection types.")]
         public bool ListConnectionTypes { get; set; }
 
