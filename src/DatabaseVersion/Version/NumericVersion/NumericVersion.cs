@@ -17,7 +17,7 @@ namespace DatabaseVersion.Version.NumericVersion
         }
 
         public virtual int Version { get; set; }
-        public virtual DateTime UpdatedOn { get; set; }
+        public virtual DateTime? UpdatedOn { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -33,6 +33,16 @@ namespace DatabaseVersion.Version.NumericVersion
         public override int GetHashCode()
         {
             return this.Version;
+        }
+
+        public override string ToString()
+        {
+            if (UpdatedOn == null)
+            {
+                return this.Version.ToString();
+            }
+
+            return string.Format("{0} - {1}", this.Version, this.UpdatedOn);
         }
     }
 }

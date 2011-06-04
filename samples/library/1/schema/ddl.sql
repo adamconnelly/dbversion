@@ -1,15 +1,26 @@
 ﻿create table books
 (
-	bookId      int,
-	name        varchar(50),
-	authorId    int,
-	description varchar(200),
+	BookId      uniqueidentifier primary key,
+	Name        varchar(50),
+	AuthorId    int,
+	Description varchar(200),
 	ISBN        varchar(50)
 );
 
 create table authors
 (
-	authorId	int,
-	name		varchar(50),
-	dateOfBirth date
+	AuthorId	uniqueidentifier primary key,
+	Name		varchar(50),
+	DateOfBirth date
+);
+
+create table users
+(
+	UserId		uniqueidentifier primary key,
+	UserName	varchar(20),
+	Name		varchar(100),
+	Password	varchar(40),
+	DateOfBirth date,
+	Email		varchar(100),
+	Email1		varchar(100)
 );
