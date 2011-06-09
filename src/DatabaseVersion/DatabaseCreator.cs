@@ -55,6 +55,9 @@ namespace DatabaseVersion
         /// <exception cref="VersionNotFoundException">
         /// Thrown if the version to create could not be found.
         /// </exception>
+        /// <exception cref="TaskExecutionException">
+        /// Thrown if an error occurs while executing one of the tasks in the archive.
+        /// </exception>
         public void Create(string version, string connectionString, string connectionType)
         {
             IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);

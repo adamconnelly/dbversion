@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace DatabaseVersion
+namespace DatabaseVersion.Tasks
 {
     public interface IDatabaseTaskFactory
     {

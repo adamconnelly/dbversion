@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using Xunit;
 using System.Xml.Linq;
-using DatabaseVersion.Sql;
+using DatabaseVersion.Tasks;
+using DatabaseVersion.Tasks.Sql;
 
 namespace DatabaseVersion.Tests.Sql
 {

@@ -8,6 +8,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
+using DatabaseVersion.Tasks;
 
 namespace DatabaseVersion.Manifests
 {

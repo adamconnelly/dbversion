@@ -6,6 +6,7 @@ using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition;
 using DatabaseVersion.Version;
 using System.Linq;
+using DatabaseVersion.Tasks;
 
 namespace DatabaseVersion.Console
 {
@@ -35,6 +36,10 @@ namespace DatabaseVersion.Console
                 creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
             }
             catch (VersionNotFoundException e)
+            {
+                System.Console.WriteLine(e.Message);
+            }
+            catch (TaskExecutionException e)
             {
                 System.Console.WriteLine(e.Message);
             }

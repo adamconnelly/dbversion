@@ -10,6 +10,7 @@ using System.Xml;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
 using DatabaseVersion.Manifests;
+using DatabaseVersion.Tasks;
 
 namespace DatabaseVersion.Tests.Manifests
 {

@@ -7,7 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace DatabaseVersion.Sql
+namespace DatabaseVersion.Tasks.Sql
 {
     public class ScriptTask : IDatabaseTask
     {
@@ -61,14 +61,33 @@ namespace DatabaseVersion.Sql
         public void Execute(IDbConnection connection)
         {
             FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
-            
-            Stream fileStream = this.version.Archive.GetFile(Path.Combine(manifestFile.Directory.Name, this.FileName));
+            string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
+
+            Stream fileStream = this.version.Archive.GetFile(filePath);
+            if (fileStream == null)
+            {
+                throw new TaskExecutionException(string.Format("The script file \"{0}\" does not exist in the archive.", filePath));
+            }
+
+            this.ExecuteScript(connection, filePath, fileStream);
+        }
+
+        private void ExecuteScript(IDbConnection connection, string filePath, Stream fileStream)
+        {
             using (StreamReader reader = new StreamReader(fileStream))
             {
                 IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
                 foreach (string batch in batches)
                 {
-                    this.ExecuteQueryBatch(batch, connection);
+                    try
+                    {
+                        this.ExecuteQueryBatch(batch, connection);
+                    }
+                    catch (Exception e)
+                    {
+                        string exceptionMessage = string.Format("Failed to execute script \"{0}\". {1}", filePath, e.Message);
+                        throw new TaskExecutionException(exceptionMessage, e);
+                    }
                 }
             }
         }

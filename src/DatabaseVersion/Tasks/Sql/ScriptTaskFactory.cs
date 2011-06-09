@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.ComponentModel.Composition;
 
-namespace DatabaseVersion.Sql
+namespace DatabaseVersion.Tasks.Sql
 {
     [Export(typeof(IDatabaseTaskFactory))]
     public class ScriptTaskFactory : IDatabaseTaskFactory

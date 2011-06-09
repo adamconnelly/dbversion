@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
-using DatabaseVersion.Sql;
+using DatabaseVersion.Tasks.Sql;
 using Moq;
 using System.Data;
 using System.IO;
+using DatabaseVersion.Tasks;
 
 namespace DatabaseVersion.Tests.Sql
 {
@@ -192,6 +193,47 @@ namespace DatabaseVersion.Tests.Sql
             // Assert
             command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
             command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(1));
+        }
+
+        [Fact]
+        public void ShouldThrowTaskExecutionExceptionIfExecutingScriptThrowsException()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorAtEndOfScript));
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            Mock<IDbConnection> connection = new Mock<IDbConnection>();
+            Mock<IDbCommand> command = new Mock<IDbCommand>();
+            Exception exception = new Exception();
+            command.Setup(c => c.ExecuteNonQuery()).Throws(exception);
+            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+
+            // Act
+            Exception thrownException = Record.Exception(() => task.Execute(connection.Object));
+
+            // Assert
+            Assert.IsType<TaskExecutionException>(thrownException);
+            Assert.Equal("Failed to execute script \"1\\scripts\\schema.sql\". " + exception.Message, thrownException.Message);
+            Assert.Same(exception, thrownException.InnerException);
+        }
+
+        [Fact]
+        public void ShouldThrowTaskExecutionExceptionIfScriptPathDoesNotExist()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns((Stream)null);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+
+            // Act
+            Exception thrownException = Record.Exception(() => task.Execute(new Mock<IDbConnection>().Object));
+
+            // Assert
+            Assert.IsType<TaskExecutionException>(thrownException);
+            Assert.Equal("The script file \"1\\scripts\\schema.sql\" does not exist in the archive.", thrownException.Message);
         }
 
         private Stream GetStream(string contents)
