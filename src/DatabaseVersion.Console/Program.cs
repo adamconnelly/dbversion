@@ -33,7 +33,7 @@ namespace DatabaseVersion.Console
             try
             {
                 creator.LoadArchive(arguments.Archive);
-                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType);
+                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType, new ConsoleTaskExecuter());
             }
             catch (VersionNotFoundException e)
             {

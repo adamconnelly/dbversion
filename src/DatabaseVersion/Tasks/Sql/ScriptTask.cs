@@ -58,10 +58,17 @@ namespace DatabaseVersion.Tasks.Sql
             private set;
         }
 
+        public string Description
+        {
+            get
+            {
+                return string.Format("Executed script \"{0}\"", this.GetScriptPath());
+            }
+        }
+
         public void Execute(IDbConnection connection)
         {
-            FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
-            string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
+            string filePath = this.GetScriptPath();
 
             Stream fileStream = this.version.Archive.GetFile(filePath);
             if (fileStream == null)
@@ -70,6 +77,13 @@ namespace DatabaseVersion.Tasks.Sql
             }
 
             this.ExecuteScript(connection, filePath, fileStream);
+        }
+
+        private string GetScriptPath()
+        {
+            FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
+            string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
+            return filePath;
         }
 
         private void ExecuteScript(IDbConnection connection, string filePath, Stream fileStream)

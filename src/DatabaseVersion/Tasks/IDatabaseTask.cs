@@ -11,6 +11,11 @@ namespace DatabaseVersion.Tasks
         int ExecutionOrder { get; }
 
         /// <summary>
+        /// Gets a description of the task.
+        /// </summary>
+        string Description { get; }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <param name="connection">The connection to use to execute the task.</param>

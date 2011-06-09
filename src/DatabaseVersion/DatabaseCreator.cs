@@ -9,6 +9,8 @@ using System.Data;
 using DatabaseVersion.Manifests;
 using DatabaseVersion.Connections;
 using System.ComponentModel.Composition;
+using DatabaseVersion.Tasks;
+using DatabaseVersion.Tasks.Version;
 
 namespace DatabaseVersion
 {
@@ -48,6 +50,11 @@ namespace DatabaseVersion
             private set;
         }
 
+        public void Create(string version, string connectionString, string connectionType)
+        {
+            this.Create(version, connectionString, connectionType, new SimpleTaskExecuter());
+        }
+
         /// <summary>
         /// Creates a database at the specified version or upgrades the existing database to the specified version.
         /// </summary>
@@ -58,7 +65,7 @@ namespace DatabaseVersion
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public void Create(string version, string connectionString, string connectionType)
+        public void Create(string version, string connectionString, string connectionType, ITaskExecuter executer)
         {
             IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);
             connection.Open();
@@ -88,20 +95,9 @@ namespace DatabaseVersion
                 throw new Version.VersionNotFoundException(targetVersion);
             }
 
-            IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
-                .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
-                .Where(v => currentVersion == null || this.VersionProvider.GetComparer().Compare(currentVersion, v.Version) < 0)
-                .TakeWhile(v => this.VersionProvider.GetComparer().Compare(targetVersion, v.Version) >= 0);
+            this.AddTasksToExecuter(executer, currentVersion, targetVersion);
 
-            foreach (IDatabaseVersion v in versionsToExecute)
-            {
-                foreach (var task in v.Tasks.OrderBy(t => t.ExecutionOrder))
-                {
-                    task.Execute(connection);
-                }
-
-                this.VersionProvider.InsertVersion(v.Version, connection);
-            }
+            executer.ExecuteTasks(connection);
 
             connection.Close();
         }
@@ -115,6 +111,24 @@ namespace DatabaseVersion
             }
 
             this.Archive = archiveFactory.Create(archivePath);
+        }
+
+        private void AddTasksToExecuter(ITaskExecuter executer, object currentVersion, object targetVersion)
+        {
+            IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
+                .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
+                .Where(v => currentVersion == null || this.VersionProvider.GetComparer().Compare(currentVersion, v.Version) < 0)
+                .TakeWhile(v => this.VersionProvider.GetComparer().Compare(targetVersion, v.Version) >= 0);
+
+            foreach (IDatabaseVersion v in versionsToExecute)
+            {
+                foreach (var task in v.Tasks.OrderBy(t => t.ExecutionOrder))
+                {
+                    executer.AddTask(task);
+                }
+
+                executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
+            }
         }
 
         private IDatabaseArchiveFactory GetArchiveFactory(string archivePath)
