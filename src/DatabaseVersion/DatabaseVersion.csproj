@@ -38,6 +38,9 @@
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\lib\FluentNHibernate\FluentNHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\..\lib\DotNetZip\Ionic.Zip.dll</HintPath>
+    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
     </Reference>
@@ -55,6 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Archives\File\FileDatabaseArchive.cs" />
+    <Compile Include="Archives\Zip\ZipDatabaseArchive.cs" />
+    <Compile Include="Archives\Zip\ZipDatabaseArchiveFactory.cs" />
     <Compile Include="Connections\DbConnectionFactory.cs" />
     <Compile Include="Connections\IDbConnectionCreator.cs" />
     <Compile Include="Connections\IDbConnectionFactory.cs" />
