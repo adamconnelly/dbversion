@@ -1,4 +1,4 @@
-﻿using CommandLine.OptParse;
+﻿
 using System;
 using System.Reflection;
 using System.IO;
@@ -7,6 +7,7 @@ using System.ComponentModel.Composition;
 using DatabaseVersion.Version;
 using System.Linq;
 using DatabaseVersion.Tasks;
+using CommandLine;
 
 namespace DatabaseVersion.Console
 {
@@ -48,23 +49,25 @@ namespace DatabaseVersion.Console
         private static Arguments ParseArguments(ref string[] args)
         {
             Arguments arguments = new Arguments();
-            Parser parser = ParserFactory.BuildParser(arguments);
-            parser.OptStyle = OptStyle.Unix;
+            var parserSettings = new CommandLineParserSettings();
+            parserSettings.CaseSensitive = true;
+            parserSettings.HelpWriter = System.Console.Out;
 
-            if (args.Length <= 0)
+            var parser = new CommandLineParser(parserSettings);
+
+            if (args.Length == 0)
             {
-                PrintUsage(parser);
+                System.Console.WriteLine(arguments.GetHelp());
+                Environment.Exit(0);
             }
 
-            try
+            if (parser.ParseArguments(args, arguments))
             {
-                args = parser.Parse();
+                return arguments;
             }
-            catch (Exception)
-            {
-                PrintUsage(parser);
-            }
-            return arguments;
+
+            Environment.Exit(0);
+            return null;
         }
 
         private static CompositionContainer CreateContainer(string pluginPath)
@@ -81,21 +84,6 @@ namespace DatabaseVersion.Console
                 new DirectoryCatalog(pluginPath));
 
             return new CompositionContainer(aggregateCatalog);
-        }
-
-        private static void PrintUsage(Parser parser)
-        {
-            UsageBuilder usageBuilder = new UsageBuilder();
-            usageBuilder.BeginSection("Name");
-            usageBuilder.AddParagraph(Assembly.GetExecutingAssembly().GetName().Name + " - Database Creator / Upgrader");
-            usageBuilder.EndSection();
-
-            usageBuilder.BeginSection("Arguments");
-            usageBuilder.AddOptions(parser);
-            usageBuilder.EndSection();
-
-            usageBuilder.ToText(System.Console.Out, OptStyle.Unix, true);
-            Environment.Exit(0);
         }
     }
 }

@@ -34,8 +34,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSharpOptParse">
-      <HintPath>..\..\lib\CSharpOptParse 1.0.1\CSharpOptParse.dll</HintPath>
+    <Reference Include="CommandLine">
+      <HintPath>..\..\lib\CommandLine\libcmdline\bin\Release\CommandLine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

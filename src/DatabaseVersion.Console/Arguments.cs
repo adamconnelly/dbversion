@@ -1,6 +1,8 @@
-﻿using CommandLine.OptParse;
+﻿
 using System.ComponentModel;
 using System;
+using CommandLine;
+using CommandLine.Text;
 namespace DatabaseVersion.Console
 {
     /// <summary>
@@ -16,55 +18,47 @@ namespace DatabaseVersion.Console
         /// <summary>
         /// The connection string to the database.
         /// </summary>
-        [ShortOptionName('c')]
-        [OptDef(OptValType.ValueReq)]
-        [Description("The connection string for the database.")]
-        public string ConnectionString { get; set; }
+        [Option("c", "connectionString", HelpText = "The database connection string.")]
+        public string ConnectionString;
 
         /// <summary>
         /// The type of database to connect to.
         /// </summary>
-        [ShortOptionName('t')]
-        [OptDef(OptValType.ValueReq)]
-        [Description("The type of database to connect to.")]
-        public string ConnectionType { get; set; }
+        [Option("t", "connectionType", HelpText = "The type of database you are connecting to.")]
+        public string ConnectionType;
 
         /// <summary>
         /// Lists the available connection types.
         /// </summary>
-        [OptDef(OptValType.Flag)]
-        [UseNameAsLongOption(false)]
-        [LongOptionName("listConnectionTypes")]
-        [Description("Lists the available connection types.")]
-        public bool ListConnectionTypes { get; set; }
+        [Option(null, "listConnectionTypes", HelpText = "Lists the available connection types.")]
+        public bool ListConnectionTypes;
 
         /// <summary>
         /// The archive containing the database scripts.
         /// </summary>
-        [ShortOptionName('a')]
-        [OptDef(OptValType.ValueReq)]
-        [Description("The path to the database archive.")]
-        public string Archive { get; set; }
+        [Option("a", "archive", HelpText = "The archive containing the database versions.")]
+        public string Archive;
 
         /// <summary>
         /// The version to create or upgrade to.
         /// </summary>
-        [ShortOptionName('v')]
-        [OptDef(OptValType.ValueOpt)]
-        [Description("The version to create or upgrade to. If not specified the latest version is used.")]
-        public string Version { get; set; }
+        [Option("v", "version", HelpText = "The version to create or upgrade to.")]
+        public string Version;
         
         /// <summary>
         /// Gets or sets the directory that plugins will be loaded from.
         /// </summary>
-        [ShortOptionName('p')]
-        [OptDef(OptValType.ValueOpt)]
-        [Description("The directory that plugins will be loaded from.")]
-        [DefaultValue("plugins")]
-        public string PluginDirectory
+        [Option("p", "pluginDir", HelpText = "The directory to load plugins from.")]
+        public string PluginDirectory = "plugins";
+
+        [HelpOption("h", "help", HelpText = "Display this help screen.")]
+        public string GetHelp()
         {
-            get;
-            set;
+            var help = new HelpText("dbversion");
+            help.AdditionalNewLineAfterOption = true;
+            help.AddOptions(this);
+
+            return help;
         }
     }
 }
