@@ -17,5 +17,11 @@
         /// Executes the tasks.
         /// </summary>
         void ExecuteTasks(IDbConnection connection);
+
+        /// <summary>
+        /// Returns whether there are any tasks to execute
+        /// </summary>
+        /// <returns></returns>
+        bool HasTasks();
     }
 }

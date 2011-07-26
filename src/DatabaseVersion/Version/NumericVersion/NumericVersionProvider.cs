@@ -12,10 +12,10 @@ using NHibernate.Criterion;
 
 namespace DatabaseVersion.Version.NumericVersion
 {
-    [Export(typeof(IVersionProvider))]
+    //[Export(typeof(IVersionProvider))]
     public class NumericVersionProvider : IVersionProvider
     {
-        public object CreateVersion(string versionString)
+        public VersionBase CreateVersion(string versionString)
         {
             return new NumericVersion(int.Parse(versionString));
         }
@@ -31,7 +31,7 @@ namespace DatabaseVersion.Version.NumericVersion
             }
         }
 
-        public object GetCurrentVersion(System.Data.IDbConnection connection)
+        public VersionBase GetCurrentVersion(System.Data.IDbConnection connection)
         {
             ISessionFactory sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
             using (var session = sessionFactory.OpenSession())
@@ -49,19 +49,22 @@ namespace DatabaseVersion.Version.NumericVersion
             Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
                 .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
+                .Mappings(v=>v.FluentMappings.Add<NumericScriptMap>())
                 .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
                 .BuildSessionFactory();
         }
 
-        public void InsertVersion(object version, System.Data.IDbConnection connection)
+        public void InsertVersion(VersionBase version, System.Data.IDbConnection connection)
         {
             var sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
             using (var session = sessionFactory.OpenSession())
             using (var transaction = session.BeginTransaction())
             {
                 NumericVersion numericVersion = version as NumericVersion;
+                if (!numericVersion.CreatedOn.HasValue)
+                    numericVersion.CreatedOn = DateTime.UtcNow;
                 numericVersion.UpdatedOn = DateTime.UtcNow;
-                session.Save(version);
+                session.SaveOrUpdate(version);
                 transaction.Commit();
             }
         }
@@ -76,9 +79,31 @@ namespace DatabaseVersion.Version.NumericVersion
             return Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connectionString))
                 .Mappings(m => m.FluentMappings.Add<NumericVersionMap>())
+                .Mappings(m => m.FluentMappings.Add<NumericScriptMap>())
                 .BuildSessionFactory();
         }
 
+        public bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, string scriptName)
+        {
+            if (currentVersion != null)
+            {
+                NumericVersion currentNumericVersion = currentVersion as NumericVersion;
+                NumericVersion targetNumericVersion = targetVersion as NumericVersion;
+                if (currentNumericVersion.Version.Equals(targetNumericVersion.Version))
+                {
+                    if (currentNumericVersion.Scripts.Contains(new NumericVersionScript(currentNumericVersion, scriptName)))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public IEqualityComparer<Script> GetScriptComparer()
+        {
+            return new NumericVersionScriptComparer();
+        }
+        
         private class NumericVersionComparer : Comparer<object>
         {
             public override int Compare(object x, object y)
@@ -87,6 +112,27 @@ namespace DatabaseVersion.Version.NumericVersion
                 NumericVersion right = y as NumericVersion;
 
                 return left.Version - right.Version;
+            }
+        }
+
+        private class NumericVersionScriptComparer : IEqualityComparer<Script>
+        {
+            public bool Equals(Script x, Script y)
+            {
+                NumericVersionScript left = x as NumericVersionScript;
+                NumericVersionScript right = y as NumericVersionScript;
+
+                if ((x == null) || (y == null))
+                    return false;
+
+                return (left.Version.Equals(right.Version) &&
+                        left.Name.Equals(right.Name, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            public int GetHashCode(Script obj)
+            {
+                NumericVersionScript script = obj as NumericVersionScript;
+                return script.Id.GetHashCode();
             }
         }
     }

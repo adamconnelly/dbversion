@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DatabaseVersion.Archives;
 using DatabaseVersion.Tasks;
+using DatabaseVersion.Version;
 
 namespace DatabaseVersion
 {
@@ -12,7 +13,7 @@ namespace DatabaseVersion
         /// <summary>
         /// Gets the version.
         /// </summary>
-        object Version { get; }
+        VersionBase Version { get; }
 
         /// <summary>
         /// Gets the path to the manifest file.

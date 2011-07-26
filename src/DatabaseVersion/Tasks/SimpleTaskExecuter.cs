@@ -18,5 +18,10 @@ namespace DatabaseVersion.Tasks
                 task.Execute(connection);
             }
         }
+
+        public bool HasTasks()
+        {
+            return tasks.Count > 0;
+        }
     }
 }

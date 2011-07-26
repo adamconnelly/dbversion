@@ -6,10 +6,11 @@ using System.Data;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using DatabaseVersion.Archives.File;
 
 namespace DatabaseVersion.Tasks.Sql
 {
-    public class ScriptTask : IDatabaseTask
+    public class ScriptTask : IDatabaseTask, IEqualityComparer<ScriptTask>
     {
         /// <summary>
         /// The string that separates the script into batches.
@@ -81,13 +82,26 @@ namespace DatabaseVersion.Tasks.Sql
 
         private string GetScriptPath()
         {
-            FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
-            string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
-            return filePath;
+            //TODO: Fix this. It's not the best having to check for the type of archive
+            if (this.version.Archive is FileDatabaseArchive)
+            {
+                FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
+                string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
+                return filePath;
+            }
+            else
+            {
+                //Zip File                
+                string filePath = Path.Combine(Path.GetDirectoryName(this.version.ManifestPath), this.FileName);
+                return filePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
         }
 
         private void ExecuteScript(IDbConnection connection, string filePath, Stream fileStream)
         {
+            //TODO: Shouldn't need to do this as we should already be at the beginning
+            fileStream.Position = 0;
+
             using (StreamReader reader = new StreamReader(fileStream))
             {
                 IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
@@ -121,6 +135,16 @@ namespace DatabaseVersion.Tasks.Sql
                 command.CommandText = batch;
                 command.ExecuteNonQuery();
             }
+        }
+
+        public bool Equals(ScriptTask x, ScriptTask y)
+        {
+            return x.FileName.Equals(y.FileName, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public int GetHashCode(ScriptTask obj)
+        {
+            return obj.FileName.GetHashCode();
         }
     }
 }

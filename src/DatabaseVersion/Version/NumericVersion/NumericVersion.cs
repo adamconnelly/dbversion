@@ -1,12 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace DatabaseVersion.Version.NumericVersion
 {
-    public class NumericVersion
+    public class NumericVersion: VersionBase
     {
-        public NumericVersion()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NumericVersion"/> class.
         /// </summary>
@@ -14,10 +12,17 @@ namespace DatabaseVersion.Version.NumericVersion
         public NumericVersion(int version)
         {
             this.Version = version;
+            this.Scripts = new List<NumericVersionScript>();
+        }
+
+        public NumericVersion()
+        {
+            
         }
 
         public virtual int Version { get; set; }
-        public virtual DateTime? UpdatedOn { get; set; }
+
+        public virtual IList<NumericVersionScript> Scripts { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -43,6 +48,18 @@ namespace DatabaseVersion.Version.NumericVersion
             }
 
             return string.Format("{0} - {1}", this.Version, this.UpdatedOn);
+        }
+
+        public override void AddScript(string scriptName, int scriptOrder)
+        {
+            NumericVersionScript script = new NumericVersionScript(this, scriptName);
+            script.ScriptOrder = scriptOrder;
+            this.Scripts.Add(script);
+        }
+
+        public override bool HasExecutedScript(string scriptName)
+        {
+            return this.Scripts.Contains(new NumericVersionScript(this, scriptName));
         }
     }
 }
