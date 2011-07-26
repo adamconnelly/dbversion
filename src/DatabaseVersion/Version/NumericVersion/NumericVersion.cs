@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DatabaseVersion.Tasks;
+
 namespace DatabaseVersion.Version.NumericVersion
 {
-    public class NumericVersion
+    public class NumericVersion: VersionBase
     {
-        public NumericVersion()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="NumericVersion"/> class.
         /// </summary>
@@ -14,10 +14,17 @@ namespace DatabaseVersion.Version.NumericVersion
         public NumericVersion(int version)
         {
             this.Version = version;
+            this.Tasks = new List<NumericVersionTask>();
+        }
+
+        public NumericVersion()
+        {
+            
         }
 
         public virtual int Version { get; set; }
-        public virtual DateTime? UpdatedOn { get; set; }
+
+        public virtual IEnumerable<NumericVersionTask> Tasks { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -43,6 +50,18 @@ namespace DatabaseVersion.Version.NumericVersion
             }
 
             return string.Format("{0} - {1}", this.Version, this.UpdatedOn);
+        }
+
+        public override void AddTask(IDatabaseTask task)
+        {
+            NumericVersionTask script = new NumericVersionTask(this, task.FileName);
+            script.ExecutionOrder = task.ExecutionOrder;
+            (this.Tasks as List<NumericVersionTask>).Add(script);
+        }
+
+        public override bool HasExecutedTask(IDatabaseTask task)
+        {
+            return this.Tasks.Contains(new NumericVersionTask(this, task.FileName));
         }
     }
 }

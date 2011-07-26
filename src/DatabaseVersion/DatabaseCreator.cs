@@ -11,6 +11,8 @@ using DatabaseVersion.Connections;
 using System.ComponentModel.Composition;
 using DatabaseVersion.Tasks;
 using DatabaseVersion.Tasks.Version;
+using DatabaseVersion.Version.ClassicVersion;
+using DatabaseVersion.Version;
 
 namespace DatabaseVersion
 {
@@ -67,39 +69,39 @@ namespace DatabaseVersion
         /// </exception>
         public void Create(string version, string connectionString, string connectionType, ITaskExecuter executer)
         {
-            IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType);
-            connection.Open();
-
-            if (!this.VersionProvider.VersionTableExists(connection))
+            using (IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType))
             {
-                this.VersionProvider.CreateVersionTable(connection);
+                connection.Open();
+
+                if (!this.VersionProvider.VersionTableExists(connection))
+                {
+                    this.VersionProvider.CreateVersionTable(connection);
+                }
+
+                VersionBase currentVersion = this.VersionProvider.GetCurrentVersion(connection);
+
+                object targetVersion;
+                if (string.IsNullOrEmpty(version))
+                {
+                    targetVersion = this.Archive.Versions
+                        .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
+                        .First()
+                        .Version;
+                }
+                else
+                {
+                    targetVersion = this.VersionProvider.CreateVersion(version);
+                }
+
+                if (!this.Archive.ContainsVersion(targetVersion))
+                {
+                    throw new Version.VersionNotFoundException(targetVersion);
+                }
+
+                this.AddTasksToExecuter(executer, currentVersion, targetVersion);
+
+                executer.ExecuteTasks(connection);
             }
-
-            object currentVersion = this.VersionProvider.GetCurrentVersion(connection);
-
-            object targetVersion;
-            if (string.IsNullOrEmpty(version))
-            {
-                targetVersion = this.Archive.Versions
-                    .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
-                    .First()
-                    .Version;
-            }
-            else
-            {
-                targetVersion = this.VersionProvider.CreateVersion(version);
-            }
-
-            if (!this.Archive.ContainsVersion(targetVersion))
-            {
-                throw new Version.VersionNotFoundException(targetVersion);
-            }
-
-            this.AddTasksToExecuter(executer, currentVersion, targetVersion);
-
-            executer.ExecuteTasks(connection);
-
-            connection.Close();
         }
 
         public void LoadArchive(string archivePath)
@@ -113,21 +115,44 @@ namespace DatabaseVersion
             this.Archive = archiveFactory.Create(archivePath);
         }
 
-        private void AddTasksToExecuter(ITaskExecuter executer, object currentVersion, object targetVersion)
+        private void AddTasksToExecuter(ITaskExecuter executer, VersionBase currentVersion, object targetVersion)
         {
             IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
                 .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
-                .Where(v => currentVersion == null || this.VersionProvider.GetComparer().Compare(currentVersion, v.Version) < 0)
+                .Where(
+                    v =>
+                    currentVersion == null ||
+                    this.VersionProvider.GetComparer().Compare(currentVersion, v.Version) <= 0)
                 .TakeWhile(v => this.VersionProvider.GetComparer().Compare(targetVersion, v.Version) >= 0);
 
             foreach (IDatabaseVersion v in versionsToExecute)
             {
+                bool updating = ((currentVersion != null) && currentVersion.Equals(v.Version));
                 foreach (var task in v.Tasks.OrderBy(t => t.ExecutionOrder))
                 {
-                    executer.AddTask(task);
+                    //Check if we're updating an existing version or inserting a new one
+                    if (updating)
+                    {
+                        if (!this.VersionProvider.HasExecutedScript(currentVersion, v.Version, task))
+                        {
+                            executer.AddTask(task);
+                            currentVersion.AddTask(task);
+                        }
+                    }
+                    else
+                    {
+                        executer.AddTask(task);
+                        v.Version.AddTask(task);
+                    }
                 }
 
-                executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
+                if (executer.HasTasks)
+                {
+                    if (updating)
+                        executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion));
+                    else
+                        executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
+                }
             }
         }
 

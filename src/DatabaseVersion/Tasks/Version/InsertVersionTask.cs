@@ -1,4 +1,5 @@
-﻿namespace DatabaseVersion.Tasks.Version
+﻿using DatabaseVersion.Version;
+namespace DatabaseVersion.Tasks.Version
 {
     /// <summary>
     /// Inserts a version into the database.
@@ -6,9 +7,9 @@
     public class InsertVersionTask : IDatabaseTask
     {
         private readonly IVersionProvider versionProvider;
-        private readonly object version;
+        private readonly VersionBase version;
 
-        public InsertVersionTask(IVersionProvider versionProvider, object version)
+        public InsertVersionTask(IVersionProvider versionProvider, VersionBase version)
         {
             this.versionProvider = versionProvider;
             this.version = version;
@@ -25,6 +26,11 @@
             {
                 return string.Format("Inserted version \"{0}\"", this.version);
             }
+        }
+
+        public string FileName
+        {
+            get { return string.Empty; }
         }
 
         public void Execute(System.Data.IDbConnection connection)

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using DatabaseVersion.Version.NumericVersion;
 using Xunit;
 using System.IO;
 using System.Reflection;
 using Moq;
-using System.Xml;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
 using DatabaseVersion.Manifests;
@@ -27,13 +25,14 @@ namespace DatabaseVersion.Tests.Manifests
         {
             // Arrange
             ManifestReader reader = this.CreateManifestReader();
-            versionProvider.Setup(v => v.CreateVersion("14")).Returns(14);
+            NumericVersion numericVersion = new NumericVersion(14);
+            versionProvider.Setup(v => v.CreateVersion("14")).Returns(numericVersion);
 
             // Act
             IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
 
             // Assert
-            Assert.Equal(14, version.Version);
+            Assert.Equal(numericVersion, version.Version);
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-<database version="1">
+<database version="0.1">
   <script file="schema/ddl.sql"/>
   <script file="data/authors.sql"/>
   <script file="data/books.sql"/>

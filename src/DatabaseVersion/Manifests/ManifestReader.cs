@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Xml.Linq;
 using DatabaseVersion.Archives;
 using DatabaseVersion.Tasks;
+using DatabaseVersion.Version;
 
 namespace DatabaseVersion.Manifests
 {
@@ -32,7 +33,7 @@ namespace DatabaseVersion.Manifests
             XElement element = XElement.ReadFrom(reader) as XElement;
 
             string versionString = element.Attributes().First(a => a.Name == "version").Value;
-            object version = this.VersionProvider.CreateVersion(versionString);
+            VersionBase version = this.VersionProvider.CreateVersion(versionString);
 
             DatabaseVersion databaseVersion = new DatabaseVersion(version, manifestPath, archive);
             databaseVersion.Tasks = CreateTasks(element, databaseVersion);

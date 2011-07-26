@@ -11,14 +11,14 @@ using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
 
-namespace DatabaseVersion.Version.NumericVersion
+namespace DatabaseVersion.Version.ClassicVersion
 {
-    //[Export(typeof(IVersionProvider))]
-    public class NumericVersionProvider : IVersionProvider
+    [Export(typeof(IVersionProvider))]
+    public class ClasicVersionProvider : IVersionProvider
     {
         public VersionBase CreateVersion(string versionString)
         {
-            return new NumericVersion(int.Parse(versionString));
+            return new ClassicVersion(versionString);
         }
 
         public bool VersionTableExists(System.Data.IDbConnection connection)
@@ -38,7 +38,7 @@ namespace DatabaseVersion.Version.NumericVersion
             using (var session = sessionFactory.OpenSession())
             using (var transaction = session.BeginTransaction())
             {
-                return session.QueryOver<NumericVersion>()
+                return session.QueryOver<ClassicVersion>()
                     .OrderBy(v => v.Version).Desc()
                     .List()
                     .FirstOrDefault();
@@ -49,8 +49,8 @@ namespace DatabaseVersion.Version.NumericVersion
         {
             Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
-                .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(v=>v.FluentMappings.Add<NumericVersionTaskMap>())
+                .Mappings(v => v.FluentMappings.Add<ClassicVersionMap>())
+                .Mappings(v => v.FluentMappings.Add<ClassicVersionTaskMap>())
                 .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
                 .BuildSessionFactory();
         }
@@ -61,26 +61,27 @@ namespace DatabaseVersion.Version.NumericVersion
             using (var session = sessionFactory.OpenSession())
             using (var transaction = session.BeginTransaction())
             {
-                NumericVersion numericVersion = version as NumericVersion;
-                if (!numericVersion.CreatedOn.HasValue)
-                    numericVersion.CreatedOn = DateTime.UtcNow;
-                numericVersion.UpdatedOn = DateTime.UtcNow;
+                ClassicVersion classicVersion = version as ClassicVersion;
+                if (!classicVersion.CreatedOn.HasValue)
+                    classicVersion.CreatedOn = DateTime.UtcNow;
+                classicVersion.UpdatedOn = DateTime.UtcNow;
                 session.SaveOrUpdate(version);
+
                 transaction.Commit();
             }
         }
 
         public IComparer<object> GetComparer()
         {
-            return new NumericVersionComparer();
+            return new ClassicVersionComparer();
         }
 
         private ISessionFactory CreateSessionFactory(string connectionString)
         {
             return Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connectionString))
-                .Mappings(m => m.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(m => m.FluentMappings.Add<NumericVersionTaskMap>())
+                .Mappings(m => m.FluentMappings.Add<ClassicVersionMap>())
+                .Mappings(m => m.FluentMappings.Add<ClassicVersionTaskMap>())
                 .BuildSessionFactory();
         }
 
@@ -88,25 +89,25 @@ namespace DatabaseVersion.Version.NumericVersion
         {
             if (currentVersion != null)
             {
-                NumericVersion currentNumericVersion = currentVersion as NumericVersion;
-                NumericVersion targetNumericVersion = targetVersion as NumericVersion;
-                if (currentNumericVersion.Version.Equals(targetNumericVersion.Version))
+                ClassicVersion currentClassicVersion = currentVersion as ClassicVersion;
+                ClassicVersion targetClassicVersion = targetVersion as ClassicVersion;
+                if (currentClassicVersion.SystemVersion.Equals(targetClassicVersion.SystemVersion))
                 {
-                    return currentNumericVersion.HasExecutedTask(task);
+                    return currentClassicVersion.HasExecutedTask(task);
                 }
             }
 
             return false;
         }
-        
-        private class NumericVersionComparer : Comparer<object>
+
+        private class ClassicVersionComparer : Comparer<object>
         {
             public override int Compare(object x, object y)
             {
-                NumericVersion left = x as NumericVersion;
-                NumericVersion right = y as NumericVersion;
+                ClassicVersion left = x as ClassicVersion;
+                ClassicVersion right = y as ClassicVersion;
 
-                return left.Version - right.Version;
+                return left.Version.CompareTo(right.Version);
             }
         }
     }

@@ -1,0 +1,10 @@
+*.suo
+src/DatabaseVersion/bin
+src/DatabaseVersion/obj
+*.user
+src/DatabaseVersion.Console/bin
+src/DatabaseVersion.Console/obj
+src/DatabaseVersion.Test/bin
+src/DatabaseVersion.Test/obj
+src/DatabaseVersion.Tests/bin
+src/DatabaseVersion.Tests/obj

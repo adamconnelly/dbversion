@@ -4,19 +4,20 @@ using System.Linq;
 using System.Text;
 using DatabaseVersion.Archives;
 using DatabaseVersion.Tasks;
+using DatabaseVersion.Version;
 
 namespace DatabaseVersion
 {
     public class DatabaseVersion : IDatabaseVersion
     {
-        public DatabaseVersion(object version, string manifestPath, IDatabaseArchive archive)
+        public DatabaseVersion(VersionBase version, string manifestPath, IDatabaseArchive archive)
         {
             this.Version = version;
             this.ManifestPath = manifestPath;
             this.Archive = archive;
         }
 
-        public object Version { get; private set; }
+        public VersionBase Version { get; private set; }
 
         public string ManifestPath { get; private set; }
 

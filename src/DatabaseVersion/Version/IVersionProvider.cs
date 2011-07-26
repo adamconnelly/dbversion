@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using DatabaseVersion.Tasks;
+using DatabaseVersion.Version;
 
 namespace DatabaseVersion
 {
@@ -17,7 +19,7 @@ namespace DatabaseVersion
         /// </summary>
         /// <param name="versionString">The string representation.</param>
         /// <returns>The version object.</returns>
-        object CreateVersion(string versionString);
+        VersionBase CreateVersion(string versionString);
 
         /// <summary>
         /// Checks whether the version table exists in the database.
@@ -34,7 +36,7 @@ namespace DatabaseVersion
         /// The latest version installed in the database or null if
         /// no versions have been installed.
         /// </returns>
-        object GetCurrentVersion(IDbConnection connection);
+        VersionBase GetCurrentVersion(IDbConnection connection);
 
         /// <summary>
         /// Creates the version table.
@@ -47,7 +49,7 @@ namespace DatabaseVersion
         /// </summary>
         /// <param name="version">The version to insert.</param>
         /// <param name="connection">The database connection.</param>
-        void InsertVersion(object version, IDbConnection connection);
+        void InsertVersion(VersionBase version, IDbConnection connection);
 
         /// <summary>
         /// Returns an object that can be used to compare two version objects
@@ -55,5 +57,14 @@ namespace DatabaseVersion
         /// </summary>
         /// <returns>The comparer.</returns>
         IComparer<object> GetComparer();
+
+        /// <summary>
+        /// Returns whether a script belongs to the current version and if so whether it has already been executed
+        /// </summary>
+        /// <param name="currentVersion"></param>
+        /// <param name="targetVersion"></param>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, IDatabaseTask task);
     }
 }

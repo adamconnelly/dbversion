@@ -24,5 +24,7 @@
                 Console.WriteLine("{0:0%} complete. {1}.", i / count, task.Description);
             }
         }
+
+        public bool HasTasks { get { return tasks.Count > 0; } }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using FluentNHibernate.Mapping;
-namespace DatabaseVersion.Version.NumericVersion
+namespace DatabaseVersion.Version.ClassicVersion
 {
-    public class NumericVersionMap : ClassMap<NumericVersion>
+    public class ClassicVersionMap : ClassMap<ClassicVersion>
     {
-        public NumericVersionMap()
+        public ClassicVersionMap()
         {
             this.Table("Version");
             this.Id(v => v.Id).Column("id_version").GeneratedBy.GuidComb();

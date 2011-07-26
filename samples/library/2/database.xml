@@ -1,4 +1,4 @@
-<database version="2">
+<database version="0.2">
   <script file="ddl.sql"/>
   <script file="migrateUserEmails.sql"/>
 </database>

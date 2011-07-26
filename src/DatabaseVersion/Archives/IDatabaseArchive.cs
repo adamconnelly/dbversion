@@ -34,5 +34,13 @@ namespace DatabaseVersion.Archives
         /// <param name="version">The version.</param>
         /// <returns>true if the archive contains the version, false otherwise.</returns>
         bool ContainsVersion(object version);
+
+        /// <summary>
+        /// Returns the correct path to the a script based on the location of the manifest and script
+        /// </summary>
+        /// <param name="manifestPath">The full path to the location of the manifest</param>
+        /// <param name="scriptFileName">The filename of the script</param>
+        /// <returns>The correct path for the script</returns>
+        string GetScriptPath(string manifestPath, string scriptFileName);
     }
 }

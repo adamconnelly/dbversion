@@ -16,6 +16,11 @@ namespace DatabaseVersion.Tasks
         string Description { get; }
 
         /// <summary>
+        /// Gets the filename (if applicable) of the task.
+        /// </summary>
+        string FileName { get; }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <param name="connection">The connection to use to execute the task.</param>

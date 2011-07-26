@@ -107,5 +107,13 @@ namespace DatabaseVersion.Archives.File
                 this.versions.Add(version);
             }
         }
+
+
+        public string GetScriptPath(string manifestPath, string scriptFileName)
+        {
+            FileInfo manifestFile = new FileInfo(manifestPath);
+            string filePath = Path.Combine(manifestFile.Directory.Name, scriptFileName);
+            return filePath;
+        }
     }
 }

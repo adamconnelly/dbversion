@@ -83,10 +83,19 @@
     <Compile Include="Tasks\TaskExecutionException.cs" />
     <Compile Include="Tasks\Version\InsertVersionTask.cs" />
     <Compile Include="Validate.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersion.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionMap.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionProvider.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionTask.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionTaskMap.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionTask.cs" />
+    <Compile Include="Version\Task.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionTaskMap.cs" />
     <Compile Include="Version\IVersionProvider.cs" />
     <Compile Include="Version\NumericVersion\NumericVersion.cs" />
     <Compile Include="Version\NumericVersion\NumericVersionMap.cs" />
     <Compile Include="Version\NumericVersion\NumericVersionProvider.cs" />
+    <Compile Include="Version\VersionBase.cs" />
     <Compile Include="Version\VersionNotFoundException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -19,6 +19,7 @@ namespace DatabaseVersion.Tests.Sql
             // Arrange
             Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(this.GetStream("A"));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
             Mock<IDbConnection> connection = new Mock<IDbConnection>();
@@ -37,6 +38,7 @@ namespace DatabaseVersion.Tests.Sql
             // Arrange
             Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile("1\\scripts\\schema.sql")).Returns(GetStream("ABCDE"));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
             Mock<IDbConnection> connection = new Mock<IDbConnection>();
@@ -201,6 +203,7 @@ namespace DatabaseVersion.Tests.Sql
             // Arrange
             Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
@@ -225,6 +228,7 @@ namespace DatabaseVersion.Tests.Sql
             // Arrange
             Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns((Stream)null);
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 

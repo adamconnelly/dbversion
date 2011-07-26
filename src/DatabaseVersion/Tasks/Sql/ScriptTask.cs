@@ -6,10 +6,12 @@ using System.Data;
 using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using DatabaseVersion.Archives.File;
+using DatabaseVersion.Archives.Zip;
 
 namespace DatabaseVersion.Tasks.Sql
 {
-    public class ScriptTask : IDatabaseTask
+    public class ScriptTask : IDatabaseTask, IEqualityComparer<ScriptTask>
     {
         /// <summary>
         /// The string that separates the script into batches.
@@ -81,13 +83,14 @@ namespace DatabaseVersion.Tasks.Sql
 
         private string GetScriptPath()
         {
-            FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
-            string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
-            return filePath;
+            return this.version.Archive.GetScriptPath(this.version.ManifestPath, this.FileName);
         }
 
         private void ExecuteScript(IDbConnection connection, string filePath, Stream fileStream)
         {
+            //TODO: Shouldn't need to do this as we should already be at the beginning
+            fileStream.Position = 0;
+
             using (StreamReader reader = new StreamReader(fileStream))
             {
                 IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
@@ -121,6 +124,16 @@ namespace DatabaseVersion.Tasks.Sql
                 command.CommandText = batch;
                 command.ExecuteNonQuery();
             }
+        }
+
+        public bool Equals(ScriptTask x, ScriptTask y)
+        {
+            return x.FileName.Equals(y.FileName, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public int GetHashCode(ScriptTask obj)
+        {
+            return obj.FileName.GetHashCode();
         }
     }
 }

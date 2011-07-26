@@ -52,7 +52,7 @@ namespace DatabaseVersion.Archives.Zip
                     {
                         MemoryStream stream = new MemoryStream();
                         entry.Extract(stream);
-
+                        
                         return stream;
                     }
                 }
@@ -73,7 +73,14 @@ namespace DatabaseVersion.Archives.Zip
             stream.Position = 0;
             stream.Seek(0, SeekOrigin.Begin);
 
-            this.versions.Add(this.manifestReader.Read(stream, this.ArchivePath, this));
+            this.versions.Add(this.manifestReader.Read(stream, entry.FileName, this));
+        }
+
+
+        public string GetScriptPath(string manifestPath, string scriptFileName)
+        {
+            string filePath = Path.Combine(Path.GetDirectoryName(manifestPath), scriptFileName);
+            return filePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
     }
 }
