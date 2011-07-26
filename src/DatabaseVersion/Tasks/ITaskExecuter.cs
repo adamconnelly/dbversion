@@ -21,7 +21,6 @@
         /// <summary>
         /// Returns whether there are any tasks to execute
         /// </summary>
-        /// <returns></returns>
-        bool HasTasks();
+        bool HasTasks { get; }
     }
 }

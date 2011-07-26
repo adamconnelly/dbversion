@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace DatabaseVersion.Version
 {
-    public abstract class Script
+    public abstract class Task
     {
         #region Properties
 
         public virtual Guid Id { get; set; }
         public virtual string Name { get; set; }
         public virtual DateTime? UpdatedOn { get; set; }
-        public virtual int ScriptOrder { get; set; }
+        public virtual int ExecutionOrder { get; set; }
 
         #endregion
 
@@ -20,13 +20,13 @@ namespace DatabaseVersion.Version
         /// 
         /// </summary>
         /// <param name="scriptName"></param>
-        public Script(string scriptName)
+        public Task(string scriptName)
         {
             this.Name = scriptName;
             this.UpdatedOn = DateTime.UtcNow;
         }
 
-        protected Script()
+        protected Task()
             : this(String.Empty)
         {
 

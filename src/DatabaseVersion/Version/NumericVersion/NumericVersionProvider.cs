@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel.Composition;
 using System.Data;
+using DatabaseVersion.Tasks;
 using NHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
@@ -49,7 +50,7 @@ namespace DatabaseVersion.Version.NumericVersion
             Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
                 .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(v=>v.FluentMappings.Add<NumericScriptMap>())
+                .Mappings(v=>v.FluentMappings.Add<NumericVersionTaskMap>())
                 .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
                 .BuildSessionFactory();
         }
@@ -79,11 +80,11 @@ namespace DatabaseVersion.Version.NumericVersion
             return Fluently.Configure()
                 .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connectionString))
                 .Mappings(m => m.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(m => m.FluentMappings.Add<NumericScriptMap>())
+                .Mappings(m => m.FluentMappings.Add<NumericVersionTaskMap>())
                 .BuildSessionFactory();
         }
 
-        public bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, string scriptName)
+        public bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, IDatabaseTask task)
         {
             if (currentVersion != null)
             {
@@ -91,17 +92,11 @@ namespace DatabaseVersion.Version.NumericVersion
                 NumericVersion targetNumericVersion = targetVersion as NumericVersion;
                 if (currentNumericVersion.Version.Equals(targetNumericVersion.Version))
                 {
-                    if (currentNumericVersion.Scripts.Contains(new NumericVersionScript(currentNumericVersion, scriptName)))
-                        return true;
+                    return currentNumericVersion.HasExecutedTask(task);
                 }
             }
 
             return false;
-        }
-
-        public IEqualityComparer<Script> GetScriptComparer()
-        {
-            return new NumericVersionScriptComparer();
         }
         
         private class NumericVersionComparer : Comparer<object>
@@ -112,27 +107,6 @@ namespace DatabaseVersion.Version.NumericVersion
                 NumericVersion right = y as NumericVersion;
 
                 return left.Version - right.Version;
-            }
-        }
-
-        private class NumericVersionScriptComparer : IEqualityComparer<Script>
-        {
-            public bool Equals(Script x, Script y)
-            {
-                NumericVersionScript left = x as NumericVersionScript;
-                NumericVersionScript right = y as NumericVersionScript;
-
-                if ((x == null) || (y == null))
-                    return false;
-
-                return (left.Version.Equals(right.Version) &&
-                        left.Name.Equals(right.Name, StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            public int GetHashCode(Script obj)
-            {
-                NumericVersionScript script = obj as NumericVersionScript;
-                return script.Id.GetHashCode();
             }
         }
     }

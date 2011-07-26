@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using DatabaseVersion.Tasks;
 
 namespace DatabaseVersion.Version.ClassicVersion
 {
     public class ClassicVersion: VersionBase
     {
-        public virtual IList<ClassicVersionScript> Scripts { get; set; }
+        public virtual IEnumerable<ClassicVersionTask> Tasks { get; set; }
 
         public virtual string Version
         {
@@ -28,7 +30,7 @@ namespace DatabaseVersion.Version.ClassicVersion
         public ClassicVersion(string version)
         {
             this.Version = version;
-            this.Scripts = new List<ClassicVersionScript>();
+            this.Tasks = new List<ClassicVersionTask>();
         }
 
         public override bool Equals(object obj)
@@ -57,16 +59,16 @@ namespace DatabaseVersion.Version.ClassicVersion
             return string.Format("{0} - {1}", this.Version, this.UpdatedOn);
         }
 
-        public override void AddScript(string scriptName, int scriptOrder)
+        public override void AddTask(IDatabaseTask task)
         {
-            ClassicVersionScript script = new ClassicVersionScript(this, scriptName);
-            script.ScriptOrder = scriptOrder;
-            this.Scripts.Add(script);
+            ClassicVersionTask script = new ClassicVersionTask(this, task.FileName);
+            script.ExecutionOrder = task.ExecutionOrder;
+            (this.Tasks as List<ClassicVersionTask>).Add(script);
         }
 
-        public override bool HasExecutedScript(string scriptName)
+        public override bool HasExecutedTask(IDatabaseTask task)
         {
-            return this.Scripts.Contains(new ClassicVersionScript(this, scriptName));
+            return this.Tasks.Contains(new ClassicVersionTask(this, task.FileName));
         }
     }
 }

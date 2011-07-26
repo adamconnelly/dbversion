@@ -25,14 +25,14 @@ namespace DatabaseVersion.Tests.Manifests
         {
             // Arrange
             ManifestReader reader = this.CreateManifestReader();
-            NumericVersion nuermicVersion = new NumericVersion(14);
-            versionProvider.Setup(v => v.CreateVersion("14")).Returns(nuermicVersion);
+            NumericVersion numericVersion = new NumericVersion(14);
+            versionProvider.Setup(v => v.CreateVersion("14")).Returns(numericVersion);
 
             // Act
             IDatabaseVersion version = reader.Read(GetManifest(), ManifestPath, databaseArchive.Object);
 
             // Assert
-            Assert.Equal(14, (version.Version as NumericVersion).Version);
+            Assert.Equal(numericVersion, version.Version);
         }
 
         [Fact]

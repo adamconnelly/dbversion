@@ -25,9 +25,6 @@
             }
         }
 
-        public bool HasTasks()
-        {
-            return tasks.Count > 0;
-        }
+        public bool HasTasks { get { return tasks.Count > 0; } }
     }
 }

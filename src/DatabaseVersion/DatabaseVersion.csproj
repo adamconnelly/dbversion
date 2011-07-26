@@ -86,11 +86,11 @@
     <Compile Include="Version\ClassicVersion\ClassicVersion.cs" />
     <Compile Include="Version\ClassicVersion\ClassicVersionMap.cs" />
     <Compile Include="Version\ClassicVersion\ClassicVersionProvider.cs" />
-    <Compile Include="Version\ClassicVersion\ClassicVersionScript.cs" />
-    <Compile Include="Version\ClassicVersion\ClassicScriptMap.cs" />
-    <Compile Include="Version\NumericVersion\NumericVersionScript.cs" />
-    <Compile Include="Version\Script.cs" />
-    <Compile Include="Version\NumericVersion\NumericScriptMap.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionTask.cs" />
+    <Compile Include="Version\ClassicVersion\ClassicVersionTaskMap.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionTask.cs" />
+    <Compile Include="Version\Task.cs" />
+    <Compile Include="Version\NumericVersion\NumericVersionTaskMap.cs" />
     <Compile Include="Version\IVersionProvider.cs" />
     <Compile Include="Version\NumericVersion\NumericVersion.cs" />
     <Compile Include="Version\NumericVersion\NumericVersionMap.cs" />

@@ -5,16 +5,16 @@ using System.Text;
 
 namespace DatabaseVersion.Version.NumericVersion
 {
-    public class NumericVersionScript : Script
+    public class NumericVersionTask : Task
     {
         public virtual NumericVersion Version { get; set; }
 
-        public NumericVersionScript()
+        public NumericVersionTask()
         {
 
         }
 
-        public NumericVersionScript(NumericVersion version, string scriptName)
+        public NumericVersionTask(NumericVersion version, string scriptName)
             : base(scriptName)
         {
             this.Version = version;
@@ -22,7 +22,7 @@ namespace DatabaseVersion.Version.NumericVersion
 
         public override bool Equals(object obj)
         {
-            NumericVersionScript script = obj as NumericVersionScript;
+            NumericVersionTask script = obj as NumericVersionTask;
             if (object.ReferenceEquals(script, null))
             {
                 return false;

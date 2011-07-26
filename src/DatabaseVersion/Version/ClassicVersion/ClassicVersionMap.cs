@@ -10,7 +10,7 @@ namespace DatabaseVersion.Version.ClassicVersion
             this.Map(v => v.CreatedOn).Column("created_date");
             this.Map(v => v.UpdatedOn).Column("updated_date");
             this.Map(v => v.Version).Column("version");
-            this.HasMany(v => v.Scripts).Table("VersionTask").KeyColumn("id_version").Not.LazyLoad().Cascade.All();
+            this.HasMany(v => v.Tasks).Table("VersionTask").KeyColumn("id_version").Not.LazyLoad().Cascade.All();
         }
     }
 }

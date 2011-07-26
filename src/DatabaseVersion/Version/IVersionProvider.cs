@@ -63,14 +63,8 @@ namespace DatabaseVersion
         /// </summary>
         /// <param name="currentVersion"></param>
         /// <param name="targetVersion"></param>
-        /// <param name="scriptName"></param>
+        /// <param name="task"></param>
         /// <returns></returns>
-        bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, string scriptName);
-
-        /// <summary>
-        /// Returns the IEqualityComparer ot use for comparing scripts
-        /// </summary>
-        /// <returns></returns>
-        IEqualityComparer<Script> GetScriptComparer();
+        bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, IDatabaseTask task);
     }
 }

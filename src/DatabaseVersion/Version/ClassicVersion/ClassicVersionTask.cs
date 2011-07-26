@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace DatabaseVersion.Version.ClassicVersion
 {
-    public class ClassicVersionScript: Script
+    public class ClassicVersionTask: Task
     {
         public virtual ClassicVersion Version { get; set; }
 
-        public ClassicVersionScript()
+        public ClassicVersionTask()
         {
 
         }
         
-        public ClassicVersionScript(ClassicVersion version, string scriptName)
+        public ClassicVersionTask(ClassicVersion version, string scriptName)
             : base(scriptName)
         {
             this.Version = version;
@@ -20,7 +20,7 @@ namespace DatabaseVersion.Version.ClassicVersion
 
         public override bool Equals(object obj)
         {
-            ClassicVersionScript version = obj as ClassicVersionScript;
+            ClassicVersionTask version = obj as ClassicVersionTask;
             if (object.ReferenceEquals(version, null))
             {
                 return false;

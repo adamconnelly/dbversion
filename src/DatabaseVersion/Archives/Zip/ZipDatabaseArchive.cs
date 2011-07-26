@@ -75,5 +75,12 @@ namespace DatabaseVersion.Archives.Zip
 
             this.versions.Add(this.manifestReader.Read(stream, entry.FileName, this));
         }
+
+
+        public string GetScriptPath(string manifestPath, string scriptFileName)
+        {
+            string filePath = Path.Combine(Path.GetDirectoryName(manifestPath), scriptFileName);
+            return filePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
     }
 }

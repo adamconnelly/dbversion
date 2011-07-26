@@ -133,20 +133,20 @@ namespace DatabaseVersion
                     //Check if we're updating an existing version or inserting a new one
                     if (updating)
                     {
-                        if (!this.VersionProvider.HasExecutedScript(currentVersion, v.Version, task.FileName))
+                        if (!this.VersionProvider.HasExecutedScript(currentVersion, v.Version, task))
                         {
                             executer.AddTask(task);
-                            currentVersion.AddScript(task.FileName, task.ExecutionOrder);
+                            currentVersion.AddTask(task);
                         }
                     }
                     else
                     {
                         executer.AddTask(task);
-                        v.Version.AddScript(task.FileName, task.ExecutionOrder);
+                        v.Version.AddTask(task);
                     }
                 }
 
-                if (executer.HasTasks())
+                if (executer.HasTasks)
                 {
                     if (updating)
                         executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion));
