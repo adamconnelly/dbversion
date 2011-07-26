@@ -7,6 +7,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using DatabaseVersion.Archives.File;
+using DatabaseVersion.Archives.Zip;
 
 namespace DatabaseVersion.Tasks.Sql
 {
@@ -83,17 +84,17 @@ namespace DatabaseVersion.Tasks.Sql
         private string GetScriptPath()
         {
             //TODO: Fix this. It's not the best having to check for the type of archive
-            if (this.version.Archive is FileDatabaseArchive)
-            {
-                FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
-                string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
-                return filePath;
-            }
-            else
+            if (this.version.Archive is ZipDatabaseArchive)
             {
                 //Zip File                
                 string filePath = Path.Combine(Path.GetDirectoryName(this.version.ManifestPath), this.FileName);
                 return filePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+            else
+            {
+                FileInfo manifestFile = new FileInfo(this.version.ManifestPath);
+                string filePath = Path.Combine(manifestFile.Directory.Name, this.FileName);
+                return filePath;
             }
         }
 

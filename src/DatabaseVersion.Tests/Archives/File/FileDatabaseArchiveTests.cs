@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DatabaseVersion.Version.NumericVersion;
 using Xunit;
 using DatabaseVersion.Archives.File;
 using DatabaseVersion.Tests.Utils;
@@ -79,8 +80,8 @@ namespace DatabaseVersion.Tests.Archives.File
             var testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
 
-            DatabaseVersion version1 = new DatabaseVersion("1", "_1\\database.xml", null);
-            DatabaseVersion version2 = new DatabaseVersion("2", "_2\\database.xml", null);
+            DatabaseVersion version1 = new DatabaseVersion(new NumericVersion(1), "_1\\database.xml", null);
+            DatabaseVersion version2 = new DatabaseVersion(new NumericVersion(2), "_2\\database.xml", null);
 
             Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
             manifestReader.Setup(
