@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -91,7 +91,7 @@ namespace DatabaseVersion.Tasks.Sql
             //TODO: Shouldn't need to do this as we should already be at the beginning
             fileStream.Position = 0;
 
-            using (StreamReader reader = new StreamReader(fileStream))
+            using (StreamReader reader = new StreamReader(fileStream, Encoding.Default, true))
             {
                 IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
                 foreach (string batch in batches)

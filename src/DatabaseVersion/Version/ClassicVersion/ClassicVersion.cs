@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using DatabaseVersion.Tasks;
 
@@ -63,7 +63,7 @@ namespace DatabaseVersion.Version.ClassicVersion
         {
             ClassicVersionTask script = new ClassicVersionTask(this, task.FileName);
             script.ExecutionOrder = task.ExecutionOrder;
-            (this.Tasks as List<ClassicVersionTask>).Add(script);
+            (this.Tasks as IList<ClassicVersionTask>).Add(script);
         }
 
         public override bool HasExecutedTask(IDatabaseTask task)
