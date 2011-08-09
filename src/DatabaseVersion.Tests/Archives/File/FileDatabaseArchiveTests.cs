@@ -14,16 +14,20 @@ using DatabaseVersion.Archives;
 
 namespace DatabaseVersion.Tests.Archives.File
 {
-    public class FileDatabaseArchiveTests
+    public class FileDatabaseArchiveTests : IDisposable
     {
+		private readonly Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
+		
+		private DirectoryInfo testDirectory;
+		
         #region GetFile
         [Fact]
         public void ShouldBeAbleToGetAFileIfItExists()
         {
             // Arrange
-            var testDirectory = FileUtil.CreateTempDirectory();
+            this.testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
-            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, null);
+            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, this.manifestReader.Object);
             Stream expectedStream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("DatabaseVersion.Tests.TestArchive._1.data.authors.sql");
 
@@ -32,15 +36,14 @@ namespace DatabaseVersion.Tests.Archives.File
 
             // Assert
             Assert.Equal(StreamToString(expectedStream), StreamToString(stream));
-
-            testDirectory.Delete(true);
         }
 
         [Fact]
         public void ShouldReturnNullFromGetFileIfFileDoesNotExist()
         {
             // Arrange
-            FileDatabaseArchive archive = new FileDatabaseArchive("aDirectory", null);
+			this.testDirectory = FileUtil.CreateTempDirectory();
+            FileDatabaseArchive archive = new FileDatabaseArchive(this.testDirectory.FullName, this.manifestReader.Object);
 
             // Act
             Stream stream = archive.GetFile("_1/data/authors.sql");
@@ -54,7 +57,7 @@ namespace DatabaseVersion.Tests.Archives.File
         public void ShouldReturnCorrectNumberOfDatabaseVersions()
         {
             // Arrange
-            var testDirectory = FileUtil.CreateTempDirectory();
+            this.testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
 
             Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
@@ -69,29 +72,30 @@ namespace DatabaseVersion.Tests.Archives.File
 
             // Assert
             Assert.Equal(2, versions.Count());
-
-            testDirectory.Delete(true);
         }
 
         [Fact]
         public void ShouldUseManifestReaderToCreateDatabaseVersions()
         {
             // Arrange
-            var testDirectory = FileUtil.CreateTempDirectory();
+            this.testDirectory = FileUtil.CreateTempDirectory();
             AssemblyUtil.CopyContentsToDirectory("DatabaseVersion.Tests.TestArchive", testDirectory.FullName);
 
-            DatabaseVersion version1 = new DatabaseVersion(new NumericVersion(1), "_1\\database.xml", null);
-            DatabaseVersion version2 = new DatabaseVersion(new NumericVersion(2), "_2\\database.xml", null);
-
-            Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
-            manifestReader.Setup(
-                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_1\\database.xml", It.IsAny<IDatabaseArchive>()))
+            DatabaseVersion version1 = new DatabaseVersion(new NumericVersion(1), "_1" + Path.DirectorySeparatorChar + "database.xml", null);
+            DatabaseVersion version2 = new DatabaseVersion(new NumericVersion(2), "_2" + Path.DirectorySeparatorChar + "database.xml", null);
+			
+            this.manifestReader.Setup(
+                m => m.Read(It.IsAny<Stream>(), 
+				string.Format("{1}{0}{2}{0}{3}", Path.DirectorySeparatorChar, this.testDirectory.FullName, "_1", "database.xml"),
+				It.IsAny<IDatabaseArchive>()))
                 .Returns(version1);
-            manifestReader.Setup(
-                m => m.Read(It.IsAny<Stream>(), testDirectory.FullName + "\\_2\\database.xml", It.IsAny<IDatabaseArchive>()))
+            this.manifestReader.Setup(
+				m => m.Read(It.IsAny<Stream>(),
+                string.Format("{1}{0}{2}{0}{3}", Path.DirectorySeparatorChar, this.testDirectory.FullName, "_2", "database.xml"),
+				It.IsAny<IDatabaseArchive>()))
                 .Returns(version2);
 
-            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, manifestReader.Object);
+            FileDatabaseArchive archive = new FileDatabaseArchive(testDirectory.FullName, this.manifestReader.Object);
 
             // Act
             var versions = archive.Versions;
@@ -99,9 +103,15 @@ namespace DatabaseVersion.Tests.Archives.File
             // Assert
             Assert.Contains(version1, versions);
             Assert.Contains(version2, versions);
-
-            testDirectory.Delete(true);
         }
+		
+		public void Dispose()
+		{
+			if (this.testDirectory != null)
+			{
+				this.testDirectory.Delete(true);
+			}
+		}
 
         private string StreamToString(Stream stream)
         {

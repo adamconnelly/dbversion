@@ -19,11 +19,11 @@ namespace DatabaseVersion.Tests.Utils
                 if (name.StartsWith(root))
                 {
                     string fileName = name.Substring(root.Length);
-                    fileName = fileName.Replace('.', '\\');
-                    int index = fileName.LastIndexOf("\\");
+                    fileName = fileName.Replace('.', Path.DirectorySeparatorChar);
+                    int index = fileName.LastIndexOf(Path.DirectorySeparatorChar);
 
                     fileName = fileName.Substring(0, index) + "." + fileName.Substring(index + 1);
-                    string fileDirectory = fileName.Substring(0, fileName.LastIndexOf('\\') + 1);
+                    string fileDirectory = fileName.Substring(0, fileName.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
                     DirectoryInfo directoryInfo = new DirectoryInfo(directory + fileDirectory);
                     

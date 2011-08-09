@@ -24,7 +24,7 @@ namespace DatabaseVersion.Archives.File
         /// <summary>
         /// The backing store for <see cref="Versions"/>.
         /// </summary>
-        private ConcurrentBag<IDatabaseVersion> versions;
+        private List<IDatabaseVersion> versions = new List<IDatabaseVersion>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileDatabaseArchive"/> class.
@@ -34,6 +34,8 @@ namespace DatabaseVersion.Archives.File
         {
             this.ArchivePath = archivePath;
             this.manifestReader = manifestReader;
+			
+			this.ParseManifests();
         }
 
         /// <summary>
@@ -43,15 +45,6 @@ namespace DatabaseVersion.Archives.File
         {
             get
             {
-                if (this.versions == null)
-                {
-                    this.versions = new ConcurrentBag<IDatabaseVersion>();
-                    DirectoryInfo info = new DirectoryInfo(this.ArchivePath);
-                    var manifests = info.GetFiles("database.xml", SearchOption.AllDirectories);
-
-                    Parallel.ForEach(manifests, ParseManifest);
-                }
-
                 return this.versions;
             }
         }
@@ -91,20 +84,32 @@ namespace DatabaseVersion.Archives.File
         {
             return this.Versions.FirstOrDefault(v => object.Equals(v.Version, version)) != null;
         }
+		
+		/// <summary>
+		/// Parses the manifests.
+		/// </summary>
+		private void ParseManifests()
+		{
+			var directoryInfo = new DirectoryInfo(this.ArchivePath);
+        	var manifests = directoryInfo.GetFiles("database.xml", SearchOption.AllDirectories);
+        	
+        	foreach (var manifest in manifests)
+        	{
+        		this.versions.Add(ParseManifest(manifest));
+        	}
+		}
 
         /// <summary>
-        /// Parses the manifest at the specified location and adds the result to
-        /// the list of database versions.
+        /// Parses the manifest at the specified location.
         /// </summary>
         /// <param name="manifestInfo">The manifest to parse.</param>
-        private void ParseManifest(FileInfo manifestInfo)
+        /// <returns>The parsed manifest.</returns>
+        private IDatabaseVersion ParseManifest(FileInfo manifestInfo)
         {
             using (Stream fileStream = manifestInfo.Open(FileMode.Open))
             {
-                IDatabaseVersion version = this.manifestReader.Read(
+                return this.manifestReader.Read(
                     fileStream, manifestInfo.FullName, this);
-
-                this.versions.Add(version);
             }
         }
 
