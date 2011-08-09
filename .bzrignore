@@ -8,3 +8,5 @@ src/DatabaseVersion.Test/bin
 src/DatabaseVersion.Test/obj
 src/DatabaseVersion.Tests/bin
 src/DatabaseVersion.Tests/obj
+*.pidb
+*.userprefs
