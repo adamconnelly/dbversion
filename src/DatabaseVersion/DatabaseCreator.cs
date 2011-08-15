@@ -46,6 +46,13 @@ namespace DatabaseVersion
             set;
         }
 
+        [Import]
+        public ISessionFactoryProvider SessionFactoryProvider
+        {
+            get;
+            set;
+        }
+
         public IDatabaseArchive Archive
         {
             get;
@@ -69,38 +76,47 @@ namespace DatabaseVersion
         /// </exception>
         public void Create(string version, string connectionString, string connectionType, ITaskExecuter executer)
         {
-            using (IDbConnection connection = this.ConnectionFactory.Create(connectionString, connectionType))
+            using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {
-                connection.Open();
-
-                if (!this.VersionProvider.VersionTableExists(connection))
+                using (var session = sessionFactory.OpenSession())
                 {
-                    this.VersionProvider.CreateVersionTable(connection);
+                    // Set the session to always flush to make sure we execute everything
+                    // in order
+                    session.FlushMode = NHibernate.FlushMode.Always;
+
+                    using (var transaction = session.BeginTransaction())
+                    {
+                        if (!this.VersionProvider.VersionTableExists(session))
+                        {
+                            this.VersionProvider.CreateVersionTable(session);
+                        }
+
+                        VersionBase currentVersion = this.VersionProvider.GetCurrentVersion(session);
+
+                        object targetVersion;
+                        if (string.IsNullOrEmpty(version))
+                        {
+                            targetVersion = this.Archive.Versions
+                                .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
+                                .First()
+                                .Version;
+                        } else
+                        {
+                            targetVersion = this.VersionProvider.CreateVersion(version);
+                        }
+
+                        if (!this.Archive.ContainsVersion(targetVersion))
+                        {
+                            throw new Version.VersionNotFoundException(targetVersion);
+                        }
+
+                        this.AddTasksToExecuter(executer, currentVersion, targetVersion);
+
+                        executer.ExecuteTasks(session);
+
+                        transaction.Commit();
+                    }
                 }
-
-                VersionBase currentVersion = this.VersionProvider.GetCurrentVersion(connection);
-
-                object targetVersion;
-                if (string.IsNullOrEmpty(version))
-                {
-                    targetVersion = this.Archive.Versions
-                        .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
-                        .First()
-                        .Version;
-                }
-                else
-                {
-                    targetVersion = this.VersionProvider.CreateVersion(version);
-                }
-
-                if (!this.Archive.ContainsVersion(targetVersion))
-                {
-                    throw new Version.VersionNotFoundException(targetVersion);
-                }
-
-                this.AddTasksToExecuter(executer, currentVersion, targetVersion);
-
-                executer.ExecuteTasks(connection);
             }
         }
 
@@ -117,7 +133,7 @@ namespace DatabaseVersion
 
         private void AddTasksToExecuter(ITaskExecuter executer, VersionBase currentVersion, object targetVersion)
         {
-            IEnumerable<IDatabaseVersion> versionsToExecute = this.Archive.Versions
+            IEnumerable<IDatabaseVersion > versionsToExecute = this.Archive.Versions
                 .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
                 .Where(
                     v =>
@@ -138,8 +154,7 @@ namespace DatabaseVersion
                             executer.AddTask(task);
                             currentVersion.AddTask(task);
                         }
-                    }
-                    else
+                    } else
                     {
                         executer.AddTask(task);
                         v.Version.AddTask(task);
@@ -149,9 +164,12 @@ namespace DatabaseVersion
                 if (executer.HasTasks)
                 {
                     if (updating)
+                    {
                         executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion));
-                    else
+                    } else
+                    {
                         executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
+                    }
                 }
             }
         }

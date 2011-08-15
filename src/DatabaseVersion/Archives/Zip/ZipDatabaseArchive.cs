@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.ComponentModel.Composition;
 using System.Collections.Generic;
+
 namespace DatabaseVersion.Archives.Zip
 {
     [Export(typeof(IDatabaseArchive))]
@@ -12,6 +13,7 @@ namespace DatabaseVersion.Archives.Zip
         #region Fields
         private readonly IManifestReader manifestReader;
         private readonly List<IDatabaseVersion> versions = new List<IDatabaseVersion>();
+
         #endregion
 
         public ZipDatabaseArchive(string path, IManifestReader manifestReader)
@@ -24,7 +26,7 @@ namespace DatabaseVersion.Archives.Zip
 
             using (ZipFile zipfile = new ZipFile(path))
             {
-                foreach (ZipEntry entry in zipfile.SelectEntries("database.xml"))
+                foreach (ZipEntry entry in zipfile.Where(e => e.FileName.EndsWith("database.xml")))
                 {
                     this.ParseManifest(entry);
                 }
@@ -75,7 +77,6 @@ namespace DatabaseVersion.Archives.Zip
 
             this.versions.Add(this.manifestReader.Read(stream, entry.FileName, this));
         }
-
 
         public string GetScriptPath(string manifestPath, string scriptFileName)
         {

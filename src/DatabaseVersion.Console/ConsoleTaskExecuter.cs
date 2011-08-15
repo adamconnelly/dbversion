@@ -1,4 +1,5 @@
-﻿namespace DatabaseVersion.Console
+﻿using NHibernate;
+namespace DatabaseVersion.Console
 {
     using System;
     using System.Collections.Generic;
@@ -14,13 +15,13 @@
             this.tasks.Enqueue(task);
         }
 
-        public void ExecuteTasks(System.Data.IDbConnection connection)
+        public void ExecuteTasks(ISession session)
         {
             double count = this.tasks.Count;
             for (int i = 1; i < count + 1; i++)
             {
                 IDatabaseTask task = this.tasks.Dequeue();
-                task.Execute(connection);
+                task.Execute(session);
                 Console.WriteLine("{0:0%} complete. {1}.", i / count, task.Description);
             }
         }

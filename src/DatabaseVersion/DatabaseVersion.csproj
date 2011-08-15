@@ -97,6 +97,11 @@
     <Compile Include="Version\NumericVersion\NumericVersionProvider.cs" />
     <Compile Include="Version\VersionBase.cs" />
     <Compile Include="Version\VersionNotFoundException.cs" />
+    <Compile Include="Connections\ISessionFactoryProvider.cs" />
+    <Compile Include="Connections\SessionFactoryProvider.cs" />
+    <Compile Include="Connections\IHibernateMapping.cs" />
+    <Compile Include="Property\IPropertyService.cs" />
+    <Compile Include="Property\PropertyService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -106,4 +111,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Property\" />
+    <Folder Include="Connections\" />
+  </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using NHibernate;
 
 namespace DatabaseVersion.Tasks
 {
@@ -23,8 +24,8 @@ namespace DatabaseVersion.Tasks
         /// <summary>
         /// Executes the task.
         /// </summary>
-        /// <param name="connection">The connection to use to execute the task.</param>
+        /// <param name="session">The connection to use to execute the task.</param>
         /// <exception cref="TaskExecutionException">Thrown if the task fails to execute correctly.</exception>
-        void Execute(IDbConnection connection);
+        void Execute(ISession session);
     }
 }

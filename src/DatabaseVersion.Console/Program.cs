@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Reflection;
 using System.IO;
 using System.ComponentModel.Composition.Hosting;
@@ -8,6 +7,7 @@ using DatabaseVersion.Version;
 using System.Linq;
 using DatabaseVersion.Tasks;
 using CommandLine;
+using DatabaseVersion.Property;
 
 namespace DatabaseVersion.Console
 {
@@ -33,14 +33,18 @@ namespace DatabaseVersion.Console
 
             try
             {
+                var propertyService = container.GetExportedValue<IPropertyService>();
+                propertyService["connection.provider"] = "NHibernate.Connection.DriverConnectionProvider";
+                propertyService["connection.driver_class"] = "NHibernate.Driver.MySqlDataDriver";
+                propertyService["connection.connection_string"] = "Server=localhost;Database=library;Uid=adam;";
+                propertyService["dialect"] = "NHibernate.Dialect.MySQLDialect";
+
                 creator.LoadArchive(arguments.Archive);
                 creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType, new ConsoleTaskExecuter());
-            }
-            catch (VersionNotFoundException e)
+            } catch (VersionNotFoundException e)
             {
                 System.Console.WriteLine(e.Message);
-            }
-            catch (TaskExecutionException e)
+            } catch (TaskExecutionException e)
             {
                 System.Console.WriteLine(e.Message);
             }

@@ -21,9 +21,9 @@ namespace DatabaseVersion.Version.NumericVersion
             return new NumericVersion(int.Parse(versionString));
         }
 
-        public bool VersionTableExists(System.Data.IDbConnection connection)
+        public bool VersionTableExists(ISession session)
         {
-            using (IDbCommand command = connection.CreateCommand())
+            using (IDbCommand command = session.Connection.CreateCommand())
             {
                 command.CommandText = "select count(1) from information_schema.tables where table_name = 'Version'";
                 var count = (int)command.ExecuteScalar();
@@ -32,42 +32,33 @@ namespace DatabaseVersion.Version.NumericVersion
             }
         }
 
-        public VersionBase GetCurrentVersion(System.Data.IDbConnection connection)
+        public VersionBase GetCurrentVersion(ISession session)
         {
-            ISessionFactory sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
-            using (var session = sessionFactory.OpenSession())
-            using (var transaction = session.BeginTransaction())
-            {
-                return session.QueryOver<NumericVersion>()
+            return session.QueryOver<NumericVersion>()
                     .OrderBy(v => v.Version).Desc()
                     .List()
                     .FirstOrDefault();
-            }
         }
 
-        public void CreateVersionTable(System.Data.IDbConnection connection)
+        public void CreateVersionTable(ISession session)
         {
-            Fluently.Configure()
-                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
-                .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(v=>v.FluentMappings.Add<NumericVersionTaskMap>())
-                .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
-                .BuildSessionFactory();
+//            Fluently.Configure()
+//                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
+//                .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
+//                .Mappings(v => v.FluentMappings.Add<NumericVersionTaskMap>())
+//                .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
+//                .BuildSessionFactory();
         }
 
-        public void InsertVersion(VersionBase version, System.Data.IDbConnection connection)
+        public void InsertVersion(VersionBase version, ISession session)
         {
-            var sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
-            using (var session = sessionFactory.OpenSession())
-            using (var transaction = session.BeginTransaction())
+            NumericVersion numericVersion = version as NumericVersion;
+            if (!numericVersion.CreatedOn.HasValue)
             {
-                NumericVersion numericVersion = version as NumericVersion;
-                if (!numericVersion.CreatedOn.HasValue)
-                    numericVersion.CreatedOn = DateTime.UtcNow;
-                numericVersion.UpdatedOn = DateTime.UtcNow;
-                session.SaveOrUpdate(version);
-                transaction.Commit();
+                numericVersion.CreatedOn = DateTime.UtcNow;
             }
+            numericVersion.UpdatedOn = DateTime.UtcNow;
+            session.SaveOrUpdate(version);
         }
 
         public IComparer<object> GetComparer()
