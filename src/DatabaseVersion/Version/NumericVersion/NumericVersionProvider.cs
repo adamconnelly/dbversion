@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel.Composition;
 using System.Data;
-using DatabaseVersion.Tasks;
+using dbversion.Tasks;
 using NHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
 
-namespace DatabaseVersion.Version.NumericVersion
+namespace dbversion.Version.NumericVersion
 {
     //[Export(typeof(IVersionProvider))]
     public class NumericVersionProvider : IVersionProvider

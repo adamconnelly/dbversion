@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using DatabaseVersion.Tasks;
+using dbversion.Tasks;
 
-namespace DatabaseVersion.Version.ClassicVersion
+namespace dbversion.Version.ClassicVersion
 {
     public class ClassicVersion: VersionBase
     {

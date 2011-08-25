@@ -1,6 +1,4 @@
-using System;
-
-namespace DatabaseVersion.Connections
+namespace dbversion.Session
 {
     /// <summary>
     /// Defines a Hibernate mapping.

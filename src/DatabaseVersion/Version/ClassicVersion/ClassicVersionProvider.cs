@@ -1,25 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel.Composition;
-using System.Data;
-using DatabaseVersion.Tasks;
-using NHibernate;
-using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using NHibernate.Tool.hbm2ddl;
-using NHibernate.Criterion;
-using DatabaseVersion.Property;
-using NHibernate.Cfg;
-
-namespace DatabaseVersion.Version.ClassicVersion
+namespace dbversion.Version.ClassicVersion
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.ComponentModel.Composition;
+    using System.Data;
+    using dbversion.Tasks;
+    using NHibernate;
+    using FluentNHibernate.Cfg;
+    using FluentNHibernate.Cfg.Db;
+    using NHibernate.Tool.hbm2ddl;
+    using NHibernate.Criterion;
+    using NHibernate.Cfg;
+
+    using dbversion.Property;
+    using dbversion.Session;
+    using dbversion.Version;
+
     [Export(typeof(IVersionProvider))]
     public class ClasicVersionProvider : IVersionProvider
     {
         [Import]
-        public IPropertyService PropertyService
+        public ISessionFactoryProvider SessionFactoryProvider
         {
             get;
             set;
@@ -51,18 +54,7 @@ namespace DatabaseVersion.Version.ClassicVersion
 
         public void CreateVersionTable(ISession session)
         {
-
-//            Fluently.Configure()
-//                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
-////                .Mappings(v => v.FluentMappings.Add<ClassicVersionMap>())
-////                .Mappings(v => v.FluentMappings.Add<ClassicVersionTaskMap>())
-//                    .Mappings(v => {
-//                v.FluentMappings.Add<ClassicVersionMap>();
-//                v.FluentMappings.Add<ClassicVersionTaskMap>();
-//            })
-//                .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
-//                .BuildSessionFactory();
-            Fluently.Configure(this.GetConfiguration())
+            Fluently.Configure(this.SessionFactoryProvider.GetConfiguration())
                 .Mappings(v => v.FluentMappings.Add<ClassicVersionMap>())
                     .Mappings(v => v.FluentMappings.Add<ClassicVersionTaskMap>())
                     .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
@@ -85,15 +77,6 @@ namespace DatabaseVersion.Version.ClassicVersion
             return new ClassicVersionComparer();
         }
 
-        private ISessionFactory CreateSessionFactory(string connectionString)
-        {
-            return Fluently.Configure()
-                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connectionString))
-                .Mappings(m => m.FluentMappings.Add<ClassicVersionMap>())
-                .Mappings(m => m.FluentMappings.Add<ClassicVersionTaskMap>())
-                .BuildSessionFactory();
-        }
-
         public bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, IDatabaseTask task)
         {
             if (currentVersion != null)
@@ -107,24 +90,6 @@ namespace DatabaseVersion.Version.ClassicVersion
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Gets the configuration.
-        /// </summary>
-        private Configuration GetConfiguration()
-        {
-            Dictionary<string, string > properties = new Dictionary<string, string>();
-//            properties["connection.provider"] = "NHibernate.Connection.DriverConnectionProvider";
-//            properties["connection.driver_class"] = "NHibernate.Driver.MySqlDataDriver";
-//            properties["connection.connection_string"] = "Server=localhost;Database=person;Uid=adam;";
-//            properties["dialect"] = "NHibernate.Dialect.MySQLDialect";
-            properties["connection.provider"] = this.PropertyService["connection.provider"];
-            properties["connection.driver_class"] = this.PropertyService["connection.driver_class"];
-            properties["connection.connection_string"] = this.PropertyService["connection.connection_string"];
-            properties["dialect"] = this.PropertyService["dialect"];
-
-            return new Configuration().AddProperties(properties);
         }
 
         private class ClassicVersionComparer : Comparer<object>

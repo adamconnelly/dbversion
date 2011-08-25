@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 
-namespace DatabaseVersion.Property
+namespace dbversion.Property
 {
     [Export(typeof(IPropertyService))]
     public class PropertyService : IPropertyService
@@ -27,6 +28,11 @@ namespace DatabaseVersion.Property
             {
                 this.properties[propertyName] = value;
             }
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> StartingWith(string prefix)
+        {
+            return this.properties.Where(p => p.Key.StartsWith(prefix));
         }
     }
 }

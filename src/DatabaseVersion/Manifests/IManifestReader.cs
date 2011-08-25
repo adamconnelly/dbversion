@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DatabaseVersion.Archives;
-using System.IO;
-
-namespace DatabaseVersion.Manifests
+namespace dbversion.Manifests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using dbversion.Archives;
+    using System.IO;
+    using dbversion.Version;
+
     /// <summary>
     /// An object that can read database manifests to produce <see cref="IDatabaseVersion"/> instances.
     /// </summary>

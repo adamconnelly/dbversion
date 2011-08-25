@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
 using NHibernate;
 
-namespace DatabaseVersion.Tasks
+namespace dbversion.Tasks
 {
     public interface IDatabaseTask
     {

@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using System.ComponentModel.Composition;
-
-namespace DatabaseVersion.Tasks.Sql
+namespace dbversion.Tasks.Sql
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Xml.Linq;
+    using System.ComponentModel.Composition;
+
+    using dbversion.Version;
+
     [Export(typeof(IDatabaseTaskFactory))]
     public class ScriptTaskFactory : IDatabaseTaskFactory
     {

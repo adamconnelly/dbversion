@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel.Composition;
 using System.IO;
-using DatabaseVersion.Manifests;
+using dbversion.Manifests;
 
-namespace DatabaseVersion.Archives.File
+namespace dbversion.Archives.File
 {
     [Export(typeof(IDatabaseArchiveFactory))]
     public class FileDatabaseArchiveFactory : IDatabaseArchiveFactory

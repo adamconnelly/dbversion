@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 
-namespace DatabaseVersion.Tests.Utils
+namespace dbversion.Tests.Utils
 {
     public static class AssemblyUtil
     {

@@ -1,9 +1,9 @@
-﻿
 using System.ComponentModel;
 using System;
 using CommandLine;
 using CommandLine.Text;
-namespace DatabaseVersion.Console
+
+namespace dbversion.Console
 {
     /// <summary>
     /// The command line arguments that define how the application should function.
@@ -20,18 +20,6 @@ namespace DatabaseVersion.Console
         /// </summary>
         [Option("c", "connectionString", HelpText = "The database connection string.")]
         public string ConnectionString;
-
-        /// <summary>
-        /// The type of database to connect to.
-        /// </summary>
-        [Option("t", "connectionType", HelpText = "The type of database you are connecting to.")]
-        public string ConnectionType;
-
-        /// <summary>
-        /// Lists the available connection types.
-        /// </summary>
-        [Option(null, "listConnectionTypes", HelpText = "Lists the available connection types.")]
-        public bool ListConnectionTypes;
 
         /// <summary>
         /// The archive containing the database scripts.

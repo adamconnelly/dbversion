@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
 using NHibernate;
-namespace DatabaseVersion.Tasks
+namespace dbversion.Tasks
 {
     public class SimpleTaskExecuter : ITaskExecuter
     {

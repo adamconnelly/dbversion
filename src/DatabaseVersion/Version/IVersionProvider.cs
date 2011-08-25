@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
-using DatabaseVersion.Tasks;
-using DatabaseVersion.Version;
+using dbversion.Tasks;
+using dbversion.Version;
 using NHibernate;
 
-namespace DatabaseVersion
+namespace dbversion
 {
     /// <summary>
     /// Provides methods used to create version objects that can be compared

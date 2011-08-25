@@ -1,5 +1,5 @@
-﻿using NHibernate;
-namespace DatabaseVersion.Console
+using NHibernate;
+namespace dbversion.Console
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,11 +7,11 @@ using System.Xml;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Xml.Linq;
-using DatabaseVersion.Archives;
-using DatabaseVersion.Tasks;
-using DatabaseVersion.Version;
+using dbversion.Archives;
+using dbversion.Tasks;
+using dbversion.Version;
 
-namespace DatabaseVersion.Manifests
+namespace dbversion.Manifests
 {
     [Export(typeof(IManifestReader))]
     public class ManifestReader : IManifestReader

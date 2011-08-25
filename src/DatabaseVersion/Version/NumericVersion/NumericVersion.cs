@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DatabaseVersion.Tasks;
+using dbversion.Tasks;
 
-namespace DatabaseVersion.Version.NumericVersion
+namespace dbversion.Version.NumericVersion
 {
     public class NumericVersion: VersionBase
     {

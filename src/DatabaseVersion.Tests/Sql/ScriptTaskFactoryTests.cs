@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
 using System.Xml.Linq;
-using DatabaseVersion.Tasks;
-using DatabaseVersion.Tasks.Sql;
+using dbversion.Tasks;
+using dbversion.Tasks.Sql;
 
-namespace DatabaseVersion.Tests.Sql
+namespace dbversion.Tests.Sql
 {
     public class ScriptTaskFactoryTests
     {

@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace DatabaseVersion.Version
+namespace dbversion.Version
 {
     public abstract class Task
     {

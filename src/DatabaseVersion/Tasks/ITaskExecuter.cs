@@ -1,5 +1,5 @@
-﻿using NHibernate;
-namespace DatabaseVersion.Tasks
+using NHibernate;
+namespace dbversion.Tasks
 {
     using System.Data;
 

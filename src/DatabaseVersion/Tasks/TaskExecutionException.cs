@@ -1,4 +1,4 @@
-﻿namespace DatabaseVersion.Tasks
+namespace dbversion.Tasks
 {
     using System;
 

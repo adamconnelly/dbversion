@@ -1,20 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using DatabaseVersion.Archives;
+using dbversion.Archives;
 using System.Reflection;
 using System.IO;
 using System.Data;
-using DatabaseVersion.Manifests;
-using DatabaseVersion.Connections;
+using dbversion.Manifests;
+using dbversion.Session;
 using System.ComponentModel.Composition;
-using DatabaseVersion.Tasks;
-using DatabaseVersion.Tasks.Version;
-using DatabaseVersion.Version.ClassicVersion;
-using DatabaseVersion.Version;
+using dbversion.Tasks;
+using dbversion.Tasks.Version;
+using dbversion.Version.ClassicVersion;
+using dbversion.Version;
 
-namespace DatabaseVersion
+namespace dbversion
 {
     public class DatabaseCreator
     {
@@ -40,13 +40,6 @@ namespace DatabaseVersion
         }
 
         [Import]
-        public IDbConnectionFactory ConnectionFactory
-        {
-            get;
-            set;
-        }
-
-        [Import]
         public ISessionFactoryProvider SessionFactoryProvider
         {
             get;
@@ -59,9 +52,9 @@ namespace DatabaseVersion
             private set;
         }
 
-        public void Create(string version, string connectionString, string connectionType)
+        public void Create(string version, string connectionString)
         {
-            this.Create(version, connectionString, connectionType, new SimpleTaskExecuter());
+            this.Create(version, connectionString, new SimpleTaskExecuter());
         }
 
         /// <summary>
@@ -74,7 +67,7 @@ namespace DatabaseVersion
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public void Create(string version, string connectionString, string connectionType, ITaskExecuter executer)
+        public void Create(string version, string connectionString, ITaskExecuter executer)
         {
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {

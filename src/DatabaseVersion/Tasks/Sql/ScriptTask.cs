@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.IO;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using DatabaseVersion.Archives.File;
-using DatabaseVersion.Archives.Zip;
-using NHibernate;
-
-namespace DatabaseVersion.Tasks.Sql
+namespace dbversion.Tasks.Sql
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Data;
+    using System.IO;
+    using System.Diagnostics;
+    using System.Text.RegularExpressions;
+
+    using dbversion.Version;
+
+    using NHibernate;
+
     public class ScriptTask : IDatabaseTask, IEqualityComparer<ScriptTask>
     {
         /// <summary>

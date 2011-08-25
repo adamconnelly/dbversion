@@ -64,6 +64,7 @@
     <Compile Include="Sql\ScriptTaskTests.cs" />
     <Compile Include="Utils\AssemblyUtil.cs" />
     <Compile Include="Utils\FileUtil.cs" />
+    <Compile Include="Property\PropertyServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
@@ -105,4 +106,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Property\" />
+  </ItemGroup>
 </Project>

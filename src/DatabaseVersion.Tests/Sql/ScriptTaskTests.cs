@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Xunit;
-using DatabaseVersion.Tasks.Sql;
-using Moq;
-using System.Data;
-using System.IO;
-using DatabaseVersion.Tasks;
-using NHibernate;
-
-namespace DatabaseVersion.Tests.Sql
+namespace dbversion.Tests.Sql
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Xunit;
+    using dbversion.Tasks.Sql;
+    using Moq;
+    using System.Data;
+    using System.IO;
+    using dbversion.Tasks;
+    using dbversion.Version;
+    using NHibernate;
+
     public class ScriptTaskTests
     {
         private readonly Mock<ISession> session = new Mock<ISession>() { DefaultValue = DefaultValue.Mock };

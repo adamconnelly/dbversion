@@ -1,6 +1,6 @@
-﻿using DatabaseVersion.Version;
+using dbversion.Version;
 using NHibernate;
-namespace DatabaseVersion.Tasks.Version
+namespace dbversion.Tasks.Version
 {
     /// <summary>
     /// Inserts a version into the database.

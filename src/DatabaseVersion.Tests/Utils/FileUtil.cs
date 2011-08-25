@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace DatabaseVersion.Tests.Utils
+namespace dbversion.Tests.Utils
 {
     public static class FileUtil
     {

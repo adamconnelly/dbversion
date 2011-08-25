@@ -1,4 +1,4 @@
-﻿namespace DatabaseVersion.Version
+namespace dbversion.Version
 {
     using System;
 

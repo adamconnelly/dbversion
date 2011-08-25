@@ -1,17 +1,22 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using FluentNHibernate.Cfg;
-using NHibernate;
-using NHibernate.Cfg;
-using DatabaseVersion.Property;
-
-namespace DatabaseVersion.Connections
+namespace dbversion.Session
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.ComponentModel.Composition;
+    using FluentNHibernate.Cfg;
+    using NHibernate;
+    using NHibernate.Cfg;
+    using dbversion.Property;
+
     [Export(typeof(ISessionFactoryProvider))]
     public class SessionFactoryProvider : ISessionFactoryProvider
     {
+        /// <summary>
+        /// The prefix for any properties that should be passed to the hibernate configuration.
+        /// </summary>
+        private const string PropertyPrefix = "hibernate.";
+
         [Import]
         public IPropertyService PropertyService
         {
@@ -36,19 +41,16 @@ namespace DatabaseVersion.Connections
         }
 
         /// <summary>
-        /// Gets the configuration.
+        /// Gets the configuration with no mappings added.
         /// </summary>
-        private Configuration GetConfiguration()
+        public Configuration GetConfiguration()
         {
             Dictionary<string, string > properties = new Dictionary<string, string>();
-//            properties["connection.provider"] = "NHibernate.Connection.DriverConnectionProvider";
-//            properties["connection.driver_class"] = "NHibernate.Driver.MySqlDataDriver";
-//            properties["connection.connection_string"] = "Server=localhost;Database=person;Uid=adam;";
-//            properties["dialect"] = "NHibernate.Dialect.MySQLDialect";
-            properties["connection.provider"] = this.PropertyService["connection.provider"];
-            properties["connection.driver_class"] = this.PropertyService["connection.driver_class"];
-            properties["connection.connection_string"] = this.PropertyService["connection.connection_string"];
-            properties["dialect"] = this.PropertyService["dialect"];
+
+            foreach (var property in this.PropertyService.StartingWith(PropertyPrefix))
+            {
+                properties[property.Key.Substring(PropertyPrefix.Length)] = property.Value;
+            }
 
             return new Configuration().AddProperties(properties);
         }

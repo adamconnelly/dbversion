@@ -1,22 +1,22 @@
-﻿using System;
-using System.Linq;
-using DatabaseVersion.Version.NumericVersion;
-using Xunit;
-using System.IO;
-using System.Reflection;
-using Moq;
-using System.Xml.Linq;
-using DatabaseVersion.Archives;
-using DatabaseVersion.Manifests;
-using DatabaseVersion.Tasks;
-
-namespace DatabaseVersion.Tests.Manifests
+namespace dbversion.Tests.Manifests
 {
+    using System;
+    using System.Linq;
+    using dbversion.Version.NumericVersion;
+    using Xunit;
+    using System.IO;
+    using System.Reflection;
+    using Moq;
+    using System.Xml.Linq;
+    using dbversion.Archives;
+    using dbversion.Manifests;
+    using dbversion.Tasks;
+    using dbversion.Version;
+
     public class ManifestReaderTests
     {
         private const string ManifestPath = "DatabaseVersion.Tests.ExampleManifests.example.xml";
         private const string OneTaskManifestPath = "DatabaseVersion.Tests.ExampleManifests.oneTask.xml";
-
         private readonly Mock<IDatabaseArchive> databaseArchive = new Mock<IDatabaseArchive>();
         private readonly Mock<IVersionProvider> versionProvider = new Mock<IVersionProvider>();
 
@@ -93,8 +93,8 @@ namespace DatabaseVersion.Tests.Manifests
             // Arrange
             ManifestReader reader = this.CreateManifestReader();
 
-            Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
-            Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
+            Mock<IDatabaseTaskFactory > factory = new Mock<IDatabaseTaskFactory>();
+            Mock<IDatabaseTask > task = new Mock<IDatabaseTask>();
             factory.Setup(f => f.CanCreate(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
             factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0, It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 
@@ -113,8 +113,8 @@ namespace DatabaseVersion.Tests.Manifests
             // Arrange
             ManifestReader reader = this.CreateManifestReader();
 
-            Mock<IDatabaseTaskFactory> factory = new Mock<IDatabaseTaskFactory>();
-            Mock<IDatabaseTask> task = new Mock<IDatabaseTask>();
+            Mock<IDatabaseTaskFactory > factory = new Mock<IDatabaseTaskFactory>();
+            Mock<IDatabaseTask > task = new Mock<IDatabaseTask>();
             factory.Setup(f => f.CanCreate(It.IsAny<XElement>())).Returns(true);
             factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>(), It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 

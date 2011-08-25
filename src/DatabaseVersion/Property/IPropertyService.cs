@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 
-namespace DatabaseVersion.Property
+namespace dbversion.Property
 {
     public interface IPropertyService
     {
         string this[string propertyName]
         {
-            get;set;
+            get; set;
         }
+
+        IEnumerable<KeyValuePair<string, string>> StartingWith(string prefix);
     }
 }
 

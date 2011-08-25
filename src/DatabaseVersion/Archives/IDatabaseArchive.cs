@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-
-namespace DatabaseVersion.Archives
+namespace dbversion.Archives
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+
+    using dbversion.Version;
+    
     /// <summary>
     /// An archive containing a collection of database versions.
     /// </summary>
