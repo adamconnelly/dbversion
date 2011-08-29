@@ -10,12 +10,21 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
+using NHibernate.Cfg;
+using dbversion.Session;
 
 namespace dbversion.Version.NumericVersion
 {
     //[Export(typeof(IVersionProvider))]
     public class NumericVersionProvider : IVersionProvider
     {
+        [Import]
+        public ISessionFactoryProvider SessionFactoryProvider
+        {
+            get;
+            set;
+        }
+
         public VersionBase CreateVersion(string versionString)
         {
             return new NumericVersion(int.Parse(versionString));
@@ -23,13 +32,8 @@ namespace dbversion.Version.NumericVersion
 
         public bool VersionTableExists(ISession session)
         {
-            using (IDbCommand command = session.Connection.CreateCommand())
-            {
-                command.CommandText = "select count(1) from information_schema.tables where table_name = 'Version'";
-                var count = (int)command.ExecuteScalar();
-
-                return count == 1;
-            }
+            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'Version'");
+            return Convert.ToInt64(query.UniqueResult()) == 1;
         }
 
         public VersionBase GetCurrentVersion(ISession session)
@@ -42,12 +46,20 @@ namespace dbversion.Version.NumericVersion
 
         public void CreateVersionTable(ISession session)
         {
-//            Fluently.Configure()
-//                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
-//                .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
-//                .Mappings(v => v.FluentMappings.Add<NumericVersionTaskMap>())
-//                .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
-//                .BuildSessionFactory();
+            Configuration config = null;
+            Fluently.Configure(this.SessionFactoryProvider.GetConfiguration())
+                .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
+                    .Mappings(v => v.FluentMappings.Add<NumericVersionTaskMap>())
+                    .ExposeConfiguration(c => config = c)
+                    .BuildSessionFactory();
+
+            SchemaExport export = new SchemaExport(config);
+            export.Create(schema =>
+            {
+                var query = session.CreateSQLQuery(schema);
+                query.ExecuteUpdate();
+            },
+            false);
         }
 
         public void InsertVersion(VersionBase version, ISession session)

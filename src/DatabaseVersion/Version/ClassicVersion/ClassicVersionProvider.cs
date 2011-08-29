@@ -35,13 +35,8 @@ namespace dbversion.Version.ClassicVersion
 
         public bool VersionTableExists(ISession session)
         {
-            using (IDbCommand command = session.Connection.CreateCommand())
-            {
-                command.CommandText = "select count(1) from information_schema.tables where table_name = 'Version'";
-                var count = Convert.ToInt64(command.ExecuteScalar());
-
-                return count == 1;
-            }
+            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'Version'");
+            return Convert.ToInt64(query.UniqueResult()) == 1;
         }
 
         public VersionBase GetCurrentVersion(ISession session)
@@ -54,11 +49,20 @@ namespace dbversion.Version.ClassicVersion
 
         public void CreateVersionTable(ISession session)
         {
+            Configuration config = null;
             Fluently.Configure(this.SessionFactoryProvider.GetConfiguration())
                 .Mappings(v => v.FluentMappings.Add<ClassicVersionMap>())
                     .Mappings(v => v.FluentMappings.Add<ClassicVersionTaskMap>())
-                    .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
+                    .ExposeConfiguration(c => config = c)
                     .BuildSessionFactory();
+
+            SchemaExport export = new SchemaExport(config);
+            export.Create(schema =>
+            {
+                var query = session.CreateSQLQuery(schema);
+                query.ExecuteUpdate();
+            },
+            false);
         }
 
         public void InsertVersion(VersionBase version, ISession session)
