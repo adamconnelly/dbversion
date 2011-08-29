@@ -8,7 +8,7 @@
     <ProjectGuid>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DatabaseVersion</RootNamespace>
+    <RootNamespace>dbversion</RootNamespace>
     <AssemblyName>DatabaseVersion</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -97,6 +97,10 @@
     <Compile Include="Session\IHibernateMapping.cs" />
     <Compile Include="Version\DatabaseVersion.cs" />
     <Compile Include="Version\IDatabaseVersion.cs" />
+    <Compile Include="Property\Property.cs" />
+    <Compile Include="Property\PropertyCollection.cs" />
+    <Compile Include="Settings\SettingsService.cs" />
+    <Compile Include="Utils\XmlSerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -109,5 +113,7 @@
   <ItemGroup>
     <Folder Include="Property\" />
     <Folder Include="Session\" />
+    <Folder Include="Settings\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
 </Project>

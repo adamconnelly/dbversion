@@ -1,18 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.Xml.Linq;
-using dbversion.Archives;
-using dbversion.Tasks;
-using dbversion.Version;
-
 namespace dbversion.Manifests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using System.Xml;
+    using System.ComponentModel.Composition;
+    using System.Diagnostics;
+    using System.Xml.Linq;
+    using dbversion.Archives;
+    using dbversion.Tasks;
+    using dbversion.Version;
+
     [Export(typeof(IManifestReader))]
     public class ManifestReader : IManifestReader
     {
