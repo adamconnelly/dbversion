@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>-c abc -a /home/adam/bzr/dbversion/config-service/samples/classic-sample</Commandlineparameters>
+    <Commandlineparameters>-c abc -a /home/adam/bzr/dbversion/settings/samples/classic-sample</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>

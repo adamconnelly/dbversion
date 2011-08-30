@@ -101,6 +101,8 @@
     <Compile Include="Property\PropertyCollection.cs" />
     <Compile Include="Settings\SettingsService.cs" />
     <Compile Include="Utils\XmlSerializer.cs" />
+    <Compile Include="Settings\ISettingsService.cs" />
+    <Compile Include="Utils\CollectionExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

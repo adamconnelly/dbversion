@@ -5,11 +5,14 @@ namespace dbversion.Console
     using System.IO;
     using System.ComponentModel.Composition.Hosting;
     using System.ComponentModel.Composition;
-    using dbversion.Version;
     using System.Linq;
-    using dbversion.Tasks;
+
     using CommandLine;
+
     using dbversion.Property;
+    using dbversion.Settings;
+    using dbversion.Tasks;
+    using dbversion.Version;
 
     public class Program
     {
@@ -24,10 +27,9 @@ namespace dbversion.Console
             try
             {
                 var propertyService = container.GetExportedValue<IPropertyService>();
-                propertyService["hibernate.connection.provider"] = "NHibernate.Connection.DriverConnectionProvider";
-                propertyService["hibernate.connection.driver_class"] = "NHibernate.Driver.SqlClientDriver";
-                propertyService["hibernate.dialect"] = "NHibernate.Dialect.MsSql2008Dialect";
-                propertyService["hibernate.connection.connection_string"] = arguments.ConnectionString;
+                SetDefaultPropertyValues(propertyService, arguments);
+
+                MergeSavedProperties(container, propertyService);
 
                 creator.LoadArchive(arguments.Archive);
                 creator.Create(arguments.Version, arguments.ConnectionString, new ConsoleTaskExecuter());
@@ -78,6 +80,25 @@ namespace dbversion.Console
                 new DirectoryCatalog(pluginPath));
 
             return new CompositionContainer(aggregateCatalog);
+        }
+
+        private static void SetDefaultPropertyValues(IPropertyService propertyService, Arguments arguments)
+        {
+            propertyService.Add(new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" });
+            propertyService.Add(new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" });
+            propertyService.Add(new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" });
+            propertyService.Add(new Property { Key = "hibernate.connection.connection_string", Value = arguments.ConnectionString });
+        }
+
+        private static void MergeSavedProperties(CompositionContainer container, IPropertyService propertyService)
+        {
+            var settingsService = container.GetExportedValue<ISettingsService>();
+            var savedProperties = settingsService.DeSerialize<PropertyCollection>("properties.xml");
+         
+            if (savedProperties != null)
+            {
+                propertyService.Merge(savedProperties.Properties);
+            }
         }
     }
 }

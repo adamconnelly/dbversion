@@ -1,6 +1,8 @@
-using dbversion.Property;namespace dbversion.Tests.Property{
+namespace dbversion.Tests.Property{
     using System.Collections.Generic;
     using System.Linq;
+
+    using dbversion.Property;
     
     using Xunit;
 
@@ -9,13 +11,14 @@ using dbversion.Property;namespace dbversion.Tests.Property{
         [Fact]        public void ShouldBeAbleToGetPropertyFromIndexer()        {
             // Arrange
             PropertyService service = new PropertyService();
-            service["myProperty"] = "myValue";
+            //service["myProperty"] = new Property { Key = "myProperty", Value = "mValue" };
+            service.Add(new Property { Key = "myProperty", Value = "myValue" });
 
             // Act
-            string propertyValue = service["myProperty"];
+            var propertyValue = service["myProperty"];
 
             // Assert
-            Assert.Equal("myValue", propertyValue);
+            Assert.Equal("myValue", propertyValue.Value);
         }
 
         [Fact]        public void ShouldReturnNullIfPropertyIsNotSet()        {
@@ -23,18 +26,18 @@ using dbversion.Property;namespace dbversion.Tests.Property{
             PropertyService service = new PropertyService();
 
             // Act
-            string propertyValue = service["myProperty"];
+            var propertyValue = service["myProperty"];
 
             // Assert
             Assert.Null(propertyValue);
         }
-
+        
         [Fact]        public void ShouldBeAbleToGetAllPropertiesWithPrefix()        {
             // Arrange
             PropertyService service = new PropertyService();
-            service["myProperty.value1"] = "value1";
-            service["myProperty.value2"] = "value2";
-            service["someOtherProperty.value1"] = "value3";
+            service.Add(new Property { Key = "myProperty.value1", Value = "value1" });
+            service.Add(new Property { Key = "myProperty.value2", Value = "value2" });
+            service.Add(new Property { Key = "someOtherProperty.value1", Value = "value3" });
 
             // Act
             var properties = service.StartingWith("myProperty");

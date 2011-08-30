@@ -1,6 +1,7 @@
 namespace dbversion.Tests.Settings
 {
     using System;
+    using System.Linq;
     using System.IO;
 
     using dbversion.Property;
@@ -92,6 +93,7 @@ namespace dbversion.Tests.Settings
 
         #endregion
 
+        #region Serialize
         [Fact]
         public void ShouldBeAbleToSerializeAnObject()
         {
@@ -156,6 +158,50 @@ namespace dbversion.Tests.Settings
 
             // Assert
             Assert.IsType<ArgumentException>(exception);
+        }
+
+        #endregion
+
+        [Fact]
+        public void ShouldBeAbleToDeserialiseAnObject()
+        {
+            // Arrange
+            var service = new SettingsService();
+
+            var properties = new PropertyCollection();
+            properties.Properties.Add(new Property{ Key = "property.one", Value = "valueOne" });
+            properties.Properties.Add(new Property{ Key = "property.two", Value = "valueTwo" });
+
+            using (var stream = XmlSerializer.Serialize(properties))
+            {
+                using (var fileStream = new FileStream(Path.Combine(service.SettingsDirectory, "test.serialized.properties.xml"), FileMode.Create))
+                {
+                    stream.CopyTo(fileStream);
+                }
+            }
+
+            // Act
+            var deserializedProperties = service.DeSerialize<PropertyCollection>("test.serialized.properties.xml");
+
+            // Assert
+            Assert.Equal(2, deserializedProperties.Properties.Count);
+            Assert.Equal("valueOne", deserializedProperties.Properties.Single(p => p.Key == "property.one").Value);
+            Assert.Equal("valueTwo", deserializedProperties.Properties.Single(p => p.Key == "property.two").Value);
+        }
+
+        [Fact]
+        public void ShouldReturnDefaultTypeIfSettingsFileToDeserializeDoesNotExist()
+        {
+            // Arrange
+            var service = new SettingsService();
+
+            // Act
+            var result1 = service.DeSerialize<PropertyCollection>("non-existent-settings.file1");
+            var result2 = service.DeSerialize<int>("non-existent-settings.file2");
+
+            // Assert
+            Assert.Null(result1);
+            Assert.Equal(default(int), result2);
         }
     }
 }
