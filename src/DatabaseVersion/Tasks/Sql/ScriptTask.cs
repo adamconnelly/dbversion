@@ -1,16 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
-using System.IO;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using DatabaseVersion.Archives.File;
-using DatabaseVersion.Archives.Zip;
-
-namespace DatabaseVersion.Tasks.Sql
+namespace dbversion.Tasks.Sql
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Data;
+    using System.IO;
+    using System.Diagnostics;
+    using System.Text.RegularExpressions;
+
+    using dbversion.Version;
+
+    using NHibernate;
+
     public class ScriptTask : IDatabaseTask, IEqualityComparer<ScriptTask>
     {
         /// <summary>
@@ -68,7 +70,7 @@ namespace DatabaseVersion.Tasks.Sql
             }
         }
 
-        public void Execute(IDbConnection connection)
+        public void Execute(ISession session)
         {
             string filePath = this.GetScriptPath();
 
@@ -78,7 +80,7 @@ namespace DatabaseVersion.Tasks.Sql
                 throw new TaskExecutionException(string.Format("The script file \"{0}\" does not exist in the archive.", filePath));
             }
 
-            this.ExecuteScript(connection, filePath, fileStream);
+            this.ExecuteScript(session, filePath, fileStream);
         }
 
         private string GetScriptPath()
@@ -86,21 +88,20 @@ namespace DatabaseVersion.Tasks.Sql
             return this.version.Archive.GetScriptPath(this.version.ManifestPath, this.FileName);
         }
 
-        private void ExecuteScript(IDbConnection connection, string filePath, Stream fileStream)
+        private void ExecuteScript(ISession session, string filePath, Stream fileStream)
         {
             //TODO: Shouldn't need to do this as we should already be at the beginning
             fileStream.Position = 0;
 
             using (StreamReader reader = new StreamReader(fileStream, Encoding.Default, true))
             {
-                IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
+                IEnumerable<string > batches = GetQueryBatches(reader.ReadToEnd());
                 foreach (string batch in batches)
                 {
                     try
                     {
-                        this.ExecuteQueryBatch(batch, connection);
-                    }
-                    catch (Exception e)
+                        this.ExecuteQueryBatch(batch, session);
+                    } catch (Exception e)
                     {
                         string exceptionMessage = string.Format("Failed to execute script \"{0}\". {1}", filePath, e.Message);
                         throw new TaskExecutionException(exceptionMessage, e);
@@ -117,13 +118,10 @@ namespace DatabaseVersion.Tasks.Sql
                 .Select(b => b.Trim());
         }
 
-        private void ExecuteQueryBatch(string batch, IDbConnection connection)
+        private void ExecuteQueryBatch(string batch, ISession session)
         {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = batch;
-                command.ExecuteNonQuery();
-            }
+            var query = session.CreateSQLQuery(batch);
+            query.ExecuteUpdate();
         }
 
         public bool Equals(ScriptTask x, ScriptTask y)

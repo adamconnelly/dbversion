@@ -1,7 +1,7 @@
-﻿using System;
-using DatabaseVersion.Tasks;
+using System;
+using dbversion.Tasks;
 
-namespace DatabaseVersion.Version
+namespace dbversion.Version
 {
     public abstract class VersionBase
     {

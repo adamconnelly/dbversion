@@ -1,8 +1,11 @@
-﻿using FluentNHibernate.Mapping;
-
-namespace DatabaseVersion.Version.ClassicVersion
+﻿namespace dbversion.Version.ClassicVersion
 {
-    public class ClassicVersionTaskMap : ClassMap<ClassicVersionTask>
+    using FluentNHibernate.Mapping;
+    using dbversion.Session;
+    using System.ComponentModel.Composition;
+
+    [Export(typeof(IHibernateMapping))]
+    public class ClassicVersionTaskMap : ClassMap<ClassicVersionTask>, IHibernateMapping
     {
         public ClassicVersionTaskMap()
         {

@@ -1,5 +1,6 @@
-﻿using DatabaseVersion.Version;
-namespace DatabaseVersion.Tasks.Version
+using dbversion.Version;
+using NHibernate;
+namespace dbversion.Tasks.Version
 {
     /// <summary>
     /// Inserts a version into the database.
@@ -33,9 +34,9 @@ namespace DatabaseVersion.Tasks.Version
             get { return string.Empty; }
         }
 
-        public void Execute(System.Data.IDbConnection connection)
+        public void Execute(ISession session)
         {
-            this.versionProvider.InsertVersion(version, connection);
+            this.versionProvider.InsertVersion(version, session);
         }
     }
 }

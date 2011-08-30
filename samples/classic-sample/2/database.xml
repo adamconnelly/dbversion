@@ -1,0 +1,4 @@
+<database version="2.0">
+  <script file="ddl.sql"/>
+  <!--<script file="migrateUserEmails.sql"/>-->
+</database>

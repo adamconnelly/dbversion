@@ -1,16 +1,16 @@
-﻿
-using System;
-using System.Reflection;
-using System.IO;
-using System.ComponentModel.Composition.Hosting;
-using System.ComponentModel.Composition;
-using DatabaseVersion.Version;
-using System.Linq;
-using DatabaseVersion.Tasks;
-using CommandLine;
-
-namespace DatabaseVersion.Console
+namespace dbversion.Console
 {
+    using System;
+    using System.Reflection;
+    using System.IO;
+    using System.ComponentModel.Composition.Hosting;
+    using System.ComponentModel.Composition;
+    using dbversion.Version;
+    using System.Linq;
+    using dbversion.Tasks;
+    using CommandLine;
+    using dbversion.Property;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -21,26 +21,20 @@ namespace DatabaseVersion.Console
             DatabaseCreator creator = new DatabaseCreator();
             container.ComposeParts(creator);
 
-            if (arguments.ListConnectionTypes)
-            {
-                foreach (var connectionCreator in creator.ConnectionFactory.Creators)
-                {
-                    System.Console.WriteLine(connectionCreator.ConnectionType);
-                }
-
-                Environment.Exit(0);
-            }
-
             try
             {
+                var propertyService = container.GetExportedValue<IPropertyService>();
+                propertyService["hibernate.connection.provider"] = "NHibernate.Connection.DriverConnectionProvider";
+                propertyService["hibernate.connection.driver_class"] = "NHibernate.Driver.SqlClientDriver";
+                propertyService["hibernate.dialect"] = "NHibernate.Dialect.MsSql2008Dialect";
+                propertyService["hibernate.connection.connection_string"] = arguments.ConnectionString;
+
                 creator.LoadArchive(arguments.Archive);
-                creator.Create(arguments.Version, arguments.ConnectionString, arguments.ConnectionType, new ConsoleTaskExecuter());
-            }
-            catch (VersionNotFoundException e)
+                creator.Create(arguments.Version, arguments.ConnectionString, new ConsoleTaskExecuter());
+            } catch (VersionNotFoundException e)
             {
                 System.Console.WriteLine(e.Message);
-            }
-            catch (TaskExecutionException e)
+            } catch (TaskExecutionException e)
             {
                 System.Console.WriteLine(e.Message);
             }

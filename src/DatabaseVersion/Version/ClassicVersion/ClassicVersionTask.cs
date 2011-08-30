@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
-namespace DatabaseVersion.Version.ClassicVersion
+namespace dbversion.Version.ClassicVersion
 {
     public class ClassicVersionTask: Task
     {

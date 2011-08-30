@@ -1,73 +1,76 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel.Composition;
 using System.Data;
-using DatabaseVersion.Tasks;
+using dbversion.Tasks;
 using NHibernate;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using NHibernate.Criterion;
+using NHibernate.Cfg;
+using dbversion.Session;
 
-namespace DatabaseVersion.Version.NumericVersion
+namespace dbversion.Version.NumericVersion
 {
     //[Export(typeof(IVersionProvider))]
     public class NumericVersionProvider : IVersionProvider
     {
+        [Import]
+        public ISessionFactoryProvider SessionFactoryProvider
+        {
+            get;
+            set;
+        }
+
         public VersionBase CreateVersion(string versionString)
         {
             return new NumericVersion(int.Parse(versionString));
         }
 
-        public bool VersionTableExists(System.Data.IDbConnection connection)
+        public bool VersionTableExists(ISession session)
         {
-            using (IDbCommand command = connection.CreateCommand())
-            {
-                command.CommandText = "select count(1) from information_schema.tables where table_name = 'Version'";
-                var count = (int)command.ExecuteScalar();
-
-                return count == 1;
-            }
+            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'Version'");
+            return Convert.ToInt64(query.UniqueResult()) == 1;
         }
 
-        public VersionBase GetCurrentVersion(System.Data.IDbConnection connection)
+        public VersionBase GetCurrentVersion(ISession session)
         {
-            ISessionFactory sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
-            using (var session = sessionFactory.OpenSession())
-            using (var transaction = session.BeginTransaction())
-            {
-                return session.QueryOver<NumericVersion>()
+            return session.QueryOver<NumericVersion>()
                     .OrderBy(v => v.Version).Desc()
                     .List()
                     .FirstOrDefault();
-            }
         }
 
-        public void CreateVersionTable(System.Data.IDbConnection connection)
+        public void CreateVersionTable(ISession session)
         {
-            Fluently.Configure()
-                .Database(MsSqlConfiguration.MsSql2008.ConnectionString(connection.ConnectionString))
+            Configuration config = null;
+            Fluently.Configure(this.SessionFactoryProvider.GetConfiguration())
                 .Mappings(v => v.FluentMappings.Add<NumericVersionMap>())
-                .Mappings(v=>v.FluentMappings.Add<NumericVersionTaskMap>())
-                .ExposeConfiguration(c => new SchemaExport(c).Create(false, true))
-                .BuildSessionFactory();
+                    .Mappings(v => v.FluentMappings.Add<NumericVersionTaskMap>())
+                    .ExposeConfiguration(c => config = c)
+                    .BuildSessionFactory();
+
+            SchemaExport export = new SchemaExport(config);
+            export.Create(schema =>
+            {
+                var query = session.CreateSQLQuery(schema);
+                query.ExecuteUpdate();
+            },
+            false);
         }
 
-        public void InsertVersion(VersionBase version, System.Data.IDbConnection connection)
+        public void InsertVersion(VersionBase version, ISession session)
         {
-            var sessionFactory = this.CreateSessionFactory(connection.ConnectionString);
-            using (var session = sessionFactory.OpenSession())
-            using (var transaction = session.BeginTransaction())
+            NumericVersion numericVersion = version as NumericVersion;
+            if (!numericVersion.CreatedOn.HasValue)
             {
-                NumericVersion numericVersion = version as NumericVersion;
-                if (!numericVersion.CreatedOn.HasValue)
-                    numericVersion.CreatedOn = DateTime.UtcNow;
-                numericVersion.UpdatedOn = DateTime.UtcNow;
-                session.SaveOrUpdate(version);
-                transaction.Commit();
+                numericVersion.CreatedOn = DateTime.UtcNow;
             }
+            numericVersion.UpdatedOn = DateTime.UtcNow;
+            session.SaveOrUpdate(version);
         }
 
         public IComparer<object> GetComparer()

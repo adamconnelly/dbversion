@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Ionic.Zip;
-using DatabaseVersion.Manifests;
+using dbversion.Manifests;
 using System.ComponentModel.Composition;
 
-namespace DatabaseVersion.Archives.Zip
+namespace dbversion.Archives.Zip
 {
     [Export(typeof(IDatabaseArchiveFactory))]
     public class ZipDatabaseArchiveFactory : IDatabaseArchiveFactory

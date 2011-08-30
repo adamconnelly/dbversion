@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DatabaseVersion.Archives;
-using DatabaseVersion.Tasks;
-using DatabaseVersion.Version;
-
-namespace DatabaseVersion
+namespace dbversion.Version
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    using dbversion.Archives;
+    using dbversion.Tasks;
+    using dbversion.Version;
+
     public class DatabaseVersion : IDatabaseVersion
     {
         public DatabaseVersion(VersionBase version, string manifestPath, IDatabaseArchive archive)

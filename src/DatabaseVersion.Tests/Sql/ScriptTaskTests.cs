@@ -1,80 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Xunit;
-using DatabaseVersion.Tasks.Sql;
-using Moq;
-using System.Data;
-using System.IO;
-using DatabaseVersion.Tasks;
-
-namespace DatabaseVersion.Tests.Sql
+namespace dbversion.Tests.Sql
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using Xunit;
+    using dbversion.Tasks.Sql;
+    using Moq;
+    using System.Data;
+    using System.IO;
+    using dbversion.Tasks;
+    using dbversion.Version;
+    using NHibernate;
+
     public class ScriptTaskTests
     {
+        private readonly Mock<ISession> session = new Mock<ISession>() { DefaultValue = DefaultValue.Mock };
+
         [Fact]
         public void ShouldUseDatabaseArchiveToGetScript()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(this.GetStream("A"));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            connection.Setup(c => c.CreateCommand()).Returns(new Mock<IDbCommand>().Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
             version.Verify(v => v.Archive.GetFile("1\\scripts\\schema.sql"));
         }
 
         [Fact]
-        public void ShouldUseConnectionToExecuteScript()
+        public void ShouldUseSessionToExecuteScript()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile("1\\scripts\\schema.sql")).Returns(GetStream("ABCDE"));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            Assert.Equal("ABCDE", command.Object.CommandText);
-            command.Verify(c => c.ExecuteNonQuery());
+            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
         }
 
         [Fact]
         public void ShouldSplitScriptIntoCommandsBySeparator()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream("ABCDE" + Environment.NewLine + "GO" + Environment.NewLine + "FGHIJ"));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            command.VerifySet(c => c.CommandText = "ABCDE");
-            command.VerifySet(c => c.CommandText = "FGHIJ");
-            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(2));
+            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("FGHIJ").ExecuteUpdate());
         }
 
         private static readonly string ScriptWithDifferentCasedSeparators =
@@ -92,26 +84,21 @@ namespace DatabaseVersion.Tests.Sql
         public void ShouldIgnoreSeparatorCaseWhenExecuting()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithDifferentCasedSeparators));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            command.VerifySet(c => c.CommandText = "ABCDE");
-            command.VerifySet(c => c.CommandText = "FGHIJ");
-            command.VerifySet(c => c.CommandText = "DEFJAB");
-            command.VerifySet(c => c.CommandText = "LDKSIE");
-            command.VerifySet(c => c.CommandText = "dkjsaks");
-            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(5));
+            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("FGHIJ").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("DEFJAB").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("LDKSIE").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("dkjsaks").ExecuteUpdate());
         }
 
         private static readonly string ScriptWithSeparatorsWithinLines =
@@ -125,24 +112,19 @@ namespace DatabaseVersion.Tests.Sql
         public void ShouldOnlySplitSeparatorsOnNewLinesWhenExecuting()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorsWithinLines));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            command.VerifySet(c => c.CommandText = "insert into books (name) values ('Great Book');");
-            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
-            command.VerifySet(c => c.CommandText = "delete from books;");
-            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(3));
+            session.Verify(s => s.CreateSQLQuery("insert into books (name) values ('Great Book');").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
+            session.Verify(s => s.CreateSQLQuery("delete from books;").ExecuteUpdate());
         }
 
         private static readonly string ScriptWithSeparatorAtStartOfScript =
@@ -153,22 +135,17 @@ namespace DatabaseVersion.Tests.Sql
         public void ShouldAllowSeparatorAtStartOfScriptWhenExecuting()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtStartOfScript));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
-            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(1));
+            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
         }
 
         private static readonly string ScriptWithSeparatorAtEndOfScript =
@@ -179,42 +156,34 @@ namespace DatabaseVersion.Tests.Sql
         public void ShouldAllowSeparatorAtEndOfScriptWhenExecuting()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
-            command.SetupProperty(c => c.CommandText);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
 
             // Act
-            task.Execute(connection.Object);
+            task.Execute(session.Object);
 
             // Assert
-            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
-            command.Verify(c => c.ExecuteNonQuery(), Times.Exactly(1));
+            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
         }
 
         [Fact]
         public void ShouldThrowTaskExecutionExceptionIfExecutingScriptThrowsException()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
-            Mock<IDbConnection> connection = new Mock<IDbConnection>();
-            Mock<IDbCommand> command = new Mock<IDbCommand>();
             Exception exception = new Exception();
-            command.Setup(c => c.ExecuteNonQuery()).Throws(exception);
-            connection.Setup(c => c.CreateCommand()).Returns(command.Object);
+            session.Setup(s => s.CreateSQLQuery(It.IsAny<string>()).ExecuteUpdate()).Throws(exception);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(connection.Object));
+            Exception thrownException = Record.Exception(() => task.Execute(session.Object));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);
@@ -226,14 +195,14 @@ namespace DatabaseVersion.Tests.Sql
         public void ShouldThrowTaskExecutionExceptionIfScriptPathDoesNotExist()
         {
             // Arrange
-            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            Mock<IDatabaseVersion > version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns((Stream)null);
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(new Mock<IDbConnection>().Object));
+            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);

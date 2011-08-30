@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.ComponentModel.Composition;
-using DatabaseVersion.Manifests;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-
-namespace DatabaseVersion.Archives.File
+﻿namespace dbversion.Archives.File
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.IO;
+    using System.ComponentModel.Composition;
+    
+    using dbversion.Manifests;
+    using dbversion.Version;
+
     /// <summary>
     /// A file based database archive.
     /// </summary>
@@ -34,8 +33,7 @@ namespace DatabaseVersion.Archives.File
         {
             this.ArchivePath = archivePath;
             this.manifestReader = manifestReader;
-			
-			this.ParseManifests();
+            this.ParseManifests();
         }
 
         /// <summary>
@@ -85,19 +83,19 @@ namespace DatabaseVersion.Archives.File
             return this.Versions.FirstOrDefault(v => object.Equals(v.Version, version)) != null;
         }
 		
-		/// <summary>
-		/// Parses the manifests.
-		/// </summary>
-		private void ParseManifests()
-		{
-			var directoryInfo = new DirectoryInfo(this.ArchivePath);
-        	var manifests = directoryInfo.GetFiles("database.xml", SearchOption.AllDirectories);
+        /// <summary>
+        /// Parses the manifests.
+        /// </summary>
+        private void ParseManifests()
+        {
+            var directoryInfo = new DirectoryInfo(this.ArchivePath);
+            var manifests = directoryInfo.GetFiles("database.xml", SearchOption.AllDirectories);
         	
-        	foreach (var manifest in manifests)
-        	{
-        		this.versions.Add(ParseManifest(manifest));
-        	}
-		}
+            foreach (var manifest in manifests)
+            {
+                this.versions.Add(ParseManifest(manifest));
+            }
+        }
 
         /// <summary>
         /// Parses the manifest at the specified location.
@@ -112,7 +110,6 @@ namespace DatabaseVersion.Archives.File
                     fileStream, manifestInfo.FullName, this);
             }
         }
-
 
         public string GetScriptPath(string manifestPath, string scriptFileName)
         {

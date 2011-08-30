@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml;
-using System.Xml.Linq;
-
-namespace DatabaseVersion.Tasks
+namespace dbversion.Tasks
 {
+    using System.Xml.Linq;
+
+    using dbversion.Version;
+
     public interface IDatabaseTaskFactory
     {
         /// <summary>

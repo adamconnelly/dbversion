@@ -60,17 +60,10 @@
     <Compile Include="Archives\File\FileDatabaseArchive.cs" />
     <Compile Include="Archives\Zip\ZipDatabaseArchive.cs" />
     <Compile Include="Archives\Zip\ZipDatabaseArchiveFactory.cs" />
-    <Compile Include="Connections\DbConnectionFactory.cs" />
-    <Compile Include="Connections\IDbConnectionCreator.cs" />
-    <Compile Include="Connections\IDbConnectionFactory.cs" />
-    <Compile Include="Connections\SqlServerConnectionCreator.cs" />
-    <Compile Include="Connections\UnsupportedConnectionStringException.cs" />
     <Compile Include="DatabaseCreator.cs" />
-    <Compile Include="DatabaseVersion.cs" />
     <Compile Include="Archives\File\FileDatabaseArchiveFactory.cs" />
     <Compile Include="Archives\IDatabaseArchive.cs" />
     <Compile Include="Archives\IDatabaseArchiveFactory.cs" />
-    <Compile Include="IDatabaseVersion.cs" />
     <Compile Include="Manifests\IManifestReader.cs" />
     <Compile Include="Manifests\ManifestReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +90,13 @@
     <Compile Include="Version\NumericVersion\NumericVersionProvider.cs" />
     <Compile Include="Version\VersionBase.cs" />
     <Compile Include="Version\VersionNotFoundException.cs" />
+    <Compile Include="Property\IPropertyService.cs" />
+    <Compile Include="Property\PropertyService.cs" />
+    <Compile Include="Session\ISessionFactoryProvider.cs" />
+    <Compile Include="Session\SessionFactoryProvider.cs" />
+    <Compile Include="Session\IHibernateMapping.cs" />
+    <Compile Include="Version\DatabaseVersion.cs" />
+    <Compile Include="Version\IDatabaseVersion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -106,4 +106,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Property\" />
+    <Folder Include="Session\" />
+  </ItemGroup>
 </Project>

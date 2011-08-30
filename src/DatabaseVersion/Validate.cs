@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
 using System.Diagnostics;
 
-namespace DatabaseVersion
+namespace dbversion
 {
     /// <summary>
     /// Contains methods for validating parameters passed into methods.

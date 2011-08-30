@@ -1,6 +1,6 @@
-﻿using FluentNHibernate.Mapping;
+using FluentNHibernate.Mapping;
 
-namespace DatabaseVersion.Version.NumericVersion
+namespace dbversion.Version.NumericVersion
 {
     public class NumericVersionTaskMap : ClassMap<NumericVersionTask>
     {

@@ -1,4 +1,5 @@
-﻿namespace DatabaseVersion.Tasks
+using NHibernate;
+namespace dbversion.Tasks
 {
     using System.Data;
 
@@ -16,7 +17,7 @@
         /// <summary>
         /// Executes the tasks.
         /// </summary>
-        void ExecuteTasks(IDbConnection connection);
+        void ExecuteTasks(ISession session);
 
         /// <summary>
         /// Returns whether there are any tasks to execute

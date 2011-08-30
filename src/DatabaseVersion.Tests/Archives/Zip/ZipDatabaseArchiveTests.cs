@@ -1,14 +1,16 @@
-﻿using Xunit;
-using Ionic.Zip;
-using Moq;
-using DatabaseVersion.Manifests;
-using DatabaseVersion.Archives.Zip;
-using System.IO;
-using System.Linq;
-using DatabaseVersion.Tests.Utils;
-using DatabaseVersion.Archives;
-namespace DatabaseVersion.Tests.Archives.Zip
+namespace dbversion.Tests.Archives.Zip
 {
+    using Xunit;
+    using Ionic.Zip;
+    using Moq;
+    using dbversion.Manifests;
+    using dbversion.Archives.Zip;
+    using System.IO;
+    using System.Linq;
+    using dbversion.Tests.Utils;
+    using dbversion.Archives;
+    using dbversion.Version;
+
     public class ZipDatabaseArchiveTests
     {
         [Fact]
@@ -25,7 +27,7 @@ namespace DatabaseVersion.Tests.Archives.Zip
                 zipFile.AddFile(tempFileName, "2");
                 zipFile.Save(path);
 
-                Mock<IManifestReader> manifestReader = new Mock<IManifestReader>();
+                Mock<IManifestReader > manifestReader = new Mock<IManifestReader>();
                 manifestReader.Setup(r => r.Read(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<IDatabaseArchive>())).Returns(new Mock<IDatabaseVersion>().Object);
 
                 // Act

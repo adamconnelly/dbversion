@@ -1,14 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
-using DatabaseVersion.Archives.File;
+using dbversion.Archives.File;
 using System.IO;
-using DatabaseVersion.Archives;
-using DatabaseVersion.Tests.Utils;
+using dbversion.Archives;
+using dbversion.Tests.Utils;
 
-namespace DatabaseVersion.Tests.Archives.File
+namespace dbversion.Tests.Archives.File
 {
     public class FileDatabaseArchiveFactoryTests
     {

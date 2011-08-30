@@ -1,0 +1,1 @@
+﻿insert into books (bookId, name, authorId, description, ISBN) values ('5A0A6CE4-310C-4CB6-9BC5-15ECC72274EB', 'The Rogue', 1, 'Description of the Rogue', null);

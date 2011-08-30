@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
-namespace DatabaseVersion.Tasks
+using NHibernate;
+namespace dbversion.Tasks
 {
     public class SimpleTaskExecuter : ITaskExecuter
     {
@@ -11,11 +12,11 @@ namespace DatabaseVersion.Tasks
             this.tasks.Enqueue(task);
         }
 
-        public void ExecuteTasks(IDbConnection connection)
+        public void ExecuteTasks(ISession session)
         {
             foreach (IDatabaseTask task in this.tasks)
             {
-                task.Execute(connection);
+                task.Execute(session);
             }
         }
 
