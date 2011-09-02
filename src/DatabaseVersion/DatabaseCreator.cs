@@ -52,9 +52,9 @@ namespace dbversion
             private set;
         }
 
-        public void Create(string version, string connectionString)
+        public void Create(string version)
         {
-            this.Create(version, connectionString, new SimpleTaskExecuter());
+            this.Create(version, new SimpleTaskExecuter());
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace dbversion
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public void Create(string version, string connectionString, ITaskExecuter executer)
+        public void Create(string version, ITaskExecuter executer)
         {
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {

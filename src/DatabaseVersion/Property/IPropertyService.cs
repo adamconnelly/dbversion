@@ -37,6 +37,11 @@ namespace dbversion.Property
         void Merge(IEnumerable<Property> properties);
 
         /// <summary>
+        /// Sets the default properties.
+        /// </summary>
+        void SetDefaultProperties();
+
+        /// <summary>
         /// Gets all the properties starting with the specified prefix.
         /// </summary>
         /// <returns>

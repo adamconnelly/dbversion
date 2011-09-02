@@ -27,12 +27,12 @@ namespace dbversion.Console
             try
             {
                 var propertyService = container.GetExportedValue<IPropertyService>();
-                SetDefaultPropertyValues(propertyService, arguments);
-
+                propertyService.SetDefaultProperties();
                 MergeSavedProperties(container, propertyService);
+                OverwritePropertiesFromArguments(propertyService, arguments);
 
                 creator.LoadArchive(arguments.Archive);
-                creator.Create(arguments.Version, arguments.ConnectionString, new ConsoleTaskExecuter());
+                creator.Create(arguments.Version, new ConsoleTaskExecuter());
             } catch (VersionNotFoundException e)
             {
                 System.Console.WriteLine(e.Message);
@@ -82,11 +82,11 @@ namespace dbversion.Console
             return new CompositionContainer(aggregateCatalog);
         }
 
-        private static void SetDefaultPropertyValues(IPropertyService propertyService, Arguments arguments)
+        private static void OverwritePropertiesFromArguments(IPropertyService propertyService, Arguments arguments)
         {
-            propertyService.Add(new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" });
-            propertyService.Add(new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" });
-            propertyService.Add(new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" });
+//            propertyService.Add(new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" });
+//            propertyService.Add(new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" });
+//            propertyService.Add(new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" });
             propertyService.Add(new Property { Key = "hibernate.connection.connection_string", Value = arguments.ConnectionString });
         }
 

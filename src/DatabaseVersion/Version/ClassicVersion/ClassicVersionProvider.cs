@@ -35,7 +35,8 @@ namespace dbversion.Version.ClassicVersion
 
         public bool VersionTableExists(ISession session)
         {
-            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'Version'");
+            // TODO: Figure out how to get NHibernate to check this since this way we can't be sure the table name is correct
+            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'version'");
             return Convert.ToInt64(query.UniqueResult()) == 1;
         }
 

@@ -10,8 +10,40 @@ namespace dbversion.Property
     [Export(typeof(IPropertyService))]
     public class PropertyService : IPropertyService
     {
+        /// <summary>
+        /// The properties.
+        /// </summary>
         private readonly Dictionary<string, Property> properties = new Dictionary<string, Property>();
 
+        /// <summary>
+        /// Gets the properties.
+        /// </summary>
+        /// <value>
+        /// The properties.
+        /// </value>
+        public IEnumerable<Property> Properties
+        {
+            get
+            {
+                return this.properties.Values;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the objects that contain default properties for the service.
+        /// </summary>
+        /// <value>
+        /// The property defaulters.
+        /// </value>
+        [ImportMany(typeof(IHaveDefaultProperties))]
+        public IEnumerable<IHaveDefaultProperties> PropertyDefaulters { get; set; }
+
+        /// <summary>
+        /// Gets the <see cref="dbversion.Property.Property"/> with the specified propertyName.
+        /// </summary>
+        /// <param name='propertyName'>
+        /// The name of the property to get.
+        /// </param>
         public Property this[string propertyName]
         {
             get
@@ -36,7 +68,15 @@ namespace dbversion.Property
 
         public void Merge(IEnumerable<Property> properties)
         {
-            properties.ForEach(p => this.properties[p.Key] = p);
+            properties.ForEach(p => this.Add(p));
+        }
+
+        /// <summary>
+        /// Sets the default properties.
+        /// </summary>
+        public void SetDefaultProperties()
+        {
+            this.PropertyDefaulters.ForEach(d => this.Merge(d.DefaultProperties));
         }
 
         public IEnumerable<Property> StartingWith(string prefix)

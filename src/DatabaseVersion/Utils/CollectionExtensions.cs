@@ -19,9 +19,12 @@ namespace dbversion.Utils
         /// </typeparam>
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
-            foreach (var item in collection)
+            if (collection != null)
             {
-                action(item);
+                foreach (var item in collection)
+                {
+                    action(item);
+                }
             }
         }
     }
