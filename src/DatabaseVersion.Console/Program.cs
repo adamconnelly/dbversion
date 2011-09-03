@@ -1,3 +1,5 @@
+using dbversion.Archives;
+
 namespace dbversion.Console
 {
     using System;
@@ -26,20 +28,41 @@ namespace dbversion.Console
 
             try
             {
+                var archive = GetArchive(arguments, container);
                 var propertyService = container.GetExportedValue<IPropertyService>();
                 propertyService.SetDefaultProperties();
                 MergeSavedProperties(container, propertyService);
+                propertyService.Merge(archive.Properties);
                 OverwritePropertiesFromArguments(propertyService, arguments);
 
-                creator.LoadArchive(arguments.Archive);
-                creator.Create(arguments.Version, new ConsoleTaskExecuter());
-            } catch (VersionNotFoundException e)
-            {
-                System.Console.WriteLine(e.Message);
-            } catch (TaskExecutionException e)
+                creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
+            }
+            catch (VersionNotFoundException e)
             {
                 System.Console.WriteLine(e.Message);
             }
+            catch (TaskExecutionException e)
+            {
+                System.Console.WriteLine(e.Message);
+            }
+        }
+
+        private static IDatabaseArchive GetArchive(Arguments arguments, CompositionContainer container)
+        {
+            IDatabaseArchiveFactory archiveFactory = GetArchiveFactory(arguments.Archive, container);
+            if (archiveFactory == null)
+            {
+                throw new InvalidOperationException("Unknown archive type");
+            }
+
+            return archiveFactory.Create(arguments.Archive);
+        }
+
+        private static IDatabaseArchiveFactory GetArchiveFactory(string archivePath, CompositionContainer container)
+        {
+            var archiveFactories = container.GetExportedValues<IDatabaseArchiveFactory>();
+            // TODO: Throw UnknownArchiveTypeException if no handlers found
+            return archiveFactories.First(f => f.CanCreate(archivePath));
         }
 
         private static Arguments ParseArguments(ref string[] args)
@@ -84,9 +107,6 @@ namespace dbversion.Console
 
         private static void OverwritePropertiesFromArguments(IPropertyService propertyService, Arguments arguments)
         {
-//            propertyService.Add(new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" });
-//            propertyService.Add(new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" });
-//            propertyService.Add(new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" });
             propertyService.Add(new Property { Key = "hibernate.connection.connection_string", Value = arguments.ConnectionString });
         }
 

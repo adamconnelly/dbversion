@@ -1,13 +1,16 @@
 namespace dbversion.Archives.Zip
 {
-    using Ionic.Zip;
+    using System;
     using System.IO;
     using System.Linq;
     using System.ComponentModel.Composition;
     using System.Collections.Generic;
 
     using dbversion.Manifests;
+    using dbversion.Property;
     using dbversion.Version;
+
+    using Ionic.Zip;
 
     [Export(typeof(IDatabaseArchive))]
     public class ZipDatabaseArchive : IDatabaseArchive
@@ -41,9 +44,14 @@ namespace dbversion.Archives.Zip
             private set;
         }
 
-        public System.Collections.Generic.IEnumerable<IDatabaseVersion> Versions
+        public IEnumerable<IDatabaseVersion> Versions
         {
             get { return this.versions; }
+        }
+
+        public IEnumerable<Property> Properties
+        {
+            get { throw new NotImplementedException(); }
         }
 
         public System.IO.Stream GetFile(string path)
