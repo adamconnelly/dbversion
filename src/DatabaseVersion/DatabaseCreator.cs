@@ -16,7 +16,8 @@ using dbversion.Version;
 
 namespace dbversion
 {
-    public class DatabaseCreator
+    [Export(typeof(IDatabaseCreator))]
+    public class DatabaseCreator : IDatabaseCreator
     {
         [ImportMany]
         public IEnumerable<IDatabaseArchiveFactory> ArchiveFactories

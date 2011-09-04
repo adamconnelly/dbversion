@@ -8,7 +8,7 @@
     <ProjectGuid>{18389508-A214-446A-A166-CFE7DD83DF23}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DatabaseVersion.Console</RootNamespace>
+    <RootNamespace>dbversion.Console</RootNamespace>
     <AssemblyName>dbversion</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>-c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/archive-properties/samples/classic-sample.zip</Commandlineparameters>
+    <Commandlineparameters>create -c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/archive-properties/samples/classic-sample.zip</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -62,11 +62,17 @@
     <Compile Include="ConsoleTaskExecuter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Command\IConsoleCommand.cs" />
+    <Compile Include="Command\CommandManager.cs" />
+    <Compile Include="IMessageService.cs" />
+    <Compile Include="Command\Create\CreateCommand.cs" />
+    <Compile Include="ConsoleMessageService.cs" />
+    <Compile Include="Command\ICommandManager.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
+    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
       <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
-      <Name>DatabaseVersion</Name>
+      <Name>dbversion</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -77,4 +83,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Command\" />
+    <Folder Include="Command\Create\" />
+  </ItemGroup>
 </Project>

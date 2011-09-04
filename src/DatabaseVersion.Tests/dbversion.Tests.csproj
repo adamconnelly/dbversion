@@ -69,9 +69,9 @@
     <Compile Include="Session\SessionFactoryProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
+    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
       <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
-      <Name>DatabaseVersion</Name>
+      <Name>dbversion</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

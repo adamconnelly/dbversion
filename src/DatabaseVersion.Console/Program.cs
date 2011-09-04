@@ -11,6 +11,7 @@ namespace dbversion.Console
 
     using CommandLine;
 
+    using dbversion.Console.Command;
     using dbversion.Property;
     using dbversion.Settings;
     using dbversion.Tasks;
@@ -20,31 +21,32 @@ namespace dbversion.Console
     {
         public static void Main(string[] args)
         {
-            Arguments arguments = ParseArguments(ref args);
-            var container = CreateContainer(arguments.PluginDirectory);
-
-            DatabaseCreator creator = new DatabaseCreator();
-            container.ComposeParts(creator);
-
-            try
-            {
-                var archive = GetArchive(arguments, container);
-                var propertyService = container.GetExportedValue<IPropertyService>();
-                propertyService.SetDefaultProperties();
-                MergeSavedProperties(container, propertyService);
-                propertyService.Merge(archive.Properties);
-                OverwritePropertiesFromArguments(propertyService, arguments);
-
-                creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
-            }
-            catch (VersionNotFoundException e)
-            {
-                System.Console.WriteLine(e.Message);
-            }
-            catch (TaskExecutionException e)
-            {
-                System.Console.WriteLine(e.Message);
-            }
+            var container = CreateContainer("plugins");
+            var commandManager = container.GetExportedValue<ICommandManager>();
+            commandManager.Execute(args);
+//            Arguments arguments = ParseArguments(ref args);
+//            var container = CreateContainer("plugins");
+//
+//            DatabaseCreator creator = new DatabaseCreator();
+//            container.ComposeParts(creator);
+//
+//            try
+//            {
+//                var archive = GetArchive(arguments, container);
+//                var propertyService = container.GetExportedValue<IPropertyService>();
+//                propertyService.SetDefaultProperties();
+//                MergeSavedProperties(container, propertyService);
+//                propertyService.Merge(archive.Properties);
+//                OverwritePropertiesFromArguments(propertyService, arguments);
+//
+//                creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
+//            } catch (VersionNotFoundException e)
+//            {
+//                System.Console.WriteLine(e.Message);
+//            } catch (TaskExecutionException e)
+//            {
+//                System.Console.WriteLine(e.Message);
+//            }
         }
 
         private static IDatabaseArchive GetArchive(Arguments arguments, CompositionContainer container)
