@@ -86,6 +86,8 @@ Global
 		$2.UsingBraceForcement = AddBraces
 		$2.FixedBraceForcement = AddBraces
 		$2.PlaceElseOnNewLine = True
+		$2.PlaceCatchOnNewLine = True
+		$2.PlaceFinallyOnNewLine = True
 		$2.BeforeMethodDeclarationParentheses = False
 		$2.BeforeMethodCallParentheses = False
 		$2.BeforeConstructorDeclarationParentheses = False

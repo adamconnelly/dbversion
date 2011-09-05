@@ -11,6 +11,8 @@ namespace dbversion.Console.Command.Create
     using dbversion.Property;
     using dbversion.Session;
     using dbversion.Settings;
+    using dbversion.Tasks;
+    using dbversion.Version;
 
     [Export(typeof(IConsoleCommand))]
     public class CreateCommand : IConsoleCommand
@@ -85,7 +87,18 @@ namespace dbversion.Console.Command.Create
             this.PropertyService.Merge(archive.Properties);
             this.SetPropertiesFromCommandArguments(arguments);
 
-            this.Creator.Create(archive, null, new ConsoleTaskExecuter());
+            try
+            {
+                this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
+            }
+            catch (VersionNotFoundException v)
+            {
+                this.MessageService.WriteLine(v.Message);
+            }
+            catch (TaskExecutionException t)
+            {
+                this.MessageService.WriteLine(t.Message);
+            }
         }
 
         /// <summary>

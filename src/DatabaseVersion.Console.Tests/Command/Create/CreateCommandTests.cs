@@ -9,6 +9,7 @@ namespace dbversion.Console.Tests.Command.Create
     using dbversion.Session;
     using dbversion.Settings;
     using dbversion.Tasks;
+    using dbversion.Version;
 
     using Moq;
 
@@ -47,10 +48,10 @@ namespace dbversion.Console.Tests.Command.Create
             var command = this.CreateCommand();
 
             // Act
-            command.Execute(new[] { "-a", "myArchive" });
+            command.Execute(new[] { "-a", "myArchive", "-v", "12345" });
 
             // Assert
-            creator.Verify(c => c.Create(archive.Object, null, It.Is<ITaskExecuter>(t => t.GetType() == typeof(ConsoleTaskExecuter))));
+            creator.Verify(c => c.Create(archive.Object, "12345", It.Is<ITaskExecuter>(t => t.GetType() == typeof(ConsoleTaskExecuter))));
         }
 
         [Fact]
@@ -277,6 +278,42 @@ namespace dbversion.Console.Tests.Command.Create
 
             // Assert
             this.propertyService.Verify(p => p.Merge(propertyCollection.Properties));
+        }
+
+        [Fact]
+        public void ShouldPrintExceptionMessageIfVersionNotFoundExceptionIsThrownByCreator()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+            var exception = new VersionNotFoundException("12345");
+
+            this.creator.Setup(
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                .Throws(exception);
+
+            // Act
+            command.Execute(new[] { "-a", "myArchive" });
+
+            // Assert
+            this.messageService.Verify(m => m.WriteLine(exception.Message));
+        }
+
+        [Fact]
+        public void ShouldPrintExceptionMessageIfTaskExecutionExceptionIsThrownByCreator()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+            var exception = new TaskExecutionException("The task failed to execute");
+
+            this.creator.Setup(
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                .Throws(exception);
+
+            // Act
+            command.Execute(new[] { "-a", "myArchive" });
+
+            // Assert
+            this.messageService.Verify(m => m.WriteLine(exception.Message));
         }
 
         private CreateCommand CreateCommand()

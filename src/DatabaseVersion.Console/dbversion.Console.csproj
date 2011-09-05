@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>create -c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/archive-properties/samples/classic-sample.zip</Commandlineparameters>
+    <Commandlineparameters>create -c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/console-command/samples/classic-sample.zip -v 16.0</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>

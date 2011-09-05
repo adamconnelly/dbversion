@@ -1,21 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using dbversion.Archives;
-using System.Reflection;
-using System.IO;
-using System.Data;
-using dbversion.Manifests;
-using dbversion.Session;
-using System.ComponentModel.Composition;
-using dbversion.Tasks;
-using dbversion.Tasks.Version;
-using dbversion.Version.ClassicVersion;
-using dbversion.Version;
-
 namespace dbversion
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Reflection;
+    using System.IO;
+    using System.ComponentModel.Composition;
+
+    using dbversion.Archives;
+    using dbversion.Manifests;
+    using dbversion.Session;
+    using dbversion.Tasks;
+    using dbversion.Tasks.Version;
+    using dbversion.Version;
+
     [Export(typeof(IDatabaseCreator))]
     public class DatabaseCreator : IDatabaseCreator
     {
@@ -96,7 +95,7 @@ namespace dbversion
 
                         if (!archive.ContainsVersion(targetVersion))
                         {
-                            throw new Version.VersionNotFoundException(targetVersion);
+                            throw new VersionNotFoundException(targetVersion);
                         }
 
                         this.AddTasksToExecuter(archive, executer, currentVersion, targetVersion);
