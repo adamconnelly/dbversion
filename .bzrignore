@@ -10,3 +10,5 @@ src/DatabaseVersion.Tests/bin
 src/DatabaseVersion.Tests/obj
 *.pidb
 *.userprefs
+src/DatabaseVersion.Console.Tests/bin
+src/DatabaseVersion.Console.Tests/obj
