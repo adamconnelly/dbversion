@@ -1,5 +1,3 @@
-using dbversion.Archives;
-
 namespace dbversion.Console
 {
     using System;
@@ -7,88 +5,36 @@ namespace dbversion.Console
     using System.IO;
     using System.ComponentModel.Composition.Hosting;
     using System.ComponentModel.Composition;
-    using System.Linq;
 
-    using CommandLine;
+    using dbversion.Console.Command;
 
-    using dbversion.Property;
-    using dbversion.Settings;
-    using dbversion.Tasks;
-    using dbversion.Version;
-
+    /// <summary>
+    /// Contains the entry point of the application.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// The entry point of the program, where the program control starts and ends.
+        /// </summary>
+        /// <param name='args'>
+        /// The command-line arguments.
+        /// </param>
         public static void Main(string[] args)
         {
-            Arguments arguments = ParseArguments(ref args);
-            var container = CreateContainer(arguments.PluginDirectory);
-
-            DatabaseCreator creator = new DatabaseCreator();
-            container.ComposeParts(creator);
-
-            try
-            {
-                var archive = GetArchive(arguments, container);
-                var propertyService = container.GetExportedValue<IPropertyService>();
-                propertyService.SetDefaultProperties();
-                MergeSavedProperties(container, propertyService);
-                propertyService.Merge(archive.Properties);
-                OverwritePropertiesFromArguments(propertyService, arguments);
-
-                creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
-            }
-            catch (VersionNotFoundException e)
-            {
-                System.Console.WriteLine(e.Message);
-            }
-            catch (TaskExecutionException e)
-            {
-                System.Console.WriteLine(e.Message);
-            }
+            var container = CreateContainer("plugins");
+            var commandManager = container.GetExportedValue<ICommandManager>();
+            commandManager.Execute(args);
         }
 
-        private static IDatabaseArchive GetArchive(Arguments arguments, CompositionContainer container)
-        {
-            IDatabaseArchiveFactory archiveFactory = GetArchiveFactory(arguments.Archive, container);
-            if (archiveFactory == null)
-            {
-                throw new InvalidOperationException("Unknown archive type");
-            }
-
-            return archiveFactory.Create(arguments.Archive);
-        }
-
-        private static IDatabaseArchiveFactory GetArchiveFactory(string archivePath, CompositionContainer container)
-        {
-            var archiveFactories = container.GetExportedValues<IDatabaseArchiveFactory>();
-            // TODO: Throw UnknownArchiveTypeException if no handlers found
-            return archiveFactories.First(f => f.CanCreate(archivePath));
-        }
-
-        private static Arguments ParseArguments(ref string[] args)
-        {
-            Arguments arguments = new Arguments();
-            var parserSettings = new CommandLineParserSettings();
-            parserSettings.CaseSensitive = true;
-            parserSettings.HelpWriter = System.Console.Out;
-
-            var parser = new CommandLineParser(parserSettings);
-
-            if (args.Length == 0)
-            {
-                System.Console.WriteLine(arguments.GetHelp());
-                Environment.Exit(0);
-            }
-
-            if (parser.ParseArguments(args, arguments))
-            {
-                return arguments;
-            }
-
-            Environment.Exit(0);
-            return null;
-        }
-
+        /// <summary>
+        /// Creates the MEF container.
+        /// </summary>
+        /// <param name='pluginPath'>
+        /// The path to load plugins from.
+        /// </param>
+        /// <returns>
+        /// The MEF container.
+        /// </returns>
         private static CompositionContainer CreateContainer(string pluginPath)
         {
             DirectoryInfo pluginPathInfo = new DirectoryInfo(pluginPath);
@@ -103,22 +49,6 @@ namespace dbversion.Console
                 new DirectoryCatalog(pluginPath));
 
             return new CompositionContainer(aggregateCatalog);
-        }
-
-        private static void OverwritePropertiesFromArguments(IPropertyService propertyService, Arguments arguments)
-        {
-            propertyService.Add(new Property { Key = "hibernate.connection.connection_string", Value = arguments.ConnectionString });
-        }
-
-        private static void MergeSavedProperties(CompositionContainer container, IPropertyService propertyService)
-        {
-            var settingsService = container.GetExportedValue<ISettingsService>();
-            var savedProperties = settingsService.DeSerialize<PropertyCollection>("properties.xml");
-         
-            if (savedProperties != null)
-            {
-                propertyService.Merge(savedProperties.Properties);
-            }
         }
     }
 }

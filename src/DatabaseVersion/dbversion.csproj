@@ -104,6 +104,7 @@
     <Compile Include="Settings\ISettingsService.cs" />
     <Compile Include="Utils\CollectionExtensions.cs" />
     <Compile Include="Property\IHaveDefaultProperties.cs" />
+    <Compile Include="IDatabaseCreator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

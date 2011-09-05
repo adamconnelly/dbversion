@@ -10,11 +10,6 @@ namespace dbversion.Console
     /// </summary>
     public class Arguments
     {
-        public Arguments()
-        {
-            this.PluginDirectory = "plugins";
-        }
-
         /// <summary>
         /// The connection string to the database.
         /// </summary>
@@ -34,10 +29,22 @@ namespace dbversion.Console
         public string Version;
         
         /// <summary>
-        /// Gets or sets the directory that plugins will be loaded from.
+        /// Gets or sets the hibernate connection provider.
         /// </summary>
-        [Option("p", "pluginDir", HelpText = "The directory to load plugins from.")]
-        public string PluginDirectory = "plugins";
+        [Option("p", "connectionProvider", HelpText = "The hibernate connection provider.")]
+        public string ConnectionProvider;
+
+        /// <summary>
+        /// Gets or sets the hibernate driver class.
+        /// </summary>
+        [Option("d", "driverClass", HelpText = "The hibernate driver class.")]
+        public string DriverClass;
+
+        /// <summary>
+        /// Gets or sets the hibernate dialect.
+        /// </summary>
+        [Option("l", "dialect", HelpText = "The hibernate dialect.")]
+        public string Dialect;
 
         [HelpOption("h", "help", HelpText = "Display this help screen.")]
         public string GetHelp()

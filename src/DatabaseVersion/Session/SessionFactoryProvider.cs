@@ -4,15 +4,38 @@ namespace dbversion.Session
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
-    using FluentNHibernate.Cfg;
+
+    using dbversion.Property;
+
     using NHibernate;
     using NHibernate.Cfg;
-    using dbversion.Property;
+
+    using FluentNHibernate.Cfg;
 
     [Export(typeof(ISessionFactoryProvider))]
     [Export(typeof(IHaveDefaultProperties))]
     public class SessionFactoryProvider : ISessionFactoryProvider, IHaveDefaultProperties
     {
+        /// <summary>
+        /// The key of the connection string property.
+        /// </summary>
+        public const string ConnectionStringProperty = "hibernate.connection.connection_string";
+
+        /// <summary>
+        /// The key of the connection provider property.
+        /// </summary>
+        public const string ProviderProperty = "hibernate.connection.provider";
+
+        /// <summary>
+        /// The key of the driver_class property.
+        /// </summary>
+        public const string DriverClassProperty = "hibernate.connection.driver_class";
+
+        /// <summary>
+        /// The key of the dialect property.
+        /// </summary>
+        public const string DialectProperty = "hibernate.dialect";
+
         /// <summary>
         /// The prefix for any properties that should be passed to the hibernate configuration.
         /// </summary>
@@ -42,12 +65,18 @@ namespace dbversion.Session
         {
             get
             {
-                yield return new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" };
-                yield return new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" };
-                yield return new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" };
+                yield return new Property { Key = ProviderProperty, Value = "NHibernate.Connection.DriverConnectionProvider" };
+                yield return new Property { Key = DriverClassProperty, Value = "NHibernate.Driver.SqlClientDriver" };
+                yield return new Property { Key = DialectProperty, Value = "NHibernate.Dialect.MsSql2008Dialect" };
             }
         }
 
+        /// <summary>
+        /// Creates the session factory.
+        /// </summary>
+        /// <returns>
+        /// The session factory.
+        /// </returns>
         public ISessionFactory CreateSessionFactory()
         {
             FluentConfiguration configuration = Fluently.Configure(this.GetConfiguration());
