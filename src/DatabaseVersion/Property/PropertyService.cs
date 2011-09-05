@@ -11,6 +11,11 @@ namespace dbversion.Property
     public class PropertyService : IPropertyService
     {
         /// <summary>
+        /// The name of the properties file.
+        /// </summary>
+        public const string PropertyFileName = "properties.xml";
+
+        /// <summary>
         /// The properties.
         /// </summary>
         private readonly Dictionary<string, Property> properties = new Dictionary<string, Property>();

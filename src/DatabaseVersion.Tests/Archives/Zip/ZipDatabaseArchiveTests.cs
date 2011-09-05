@@ -1,15 +1,21 @@
 namespace dbversion.Tests.Archives.Zip
 {
-    using Xunit;
-    using Ionic.Zip;
-    using Moq;
-    using dbversion.Manifests;
-    using dbversion.Archives.Zip;
     using System.IO;
     using System.Linq;
-    using dbversion.Tests.Utils;
+
     using dbversion.Archives;
+    using dbversion.Archives.Zip;
+    using dbversion.Manifests;
+    using dbversion.Tests.Utils;
+    using dbversion.Utils;
     using dbversion.Version;
+    using dbversion.Property;
+
+    using Ionic.Zip;
+
+    using Moq;
+
+    using Xunit;
 
     public class ZipDatabaseArchiveTests
     {
@@ -36,6 +42,56 @@ namespace dbversion.Tests.Archives.Zip
                 // Assert
                 Assert.Equal(2, archive.Versions.Count());
             }
+        }
+
+        [Fact]
+        public void ShouldLoadPropertiesFromArchive()
+        {
+            // Arrange
+            string path = Path.GetTempFileName();
+            using (var zipFile = new ZipFile())
+            {
+                var tempDir = FileUtil.CreateTempDirectory();
+                var propertiesFileName = Path.Combine(tempDir.FullName, "properties.xml");
+                using (var stream = File.Create(propertiesFileName))
+                {
+                    var propertyCollection = new PropertyCollection();
+                    propertyCollection.Properties.Add(new Property { Key = "property1", Value = "property1.value" });
+                    propertyCollection.Properties.Add(new Property { Key = "property2", Value = "property2.value" });
+                    XmlSerializer.Serialize(propertyCollection).CopyTo(stream);
+                }
+
+                zipFile.AddFile(propertiesFileName, "/");
+                zipFile.Save(path);
+            }
+
+            var archive = new ZipDatabaseArchive(path, new Mock<ManifestReader>().Object);
+
+            // Act
+            var properties = archive.Properties;
+
+            // Assert
+            Assert.Equal("property1.value", properties.Single(p => p.Key == "property1").Value);
+            Assert.Equal("property2.value", properties.Single(p => p.Key == "property2").Value);
+        }
+
+        [Fact]
+        public void ShouldHaveEmptyPropertiesIfNoPropertiesFileExists()
+        {
+            // Arrange
+            string path = Path.GetTempFileName();
+            using (var zipFile = new ZipFile())
+            {
+                zipFile.Save(path);
+            }
+
+            var archive = new ZipDatabaseArchive(path, new Mock<ManifestReader>().Object);
+
+            // Act
+            var properties = archive.Properties;
+
+            // Assert
+            Assert.Empty(properties);
         }
     }
 }

@@ -46,15 +46,9 @@ namespace dbversion
             set;
         }
 
-        public IDatabaseArchive Archive
+        public void Create(IDatabaseArchive archive, string version)
         {
-            get;
-            private set;
-        }
-
-        public void Create(string version)
-        {
-            this.Create(version, new SimpleTaskExecuter());
+            this.Create(archive, version, new SimpleTaskExecuter());
         }
 
         /// <summary>
@@ -67,7 +61,7 @@ namespace dbversion
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public void Create(string version, ITaskExecuter executer)
+        public void Create(IDatabaseArchive archive, string version, ITaskExecuter executer)
         {
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {
@@ -89,21 +83,22 @@ namespace dbversion
                         object targetVersion;
                         if (string.IsNullOrEmpty(version))
                         {
-                            targetVersion = this.Archive.Versions
+                            targetVersion = archive.Versions
                                 .OrderByDescending(v => v.Version, this.VersionProvider.GetComparer())
                                 .First()
                                 .Version;
-                        } else
+                        }
+                        else
                         {
                             targetVersion = this.VersionProvider.CreateVersion(version);
                         }
 
-                        if (!this.Archive.ContainsVersion(targetVersion))
+                        if (!archive.ContainsVersion(targetVersion))
                         {
                             throw new Version.VersionNotFoundException(targetVersion);
                         }
 
-                        this.AddTasksToExecuter(executer, currentVersion, targetVersion);
+                        this.AddTasksToExecuter(archive, executer, currentVersion, targetVersion);
 
                         executer.ExecuteTasks(session);
 
@@ -113,20 +108,9 @@ namespace dbversion
             }
         }
 
-        public void LoadArchive(string archivePath)
+        private void AddTasksToExecuter(IDatabaseArchive archive, ITaskExecuter executer, VersionBase currentVersion, object targetVersion)
         {
-            IDatabaseArchiveFactory archiveFactory = this.GetArchiveFactory(archivePath);
-            if (archiveFactory == null)
-            {
-                throw new InvalidOperationException("Unknown archive type");
-            }
-
-            this.Archive = archiveFactory.Create(archivePath);
-        }
-
-        private void AddTasksToExecuter(ITaskExecuter executer, VersionBase currentVersion, object targetVersion)
-        {
-            IEnumerable<IDatabaseVersion > versionsToExecute = this.Archive.Versions
+            IEnumerable<IDatabaseVersion > versionsToExecute = archive.Versions
                 .OrderBy(v => v.Version, this.VersionProvider.GetComparer())
                 .Where(
                     v =>
@@ -147,7 +131,8 @@ namespace dbversion
                             executer.AddTask(task);
                             currentVersion.AddTask(task);
                         }
-                    } else
+                    }
+                    else
                     {
                         executer.AddTask(task);
                         v.Version.AddTask(task);
@@ -159,18 +144,13 @@ namespace dbversion
                     if (updating)
                     {
                         executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion));
-                    } else
+                    }
+                    else
                     {
                         executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
                     }
                 }
             }
-        }
-
-        private IDatabaseArchiveFactory GetArchiveFactory(string archivePath)
-        {
-            // TODO: Throw UnknownArchiveTypeException if no handlers found
-            return this.ArchiveFactories.First(f => f.CanCreate(archivePath));
         }
     }
 }

@@ -6,6 +6,7 @@ namespace dbversion.Archives
     using System.Text;
     using System.IO;
 
+    using dbversion.Property;
     using dbversion.Version;
     
     /// <summary>
@@ -22,6 +23,14 @@ namespace dbversion.Archives
         /// Gets the database versions present in the archive.
         /// </summary>
         IEnumerable<IDatabaseVersion> Versions { get; }
+
+        /// <summary>
+        /// Gets the properties stored in the archive.
+        /// </summary>
+        /// <value>
+        /// The properties.
+        /// </value>
+        IEnumerable<Property> Properties { get; }
 
         /// <summary>
         /// Gets the file at the specified path.

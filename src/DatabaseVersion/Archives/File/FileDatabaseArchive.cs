@@ -8,6 +8,8 @@
     using System.ComponentModel.Composition;
     
     using dbversion.Manifests;
+    using dbversion.Property;
+    using dbversion.Utils;
     using dbversion.Version;
 
     /// <summary>
@@ -34,6 +36,7 @@
             this.ArchivePath = archivePath;
             this.manifestReader = manifestReader;
             this.ParseManifests();
+            this.LoadProperties();
         }
 
         /// <summary>
@@ -51,6 +54,12 @@
         /// The path to the archive.
         /// </summary>
         public string ArchivePath
+        {
+            get;
+            private set;
+        }
+
+        public IEnumerable<Property> Properties
         {
             get;
             private set;
@@ -116,6 +125,23 @@
             FileInfo manifestFile = new FileInfo(manifestPath);
             string filePath = Path.Combine(manifestFile.Directory.Name, scriptFileName);
             return filePath;
+        }
+
+        private void LoadProperties()
+        {
+            FileInfo propertiesFile = new FileInfo(Path.Combine(this.ArchivePath, PropertyService.PropertyFileName));
+            if (propertiesFile.Exists)
+            {
+                using (var stream = propertiesFile.OpenRead())
+                {
+                    var propertyCollection = XmlSerializer.DeSerialize<PropertyCollection>(stream);
+                    this.Properties = propertyCollection.Properties;
+                }
+            }
+            else
+            {
+                this.Properties = Enumerable.Empty<Property>();
+            }
         }
     }
 }
