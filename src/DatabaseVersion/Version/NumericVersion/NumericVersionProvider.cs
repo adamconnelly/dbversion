@@ -32,7 +32,7 @@ namespace dbversion.Version.NumericVersion
 
         public bool VersionTableExists(ISession session)
         {
-            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'Version'");
+            var query = session.CreateSQLQuery("select count(1) from information_schema.tables where table_name = 'version'");
             return Convert.ToInt64(query.UniqueResult()) == 1;
         }
 

@@ -65,6 +65,8 @@
     <Compile Include="Utils\AssemblyUtil.cs" />
     <Compile Include="Utils\FileUtil.cs" />
     <Compile Include="Property\PropertyServiceTests.cs" />
+    <Compile Include="Settings\SettingsServiceTests.cs" />
+    <Compile Include="Session\SessionFactoryProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\DatabaseVersion.csproj">
@@ -108,5 +110,7 @@
   -->
   <ItemGroup>
     <Folder Include="Property\" />
+    <Folder Include="Settings\" />
+    <Folder Include="Session\" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,8 @@ namespace dbversion.Session
     using dbversion.Property;
 
     [Export(typeof(ISessionFactoryProvider))]
-    public class SessionFactoryProvider : ISessionFactoryProvider
+    [Export(typeof(IHaveDefaultProperties))]
+    public class SessionFactoryProvider : ISessionFactoryProvider, IHaveDefaultProperties
     {
         /// <summary>
         /// The prefix for any properties that should be passed to the hibernate configuration.
@@ -29,6 +30,22 @@ namespace dbversion.Session
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Gets the default properties.
+        /// </summary>
+        /// <value>
+        /// The default properties.
+        /// </value>
+        public IEnumerable<Property> DefaultProperties
+        {
+            get
+            {
+                yield return new Property { Key = "hibernate.connection.provider", Value = "NHibernate.Connection.DriverConnectionProvider" };
+                yield return new Property { Key = "hibernate.connection.driver_class", Value = "NHibernate.Driver.SqlClientDriver" };
+                yield return new Property { Key = "hibernate.dialect", Value = "NHibernate.Dialect.MsSql2008Dialect" };
+            }
         }
 
         public ISessionFactory CreateSessionFactory()
