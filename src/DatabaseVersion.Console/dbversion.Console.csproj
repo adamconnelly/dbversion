@@ -68,6 +68,10 @@
     <Compile Include="Command\Create\CreateCommand.cs" />
     <Compile Include="ConsoleMessageService.cs" />
     <Compile Include="Command\ICommandManager.cs" />
+    <Compile Include="..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Command\Version\DisplayVersionCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
@@ -86,5 +90,6 @@
   <ItemGroup>
     <Folder Include="Command\" />
     <Folder Include="Command\Create\" />
+    <Folder Include="Command\Version\" />
   </ItemGroup>
 </Project>

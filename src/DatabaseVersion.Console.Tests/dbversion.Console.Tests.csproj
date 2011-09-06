@@ -44,11 +44,13 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Command\CommandManagerTests.cs" />
     <Compile Include="Command\Create\CreateCommandTests.cs" />
+    <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Command\" />
     <Folder Include="Command\Create\" />
+    <Folder Include="Command\Version\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion.Console\dbversion.Console.csproj">
