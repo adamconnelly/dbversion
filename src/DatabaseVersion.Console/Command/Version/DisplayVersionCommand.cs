@@ -33,6 +33,11 @@ namespace dbversion.Console.Command.Version
             get { return "version"; }
         }
 
+        public string Description
+        {
+            get { return "Displays version information and then exits."; }
+        }
+
         /// <summary>
         /// Execute the command using the specified args.
         /// </summary>

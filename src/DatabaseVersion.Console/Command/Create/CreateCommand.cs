@@ -25,6 +25,14 @@ namespace dbversion.Console.Command.Create
             }
         }
 
+        public string Description
+        {
+            get
+            {
+                return "Creates or upgrades a database using the specified archive.";
+            }
+        }
+
         [Import]
         public IDatabaseCreator Creator
         {

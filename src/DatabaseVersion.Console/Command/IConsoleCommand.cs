@@ -15,6 +15,14 @@ namespace dbversion.Console.Command
         string Name { get; }
 
         /// <summary>
+        /// Gets a short description of what the command does.
+        /// </summary>
+        /// <value>
+        /// The description of the command.
+        /// </value>
+        string Description { get; }
+
+        /// <summary>
         /// Executes the command with the specified arguments.
         /// </summary>
         /// <param name='arguments'>

@@ -72,6 +72,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command\Version\DisplayVersionCommand.cs" />
+    <Compile Include="Command\Help\HelpCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
@@ -91,5 +92,6 @@
     <Folder Include="Command\" />
     <Folder Include="Command\Create\" />
     <Folder Include="Command\Version\" />
+    <Folder Include="Command\Help\" />
   </ItemGroup>
 </Project>
