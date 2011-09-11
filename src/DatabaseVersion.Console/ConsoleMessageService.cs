@@ -9,6 +9,14 @@ namespace dbversion.Console
     public class ConsoleMessageService : IMessageService
     {
         /// <summary>
+        /// Writes an empty line out to the console.
+        /// </summary>
+        public void WriteLine()
+        {
+            System.Console.WriteLine();
+        }
+
+        /// <summary>
         /// Writes the specified message out to the console.
         /// </summary>
         /// <param name='message'>

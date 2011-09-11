@@ -53,7 +53,7 @@ namespace dbversion.Console.Command
                 var command = this.Commands.FirstOrDefault(c => c.Name == args[0]);
                 if (command == null)
                 {
-                    this.MessageService.WriteLine(string.Format("Unknown command \"{0}\".", args[0]));
+                    this.MessageService.WriteLine(string.Format("Unknown command '{0}'.", args[0]));
                 }
                 else
                 {

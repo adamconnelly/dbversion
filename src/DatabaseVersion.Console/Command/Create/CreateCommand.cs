@@ -25,6 +25,38 @@ namespace dbversion.Console.Command.Create
             }
         }
 
+        public string Description
+        {
+            get
+            {
+                return "Creates or upgrades a database using the specified archive.";
+            }
+        }
+
+        public string Usage
+        {
+            get
+            {
+                return "dbversion " + this.Name + " [options]";
+            }
+        }
+
+        public IEnumerable<CommandParameter> Parameters
+        {
+            get
+            {
+                return new[]
+                {
+                    new CommandParameter("-a", "--archive", "The archive to create the database from."),
+                    new CommandParameter("-c", "--connectionString", "The database connection string."),
+                    new CommandParameter("-v", "--version", "The version to create or upgrade to."),
+                    new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
+                    new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
+                    new CommandParameter("-l", "--dialect", "The hibernate dialect.")
+                };
+            }
+        }
+
         [Import]
         public IDatabaseCreator Creator
         {
