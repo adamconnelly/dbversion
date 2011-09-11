@@ -124,7 +124,7 @@ namespace dbversion.Console.Command.Help
             {
                 this.MessageService.WriteLine("Usage: " + command.Usage);
 
-                if (command.Parameters.Count() > 0)
+                if (command.Parameters != null && command.Parameters.Count() > 0)
                 {
                     this.MessageService.WriteLine();
                     this.MessageService.WriteLine("Options:");

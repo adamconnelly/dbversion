@@ -47,8 +47,12 @@ namespace dbversion.Console.Command.Create
             {
                 return new[]
                 {
-                    new CommandParameter("-a", "--archive", "Specifies the archive to create the database from."),
-                    new CommandParameter("-c", "--connectionString", "The database connection string.")
+                    new CommandParameter("-a", "--archive", "The archive to create the database from."),
+                    new CommandParameter("-c", "--connectionString", "The database connection string."),
+                    new CommandParameter("-v", "--version", "The version to create or upgrade to."),
+                    new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
+                    new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
+                    new CommandParameter("-l", "--dialect", "The hibernate dialect.")
                 };
             }
         }

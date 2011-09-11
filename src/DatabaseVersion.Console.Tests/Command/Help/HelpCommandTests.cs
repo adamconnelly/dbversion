@@ -1,6 +1,7 @@
 namespace dbversion.Console.Tests.Command.Help
 {
     using System;
+    using System.Collections.Generic;
 
     using dbversion.Console.Command;
     using dbversion.Console.Command.Help;
@@ -89,6 +90,31 @@ namespace dbversion.Console.Tests.Command.Help
             createCommand.Setup(c => c.Name).Returns("create");
             createCommand.Setup(c => c.Description).Returns("Creates or upgrades a database");
             createCommand.Setup(c => c.Usage).Returns("dbversion create [options]");
+
+            command.Commands = new[] { createCommand.Object };
+            command.MessageService = messageService;
+
+            // Act
+            command.Execute(new[] { "help", "create" });
+
+            // Assert
+            string expected =
+                "Usage: dbversion create [options]" + Environment.NewLine;
+            Assert.Equal(expected, messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldOnlyDisplayCommandUsageIfTheCommandParametersAreNull()
+        {
+            // Arrange
+            var command = new HelpCommand();
+            var createCommand = new Mock<IConsoleCommand>();
+            var messageService = new MessageServiceMock();
+
+            createCommand.Setup(c => c.Name).Returns("create");
+            createCommand.Setup(c => c.Description).Returns("Creates or upgrades a database");
+            createCommand.Setup(c => c.Usage).Returns("dbversion create [options]");
+            createCommand.Setup(c => c.Parameters).Returns((IEnumerable<CommandParameter>)null);
 
             command.Commands = new[] { createCommand.Object };
             command.MessageService = messageService;
