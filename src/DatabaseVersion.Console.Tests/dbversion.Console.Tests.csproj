@@ -46,6 +46,7 @@
     <Compile Include="Command\Create\CreateCommandTests.cs" />
     <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
     <Compile Include="Command\Help\HelpCommandTests.cs" />
+    <Compile Include="MessageServiceMock.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

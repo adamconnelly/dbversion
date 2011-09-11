@@ -73,6 +73,7 @@
     </Compile>
     <Compile Include="Command\Version\DisplayVersionCommand.cs" />
     <Compile Include="Command\Help\HelpCommand.cs" />
+    <Compile Include="Command\CommandParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">

@@ -59,6 +59,22 @@ namespace dbversion.Console.Command.Help
             get { return "Displays information about using the application and then exits."; }
         }
 
+        public string Usage
+        {
+            get
+            {
+                return "dbversion " + this.Name + " [command]";
+            }
+        }
+
+        public IEnumerable<CommandParameter> Parameters
+        {
+            get
+            {
+                return Enumerable.Empty<CommandParameter>();
+            }
+        }
+
         /// <summary>
         /// Execute the command with the specified args.
         /// </summary>
@@ -67,12 +83,72 @@ namespace dbversion.Console.Command.Help
         /// </param>
         public void Execute(string[] args)
         {
+            if (args.Length == 2)
+            {
+                this.DisplayCommandHelp(args[1]);
+            }
+            else
+            {
+                this.DisplayCommandSummary();
+            }
+        }
+
+        /// <summary>
+        /// Outputs the list of commands.
+        /// </summary>
+        private void DisplayCommandSummary()
+        {
             var maxCommandLength = this.Commands.Max(c => c.Name.Length);
 
             foreach (var command in this.Commands.OrderBy(c => c.Name))
             {
                 var padding = new string(' ', maxCommandLength - command.Name.Length + 2);
                 this.MessageService.WriteLine(string.Format("  {0}{1}{2}", command.Name, padding, command.Description));
+            }
+    
+            this.MessageService.WriteLine();
+            this.MessageService.WriteLine("  Use dbversion help [command] for more help on a command.");
+        }
+
+        /// <summary>
+        /// Displays the help output for the specified command.
+        /// </summary>
+        /// <param name='commandName'>
+        /// The name of the command to display the help for.
+        /// </param>
+        private void DisplayCommandHelp(string commandName)
+        {
+            var command = this.Commands.SingleOrDefault(c => c.Name == commandName);
+
+            if (command != null)
+            {
+                this.MessageService.WriteLine("Usage: " + command.Usage);
+
+                if (command.Parameters.Count() > 0)
+                {
+                    this.MessageService.WriteLine();
+                    this.MessageService.WriteLine("Options:");
+
+                    var maxParameterLength = command.Parameters.Max(p => p.ShortOption.Length + p.LongOption.Length + 2);
+                    foreach (var parameter in command.Parameters)
+                    {
+                        var padding = new string(
+                        ' ', maxParameterLength - (parameter.ShortOption.Length + parameter.LongOption.Length));
+                        this.MessageService.WriteLine(
+                    string.Format(
+                        "  {0}, {1}{2}{3}",
+                        parameter.ShortOption,
+                        parameter.LongOption,
+                        padding,
+                        parameter.Description));
+                    }
+                }
+            }
+            else
+            {
+                this.MessageService.WriteLine("Unknown command '" + commandName + "'.");
+                this.MessageService.WriteLine();
+                this.MessageService.WriteLine("Usage: " + this.Usage);
             }
         }
     }

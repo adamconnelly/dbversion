@@ -1,5 +1,7 @@
 namespace dbversion.Console.Command
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// A command that can be executed via the console.
     /// </summary>
@@ -21,6 +23,22 @@ namespace dbversion.Console.Command
         /// The description of the command.
         /// </value>
         string Description { get; }
+
+        /// <summary>
+        /// Gets the command usage.
+        /// </summary>
+        /// <value>
+        /// The command usage.
+        /// </value>
+        string Usage { get; }
+
+        /// <summary>
+        /// Gets the parameters that can be used with the command.
+        /// </summary>
+        /// <value>
+        /// The parameters or an empty enumerable.
+        /// </value>
+        IEnumerable<CommandParameter> Parameters { get; }
 
         /// <summary>
         /// Executes the command with the specified arguments.

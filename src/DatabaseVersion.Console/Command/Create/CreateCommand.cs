@@ -33,6 +33,26 @@ namespace dbversion.Console.Command.Create
             }
         }
 
+        public string Usage
+        {
+            get
+            {
+                return "dbversion " + this.Name + " [options]";
+            }
+        }
+
+        public IEnumerable<CommandParameter> Parameters
+        {
+            get
+            {
+                return new[]
+                {
+                    new CommandParameter("-a", "--archive", "Specifies the archive to create the database from."),
+                    new CommandParameter("-c", "--connectionString", "The database connection string.")
+                };
+            }
+        }
+
         [Import]
         public IDatabaseCreator Creator
         {

@@ -1,7 +1,9 @@
 namespace dbversion.Console.Command.Version
 {
+    using System.Collections.Generic;
     using System.ComponentModel.Composition;
     using System.Diagnostics;
+    using System.Linq;
 
     /// <summary>
     /// Displays the current application version.
@@ -36,6 +38,22 @@ namespace dbversion.Console.Command.Version
         public string Description
         {
             get { return "Displays version information and then exits."; }
+        }
+
+        public string Usage
+        {
+            get
+            {
+                return "dbversion " + this.Name;
+            }
+        }
+
+        public IEnumerable<CommandParameter> Parameters
+        {
+            get
+            {
+                return Enumerable.Empty<CommandParameter>();
+            }
         }
 
         /// <summary>

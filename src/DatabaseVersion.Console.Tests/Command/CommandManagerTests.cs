@@ -81,7 +81,7 @@ namespace dbversion.Console.Tests.Command
 
             // Assert
             createCommand.Verify(c => c.Execute(It.IsAny<string[]>()), Times.Never());
-            this.messageService.Verify(m => m.WriteLine("Unknown command \"-a\"."));
+            this.messageService.Verify(m => m.WriteLine("Unknown command '-a'."));
         }
     }
 }
