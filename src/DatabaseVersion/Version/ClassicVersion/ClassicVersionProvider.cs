@@ -104,7 +104,7 @@ namespace dbversion.Version.ClassicVersion
                 ClassicVersion left = x as ClassicVersion;
                 ClassicVersion right = y as ClassicVersion;
 
-                return left.Version.CompareTo(right.Version);
+                return left.SystemVersion.CompareTo(right.SystemVersion);
             }
         }
     }
