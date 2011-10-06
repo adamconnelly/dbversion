@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net-1.2.10\bin\net\2.0\release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -60,10 +63,12 @@
     <Compile Include="Archives\File\FileDatabaseArchive.cs" />
     <Compile Include="Archives\Zip\ZipDatabaseArchive.cs" />
     <Compile Include="Archives\Zip\ZipDatabaseArchiveFactory.cs" />
+    <Compile Include="MessageService.cs" />
     <Compile Include="DatabaseCreator.cs" />
     <Compile Include="Archives\File\FileDatabaseArchiveFactory.cs" />
     <Compile Include="Archives\IDatabaseArchive.cs" />
     <Compile Include="Archives\IDatabaseArchiveFactory.cs" />
+    <Compile Include="IMessageService.cs" />
     <Compile Include="Manifests\IManifestReader.cs" />
     <Compile Include="Manifests\ManifestReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,10 +122,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Property\" />
-    <Folder Include="Session\" />
-    <Folder Include="Settings\" />
-    <Folder Include="Utils\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

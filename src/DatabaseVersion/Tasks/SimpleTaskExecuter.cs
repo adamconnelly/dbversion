@@ -7,6 +7,13 @@ namespace dbversion.Tasks
     {
         private readonly Queue<IDatabaseTask> tasks = new Queue<IDatabaseTask>();
 
+        public IMessageService MessageService;
+
+        public SimpleTaskExecuter(IMessageService messageService)
+        {
+            MessageService = messageService;
+        }
+
         public void AddTask(IDatabaseTask task)
         {
             this.tasks.Enqueue(task);
@@ -16,7 +23,7 @@ namespace dbversion.Tasks
         {
             foreach (IDatabaseTask task in this.tasks)
             {
-                task.Execute(session);
+                task.Execute(session, MessageService);
             }
         }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -64,9 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Command\IConsoleCommand.cs" />
     <Compile Include="Command\CommandManager.cs" />
-    <Compile Include="IMessageService.cs" />
     <Compile Include="Command\Create\CreateCommand.cs" />
-    <Compile Include="ConsoleMessageService.cs" />
     <Compile Include="Command\ICommandManager.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
@@ -89,10 +87,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Command\" />
-    <Folder Include="Command\Create\" />
-    <Folder Include="Command\Version\" />
-    <Folder Include="Command\Help\" />
+    <None Include="App.config" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,7 @@ namespace dbversion.Tests.Sql
     public class ScriptTaskTests
     {
         private readonly Mock<ISession> session = new Mock<ISession>() { DefaultValue = DefaultValue.Mock };
+        private readonly Mock<IMessageService> messageService = new Mock<IMessageService> { DefaultValue = DefaultValue.Mock };
 
         [Fact]
         public void ShouldUseDatabaseArchiveToGetScript()
@@ -28,7 +29,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             version.Verify(v => v.Archive.GetFile("1\\scripts\\schema.sql"));
@@ -45,7 +46,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -62,7 +63,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -91,7 +92,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -119,7 +120,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("insert into books (name) values ('Great Book');").ExecuteUpdate());
@@ -142,7 +143,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -163,7 +164,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object);
+            task.Execute(session.Object, messageService.Object);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -183,7 +184,7 @@ namespace dbversion.Tests.Sql
             session.Setup(s => s.CreateSQLQuery(It.IsAny<string>()).ExecuteUpdate()).Throws(exception);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(session.Object));
+            Exception thrownException = Record.Exception(() => task.Execute(session.Object, messageService.Object));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);
@@ -202,7 +203,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object));
+            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, messageService.Object));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);

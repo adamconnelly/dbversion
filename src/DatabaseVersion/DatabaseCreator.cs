@@ -46,9 +46,11 @@ namespace dbversion
             set;
         }
 
-        public void Create(IDatabaseArchive archive, string version)
+        [Import]
+        public IMessageService MessageService
         {
-            this.Create(archive, version, new SimpleTaskExecuter());
+            get;
+            set;
         }
 
         /// <summary>
@@ -80,6 +82,11 @@ namespace dbversion
 
                         VersionBase currentVersion = this.VersionProvider.GetCurrentVersion(session);
 
+                        //Log the current version
+                        MessageService.WriteLine(currentVersion == null
+                                                     ? "Current Database Version Unknown"
+                                                     : String.Format("Current Database Version: {0}", currentVersion));
+
                         object targetVersion;
                         if (string.IsNullOrEmpty(version))
                         {
@@ -93,8 +100,11 @@ namespace dbversion
                             targetVersion = this.VersionProvider.CreateVersion(version);
                         }
 
+                        MessageService.WriteLine(String.Format("Target Version: {0}", targetVersion));
+
                         if (!archive.ContainsVersion(targetVersion))
                         {
+                            MessageService.WriteLine(String.Format("Target Version Not Found in Archive"));
                             throw new VersionNotFoundException(targetVersion);
                         }
 
@@ -102,7 +112,10 @@ namespace dbversion
 
                         executer.ExecuteTasks(session);
 
+                        DateTime startTime = DateTime.Now;
+                        MessageService.WriteLine("Starting Commit");
                         transaction.Commit();
+                        MessageService.WriteLine(String.Format("Finish Commit. Time Taken: {0}", DateTime.Now.Subtract(startTime)));
                     }
                 }
             }

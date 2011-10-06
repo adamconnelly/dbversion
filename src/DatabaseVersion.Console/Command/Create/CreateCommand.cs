@@ -121,7 +121,7 @@ namespace dbversion.Console.Command.Create
 
             try
             {
-                this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter());
+                this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService));
             }
             catch (VersionNotFoundException v)
             {

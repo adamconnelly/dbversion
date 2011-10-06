@@ -25,7 +25,7 @@ namespace dbversion.Tasks.Version
         {
             get
             {
-                return string.Format("Inserted version \"{0}\"", this.version);
+                return string.Format("Inserting version \"{0}\"", this.version);
             }
         }
 
@@ -34,7 +34,7 @@ namespace dbversion.Tasks.Version
             get { return string.Empty; }
         }
 
-        public void Execute(ISession session)
+        public void Execute(ISession session, IMessageService messageService)
         {
             this.versionProvider.InsertVersion(version, session);
         }

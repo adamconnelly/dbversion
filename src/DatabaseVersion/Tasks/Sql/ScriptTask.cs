@@ -66,21 +66,24 @@ namespace dbversion.Tasks.Sql
         {
             get
             {
-                return string.Format("Executed script \"{0}\"", this.GetScriptPath());
+                return string.Format("Executing script \"{0}\"", this.GetScriptPath());
             }
         }
 
-        public void Execute(ISession session)
+        public void Execute(ISession session, IMessageService messageService)
         {
             string filePath = this.GetScriptPath();
 
             Stream fileStream = this.version.Archive.GetFile(filePath);
             if (fileStream == null)
             {
-                throw new TaskExecutionException(string.Format("The script file \"{0}\" does not exist in the archive.", filePath));
+                string message = string.Format("The script file \"{0}\" does not exist in the archive.", filePath);
+                messageService.WriteLine(message);
+
+                throw new TaskExecutionException(message);
             }
 
-            this.ExecuteScript(session, filePath, fileStream);
+            this.ExecuteScript(session, filePath, fileStream, messageService);
         }
 
         private string GetScriptPath()
@@ -88,22 +91,30 @@ namespace dbversion.Tasks.Sql
             return this.version.Archive.GetScriptPath(this.version.ManifestPath, this.FileName);
         }
 
-        private void ExecuteScript(ISession session, string filePath, Stream fileStream)
+        private void ExecuteScript(ISession session, string filePath, Stream fileStream, IMessageService messageService)
         {
             //TODO: Shouldn't need to do this as we should already be at the beginning
             fileStream.Position = 0;
 
             using (StreamReader reader = new StreamReader(fileStream, Encoding.Default, true))
             {
-                IEnumerable<string > batches = GetQueryBatches(reader.ReadToEnd());
+                IEnumerable<string> batches = GetQueryBatches(reader.ReadToEnd());
+                int i = 0, count = batches.Count();
                 foreach (string batch in batches)
                 {
+                    i++;
                     try
                     {
-                        this.ExecuteQueryBatch(batch, session);
-                    } catch (Exception e)
+                        DateTime startTime = DateTime.Now;
+                        messageService.WriteLine(String.Format("Starting Batch {0} of {1}", i, count));
+                        this.ExecuteQueryBatch(batch, session, messageService);
+                        messageService.WriteLine(String.Format("Finished Batch {0} of {1}. Time Taken: {2}", i, count, DateTime.Now.Subtract(startTime)));
+                    }
+                    catch (Exception e)
                     {
-                        string exceptionMessage = string.Format("Failed to execute script \"{0}\". {1}", filePath, e.Message);
+                        string exceptionMessage = string.Format("Failed to execute Batch {0} of script \"{1}\". {2}", i, filePath, e.Message);
+                        messageService.WriteExceptionLine(exceptionMessage, e);
+
                         throw new TaskExecutionException(exceptionMessage, e);
                     }
                 }
@@ -118,8 +129,11 @@ namespace dbversion.Tasks.Sql
                 .Select(b => b.Trim());
         }
 
-        private void ExecuteQueryBatch(string batch, ISession session)
+        private void ExecuteQueryBatch(string batch, ISession session, IMessageService messageService)
         {
+            messageService.WriteDebugLine("Executing Batch");
+            messageService.WriteDebugLine(String.Format("{0}", batch));
+
             var query = session.CreateSQLQuery(batch);
             query.ExecuteUpdate();
         }

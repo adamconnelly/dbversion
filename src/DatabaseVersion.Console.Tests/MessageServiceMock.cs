@@ -23,6 +23,16 @@ namespace dbversion.Console.Tests
         {
             builder.AppendLine(input);
         }
+
+        public void WriteDebugLine(string message)
+        {
+            builder.AppendLine(message);
+        }
+
+        public void WriteExceptionLine(string message, System.Exception exception)
+        {
+            builder.AppendLine(message);
+        }
     }
 }
 
