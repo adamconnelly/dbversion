@@ -75,6 +75,9 @@ namespace dbversion
 
                     using (var transaction = session.BeginTransaction())
                     {
+                        DateTime startTime = DateTime.Now;
+                        MessageService.WriteLine("Starting Database Update");
+
                         if (!this.VersionProvider.VersionTableExists(session))
                         {
                             this.VersionProvider.CreateVersionTable(session);
@@ -112,10 +115,12 @@ namespace dbversion
 
                         executer.ExecuteTasks(session);
 
-                        DateTime startTime = DateTime.Now;
+                        DateTime commitStartTime = DateTime.Now;
                         MessageService.WriteLine("Starting Commit");
                         transaction.Commit();
-                        MessageService.WriteLine(String.Format("Finish Commit. Time Taken: {0}", DateTime.Now.Subtract(startTime)));
+                        MessageService.WriteLine(String.Format("Finish Commit. Time Taken: {0}", DateTime.Now.Subtract(commitStartTime)));
+
+                        MessageService.WriteLine(String.Format("Finished Database Update. Time Taken: {0}", DateTime.Now.Subtract(startTime)));
                     }
                 }
             }

@@ -72,6 +72,9 @@ namespace dbversion.Tasks.Sql
 
         public void Execute(ISession session, IMessageService messageService)
         {
+            DateTime startTime = DateTime.Now;
+            messageService.WriteLine(String.Format("Starting Task: {0}", Description));
+
             string filePath = this.GetScriptPath();
 
             Stream fileStream = this.version.Archive.GetFile(filePath);
@@ -84,6 +87,8 @@ namespace dbversion.Tasks.Sql
             }
 
             this.ExecuteScript(session, filePath, fileStream, messageService);
+
+            messageService.WriteLine(String.Format("Finished Task: {0}. Time Taken: {1}", Description, DateTime.Now.Subtract(startTime)));
         }
 
         private string GetScriptPath()

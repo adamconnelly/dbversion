@@ -1,3 +1,4 @@
+using System;
 using dbversion.Version;
 using NHibernate;
 namespace dbversion.Tasks.Version
@@ -36,7 +37,12 @@ namespace dbversion.Tasks.Version
 
         public void Execute(ISession session, IMessageService messageService)
         {
+            DateTime startTime = DateTime.Now;
+            messageService.WriteLine(String.Format("Starting Task: {0}", Description));
+
             this.versionProvider.InsertVersion(version, session);
+
+            messageService.WriteLine(String.Format("Finished Task: {0}. Time Taken: {1}", Description, DateTime.Now.Subtract(startTime)));
         }
     }
 }
