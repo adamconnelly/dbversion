@@ -53,6 +53,22 @@ namespace dbversion
             set;
         }
 
+        #region Logging
+
+        private DateTime _updateStartTime;
+        private void LogUpdateStart()
+        {
+            _updateStartTime = DateTime.Now;
+            MessageService.WriteLine("Starting Database Update");
+        }
+
+        private void LogUpdateComplete()
+        {
+            MessageService.WriteLine(String.Format("Finished Database Update. Time Taken: {0}", DateTime.Now.Subtract(_updateStartTime)));
+        }
+
+        #endregion
+
         /// <summary>
         /// Creates a database at the specified version or upgrades the existing database to the specified version.
         /// </summary>
@@ -75,8 +91,7 @@ namespace dbversion
 
                     using (var transaction = session.BeginTransaction())
                     {
-                        DateTime startTime = DateTime.Now;
-                        MessageService.WriteLine("Starting Database Update");
+                        LogUpdateStart();
 
                         if (!this.VersionProvider.VersionTableExists(session))
                         {
@@ -115,12 +130,9 @@ namespace dbversion
 
                         executer.ExecuteTasks(session);
 
-                        DateTime commitStartTime = DateTime.Now;
-                        MessageService.WriteLine("Starting Commit");
                         transaction.Commit();
-                        MessageService.WriteLine(String.Format("Finish Commit. Time Taken: {0}", DateTime.Now.Subtract(commitStartTime)));
 
-                        MessageService.WriteLine(String.Format("Finished Database Update. Time Taken: {0}", DateTime.Now.Subtract(startTime)));
+                        LogUpdateComplete();
                     }
                 }
             }

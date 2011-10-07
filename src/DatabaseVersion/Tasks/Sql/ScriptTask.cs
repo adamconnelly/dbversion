@@ -36,6 +36,45 @@ namespace dbversion.Tasks.Sql
         /// </summary>
         private readonly IDatabaseVersion version;
 
+        /// <summary>
+        /// The FileName of the task to run
+        /// </summary>
+        public string FileName
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// The Execution Order of this task
+        /// </summary>
+        public int ExecutionOrder
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// A description of the Task
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                return string.Format("Executing script \"{0}\"", this.GetScriptPath());
+            }
+        }
+
+        /// <summary>
+        /// The MessageService to use for logging
+        /// </summary>
+        public IMessageService MessageService
+        {
+            get;
+            set;
+        }
+
+
         public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version)
         {
             this.FileName = fileName;
@@ -45,35 +84,47 @@ namespace dbversion.Tasks.Sql
             this.StringSplitRegex = GetStringSplitRegex();
         }
 
-        private Regex GetStringSplitRegex()
+        private static Regex GetStringSplitRegex()
         {
             return new Regex(string.Format(SeparatorRegexFormat, Environment.NewLine, BatchSeparator), RegexOptions.IgnoreCase);
         }
 
-        public string FileName
+        #region Logging
+
+        private DateTime _taskStartTime;
+        private DateTime _batchStartTime;
+
+        private void LogTaskStart(int taskNumber, int totalTasks)
         {
-            get;
-            private set;
+            _taskStartTime = DateTime.Now;
+            MessageService.WriteLine(String.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
         }
 
-        public int ExecutionOrder
+        private void LogTaskStop(int taskNumber, int totalTasks)
         {
-            get;
-            private set;
+            MessageService.WriteLine(String.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
+                                       taskNumber, totalTasks, Description, DateTime.Now.Subtract(_taskStartTime),
+                                       taskNumber / totalTasks)); 
         }
 
-        public string Description
+        private void LogBatchStart(int batchNumber, int totalBatches)
         {
-            get
-            {
-                return string.Format("Executing script \"{0}\"", this.GetScriptPath());
-            }
+            _batchStartTime = DateTime.Now;
+            MessageService.WriteLine(String.Format("Starting Batch {0} of {1}", batchNumber, totalBatches));
         }
 
-        public void Execute(ISession session, IMessageService messageService)
+        private void LogBatchStop(int batchNumber, int totalBatches)
         {
-            DateTime startTime = DateTime.Now;
-            messageService.WriteLine(String.Format("Starting Task: {0}", Description));
+            MessageService.WriteLine(String.Format("Finished Batch {0} of {1}. Time Taken: {2}", batchNumber, totalBatches, DateTime.Now.Subtract(_batchStartTime)));
+        }
+
+        #endregion
+
+        public void Execute(ISession session, IMessageService messageService, int taskNumber, int totalTasks)
+        {
+            MessageService = messageService;
+
+            LogTaskStart(taskNumber, totalTasks);
 
             string filePath = this.GetScriptPath();
 
@@ -86,9 +137,9 @@ namespace dbversion.Tasks.Sql
                 throw new TaskExecutionException(message);
             }
 
-            this.ExecuteScript(session, filePath, fileStream, messageService);
+            this.ExecuteScript(session, filePath, fileStream);
 
-            messageService.WriteLine(String.Format("Finished Task: {0}. Time Taken: {1}", Description, DateTime.Now.Subtract(startTime)));
+            LogTaskStop(taskNumber, totalTasks);
         }
 
         private string GetScriptPath()
@@ -96,7 +147,7 @@ namespace dbversion.Tasks.Sql
             return this.version.Archive.GetScriptPath(this.version.ManifestPath, this.FileName);
         }
 
-        private void ExecuteScript(ISession session, string filePath, Stream fileStream, IMessageService messageService)
+        private void ExecuteScript(ISession session, string filePath, Stream fileStream)
         {
             //TODO: Shouldn't need to do this as we should already be at the beginning
             fileStream.Position = 0;
@@ -110,15 +161,14 @@ namespace dbversion.Tasks.Sql
                     i++;
                     try
                     {
-                        DateTime startTime = DateTime.Now;
-                        messageService.WriteLine(String.Format("Starting Batch {0} of {1}", i, count));
-                        this.ExecuteQueryBatch(batch, session, messageService);
-                        messageService.WriteLine(String.Format("Finished Batch {0} of {1}. Time Taken: {2}", i, count, DateTime.Now.Subtract(startTime)));
+                        LogBatchStart(i, count);
+                        this.ExecuteQueryBatch(batch, session);
+                        LogBatchStop(i, count);
                     }
                     catch (Exception e)
                     {
                         string exceptionMessage = string.Format("Failed to execute Batch {0} of script \"{1}\". {2}", i, filePath, e.Message);
-                        messageService.WriteExceptionLine(exceptionMessage, e);
+                        MessageService.WriteExceptionLine(exceptionMessage, e);
 
                         throw new TaskExecutionException(exceptionMessage, e);
                     }
@@ -134,10 +184,9 @@ namespace dbversion.Tasks.Sql
                 .Select(b => b.Trim());
         }
 
-        private void ExecuteQueryBatch(string batch, ISession session, IMessageService messageService)
+        private void ExecuteQueryBatch(string batch, ISession session)
         {
-            messageService.WriteDebugLine("Executing Batch");
-            messageService.WriteDebugLine(String.Format("{0}", batch));
+            MessageService.WriteDebugLine(String.Format("{0}", batch));
 
             var query = session.CreateSQLQuery(batch);
             query.ExecuteUpdate();

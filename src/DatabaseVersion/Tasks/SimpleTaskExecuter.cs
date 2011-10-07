@@ -21,9 +21,11 @@ namespace dbversion.Tasks
 
         public void ExecuteTasks(ISession session)
         {
-            foreach (IDatabaseTask task in this.tasks)
+            int count = tasks.Count;
+            for (int i = 1; i < count + 1; i++)
             {
-                task.Execute(session, MessageService);
+                IDatabaseTask task = this.tasks.Dequeue();
+                task.Execute(session, MessageService, i, count);
             }
         }
 

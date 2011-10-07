@@ -24,13 +24,11 @@ namespace dbversion.Console
 
         public void ExecuteTasks(ISession session)
         {
-            double count = this.tasks.Count;
+            int count = this.tasks.Count;
             for (int i = 1; i < count + 1; i++)
             {
                 IDatabaseTask task = this.tasks.Dequeue();
-                MessageService.WriteLine(String.Format("Started Task {0} of {1}", i, count));
-                task.Execute(session, MessageService);
-                MessageService.WriteLine(String.Format("Finished Task {0} of {1}, {2:0%} complete", i, count, i / count));
+                task.Execute(session, MessageService, i, count);
             }
         }
 

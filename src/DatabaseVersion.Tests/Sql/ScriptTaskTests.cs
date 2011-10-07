@@ -29,7 +29,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             version.Verify(v => v.Archive.GetFile("1\\scripts\\schema.sql"));
@@ -46,7 +46,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -63,7 +63,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -92,7 +92,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -120,7 +120,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("insert into books (name) values ('Great Book');").ExecuteUpdate());
@@ -143,7 +143,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -164,7 +164,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object);
+            task.Execute(session.Object, messageService.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -184,7 +184,7 @@ namespace dbversion.Tests.Sql
             session.Setup(s => s.CreateSQLQuery(It.IsAny<string>()).ExecuteUpdate()).Throws(exception);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(session.Object, messageService.Object));
+            Exception thrownException = Record.Exception(() => task.Execute(session.Object, messageService.Object, 1, 1));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);
@@ -203,7 +203,7 @@ namespace dbversion.Tests.Sql
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, messageService.Object));
+            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, messageService.Object, 1, 1));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);

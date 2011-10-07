@@ -35,14 +35,16 @@ namespace dbversion.Tasks.Version
             get { return string.Empty; }
         }
 
-        public void Execute(ISession session, IMessageService messageService)
+        public void Execute(ISession session, IMessageService messageService, int taskNumber, int totalTasks)
         {
             DateTime startTime = DateTime.Now;
-            messageService.WriteLine(String.Format("Starting Task: {0}", Description));
+            messageService.WriteLine(String.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
 
             this.versionProvider.InsertVersion(version, session);
 
-            messageService.WriteLine(String.Format("Finished Task: {0}. Time Taken: {1}", Description, DateTime.Now.Subtract(startTime)));
+            messageService.WriteLine(String.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
+                                                   taskNumber, totalTasks, Description, DateTime.Now.Subtract(startTime),
+                                                   taskNumber / totalTasks));
         }
     }
 }
