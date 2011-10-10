@@ -60,25 +60,25 @@ namespace dbversion.Tasks
         protected void LogTaskStart(int taskNumber, int totalTasks)
         {
             _taskStartTime = DateTime.Now;
-            MessageService.WriteLine(String.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
+            MessageService.WriteLine(string.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
         }
 
         protected void LogTaskStop(int taskNumber, int totalTasks)
         {
-            MessageService.WriteLine(String.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
+            MessageService.WriteLine(string.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
                                                    taskNumber, totalTasks, Description, DateTime.Now.Subtract(_taskStartTime),
-                                                   taskNumber / totalTasks)); 
+                                                   taskNumber / (double)totalTasks));
         }
 
         protected void LogBatchStart(int batchNumber, int totalBatches)
         {
             _batchStartTime = DateTime.Now;
-            MessageService.WriteLine(String.Format("Starting Batch {0} of {1}", batchNumber, totalBatches));
+            MessageService.WriteLine(string.Format("Starting Batch {0} of {1}", batchNumber, totalBatches));
         }
 
         protected void LogBatchStop(int batchNumber, int totalBatches)
         {
-            MessageService.WriteLine(String.Format("Finished Batch {0} of {1}. Time Taken: {2}", batchNumber, totalBatches, DateTime.Now.Subtract(_batchStartTime)));
+            MessageService.WriteLine(string.Format("Finished Batch {0} of {1}. Time Taken: {2}", batchNumber, totalBatches, DateTime.Now.Subtract(_batchStartTime)));
         }
 
         #endregion

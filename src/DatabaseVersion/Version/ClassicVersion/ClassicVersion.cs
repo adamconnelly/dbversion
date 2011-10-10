@@ -4,7 +4,7 @@ using dbversion.Tasks;
 
 namespace dbversion.Version.ClassicVersion
 {
-    public class ClassicVersion: VersionBase
+    public class ClassicVersion : VersionBase
     {
         public virtual IEnumerable<ClassicVersionTask> Tasks { get; set; }
 
@@ -55,8 +55,8 @@ namespace dbversion.Version.ClassicVersion
             {
                 return this.Version.ToString();
             }
-
-            return string.Format("{0} - {1}", this.Version, this.UpdatedOn);
+            
+            return string.Format("{0} - {1}", this.Version, this.UpdatedOnLocal);
         }
 
         public override void AddTask(IDatabaseTask task)

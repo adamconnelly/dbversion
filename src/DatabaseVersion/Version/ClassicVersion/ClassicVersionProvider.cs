@@ -42,7 +42,10 @@ namespace dbversion.Version.ClassicVersion
 
         public VersionBase GetCurrentVersion(ISession session)
         {
-            return session.QueryOver<ClassicVersion>().List().OrderByDescending(v => v, this.GetComparer()).First();
+            return session.QueryOver<ClassicVersion>()
+                .List()
+                .OrderByDescending(v => v, this.GetComparer())
+                .FirstOrDefault();
         }
 
         public void CreateVersionTable(ISession session)
