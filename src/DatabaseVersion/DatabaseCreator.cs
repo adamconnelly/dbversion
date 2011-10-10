@@ -103,7 +103,7 @@ namespace dbversion
                         //Log the current version
                         MessageService.WriteLine(currentVersion == null
                                                      ? "Current Database Version Unknown"
-                                                     : String.Format("Current Database Version: {0}", currentVersion));
+                                                     : string.Format("Current Database Version: {0}", currentVersion));
 
                         object targetVersion;
                         if (string.IsNullOrEmpty(version))
@@ -118,11 +118,11 @@ namespace dbversion
                             targetVersion = this.VersionProvider.CreateVersion(version);
                         }
 
-                        MessageService.WriteLine(String.Format("Target Version: {0}", targetVersion));
+                        MessageService.WriteLine(string.Format("Target Version: {0}", targetVersion));
 
                         if (!archive.ContainsVersion(targetVersion))
                         {
-                            MessageService.WriteLine(String.Format("Target Version Not Found in Archive"));
+                            MessageService.WriteLine(string.Format("Target Version Not Found in Archive"));
                             throw new VersionNotFoundException(targetVersion);
                         }
 
