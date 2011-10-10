@@ -173,11 +173,11 @@ namespace dbversion
                 {
                     if (updating)
                     {
-                        executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion));
+                        executer.AddTask(new InsertVersionTask(this.VersionProvider, currentVersion, MessageService));
                     }
                     else
                     {
-                        executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version));
+                        executer.AddTask(new InsertVersionTask(this.VersionProvider, v.Version, MessageService));
                     }
                 }
             }

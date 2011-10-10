@@ -28,7 +28,7 @@ namespace dbversion.Console
             for (int i = 1; i < count + 1; i++)
             {
                 IDatabaseTask task = this.tasks.Dequeue();
-                task.Execute(session, MessageService, i, count);
+                task.Execute(session, i, count);
             }
         }
 

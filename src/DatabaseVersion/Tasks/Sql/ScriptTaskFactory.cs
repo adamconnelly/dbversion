@@ -17,9 +17,9 @@ namespace dbversion.Tasks.Sql
             return element != null && element.Name == "script";
         }
 
-        public IDatabaseTask Create(XElement element, int executionOrder, IDatabaseVersion version)
+        public IDatabaseTask Create(XElement element, int executionOrder, IDatabaseVersion version, IMessageService messageService)
         {
-            return new ScriptTask(element.Attribute(XName.Get("file")).Value, executionOrder, version);
+            return new ScriptTask(element.Attribute(XName.Get("file")).Value, executionOrder, version, messageService);
         }
     }
 }

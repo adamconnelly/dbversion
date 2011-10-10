@@ -76,6 +76,7 @@
     <Compile Include="Tasks\IDatabaseTaskFactory.cs" />
     <Compile Include="Tasks\ITaskExecuter.cs" />
     <Compile Include="Tasks\SimpleTaskExecuter.cs" />
+    <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\Sql\ScriptTask.cs" />
     <Compile Include="Tasks\Sql\ScriptTaskFactory.cs" />
     <Compile Include="Tasks\TaskExecutionException.cs" />

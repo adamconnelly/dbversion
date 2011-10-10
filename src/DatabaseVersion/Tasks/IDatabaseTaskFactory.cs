@@ -19,7 +19,8 @@ namespace dbversion.Tasks
         /// <param name="element">The element containing the definition of the task.</param>
         /// <param name="executionOrder">The zero-based execution order of the task.</param>
         /// <param name="version">The database version that the task is contained within.</param>
+        /// <param name="messageService">The Message Service to use for logging</param>
         /// <returns>The new task.</returns>
-        IDatabaseTask Create(XElement element, int executionOrder, IDatabaseVersion version);
+        IDatabaseTask Create(XElement element, int executionOrder, IDatabaseVersion version, IMessageService messageService);
     }
 }

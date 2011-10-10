@@ -6,45 +6,26 @@ namespace dbversion.Tasks.Version
     /// <summary>
     /// Inserts a version into the database.
     /// </summary>
-    public class InsertVersionTask : IDatabaseTask
+    public class InsertVersionTask : BaseTask
     {
-        private readonly IVersionProvider versionProvider;
-        private readonly VersionBase version;
+        private readonly IVersionProvider _versionProvider;
+        private readonly VersionBase _version;
 
-        public InsertVersionTask(IVersionProvider versionProvider, VersionBase version)
+        public InsertVersionTask(IVersionProvider versionProvider, VersionBase version, IMessageService messageService)
+            : base(String.Empty, -1, messageService)
         {
-            this.versionProvider = versionProvider;
-            this.version = version;
+            this._versionProvider = versionProvider;
+            this._version = version;
         }
 
-        public int ExecutionOrder
+        protected override string GetTaskDescription()
         {
-            get { return -1; }
+            return string.Format("Inserting version \"{0}\"", this._version);
         }
 
-        public string Description
+        protected override void ExecuteTask(ISession session)
         {
-            get
-            {
-                return string.Format("Inserting version \"{0}\"", this.version);
-            }
-        }
-
-        public string FileName
-        {
-            get { return string.Empty; }
-        }
-
-        public void Execute(ISession session, IMessageService messageService, int taskNumber, int totalTasks)
-        {
-            DateTime startTime = DateTime.Now;
-            messageService.WriteLine(String.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
-
-            this.versionProvider.InsertVersion(version, session);
-
-            messageService.WriteLine(String.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
-                                                   taskNumber, totalTasks, Description, DateTime.Now.Subtract(startTime),
-                                                   taskNumber / totalTasks));
+            this._versionProvider.InsertVersion(_version, session);
         }
     }
 }

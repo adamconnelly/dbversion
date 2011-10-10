@@ -13,7 +13,7 @@ namespace dbversion.Tasks.Sql
 
     using NHibernate;
 
-    public class ScriptTask : IDatabaseTask, IEqualityComparer<ScriptTask>
+    public class ScriptTask : BaseTask, IEqualityComparer<ScriptTask>
     {
         /// <summary>
         /// The string that separates the script into batches.
@@ -36,49 +36,14 @@ namespace dbversion.Tasks.Sql
         /// </summary>
         private readonly IDatabaseVersion version;
 
-        /// <summary>
-        /// The FileName of the task to run
-        /// </summary>
-        public string FileName
+        protected override string GetTaskDescription()
         {
-            get;
-            private set;
+            return string.Format("Executing script \"{0}\"", this.GetScriptPath());
         }
 
-        /// <summary>
-        /// The Execution Order of this task
-        /// </summary>
-        public int ExecutionOrder
+        public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version, IMessageService messageService)
+            : base(fileName, executionOrder, messageService)
         {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// A description of the Task
-        /// </summary>
-        public string Description
-        {
-            get
-            {
-                return string.Format("Executing script \"{0}\"", this.GetScriptPath());
-            }
-        }
-
-        /// <summary>
-        /// The MessageService to use for logging
-        /// </summary>
-        public IMessageService MessageService
-        {
-            get;
-            set;
-        }
-
-
-        public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version)
-        {
-            this.FileName = fileName;
-            this.ExecutionOrder = executionOrder;
             this.version = version;
 
             this.StringSplitRegex = GetStringSplitRegex();
@@ -89,57 +54,20 @@ namespace dbversion.Tasks.Sql
             return new Regex(string.Format(SeparatorRegexFormat, Environment.NewLine, BatchSeparator), RegexOptions.IgnoreCase);
         }
 
-        #region Logging
-
-        private DateTime _taskStartTime;
-        private DateTime _batchStartTime;
-
-        private void LogTaskStart(int taskNumber, int totalTasks)
+        protected override void ExecuteTask(ISession session)
         {
-            _taskStartTime = DateTime.Now;
-            MessageService.WriteLine(String.Format("Starting Task {0} of {1}: {2}", taskNumber, totalTasks, Description));
-        }
-
-        private void LogTaskStop(int taskNumber, int totalTasks)
-        {
-            MessageService.WriteLine(String.Format("Finished Task {0} of {1}: {2}. Time Taken: {3}, {4:0%} complete",
-                                       taskNumber, totalTasks, Description, DateTime.Now.Subtract(_taskStartTime),
-                                       taskNumber / totalTasks)); 
-        }
-
-        private void LogBatchStart(int batchNumber, int totalBatches)
-        {
-            _batchStartTime = DateTime.Now;
-            MessageService.WriteLine(String.Format("Starting Batch {0} of {1}", batchNumber, totalBatches));
-        }
-
-        private void LogBatchStop(int batchNumber, int totalBatches)
-        {
-            MessageService.WriteLine(String.Format("Finished Batch {0} of {1}. Time Taken: {2}", batchNumber, totalBatches, DateTime.Now.Subtract(_batchStartTime)));
-        }
-
-        #endregion
-
-        public void Execute(ISession session, IMessageService messageService, int taskNumber, int totalTasks)
-        {
-            MessageService = messageService;
-
-            LogTaskStart(taskNumber, totalTasks);
-
             string filePath = this.GetScriptPath();
 
             Stream fileStream = this.version.Archive.GetFile(filePath);
             if (fileStream == null)
             {
                 string message = string.Format("The script file \"{0}\" does not exist in the archive.", filePath);
-                messageService.WriteLine(message);
+                MessageService.WriteLine(message);
 
                 throw new TaskExecutionException(message);
             }
 
             this.ExecuteScript(session, filePath, fileStream);
-
-            LogTaskStop(taskNumber, totalTasks);
         }
 
         private string GetScriptPath()

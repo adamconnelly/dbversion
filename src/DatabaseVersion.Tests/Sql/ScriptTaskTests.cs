@@ -26,10 +26,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(this.GetStream("A"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             version.Verify(v => v.Archive.GetFile("1\\scripts\\schema.sql"));
@@ -43,10 +43,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile("1\\scripts\\schema.sql")).Returns(GetStream("ABCDE"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -60,10 +60,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream("ABCDE" + Environment.NewLine + "GO" + Environment.NewLine + "FGHIJ"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -89,10 +89,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithDifferentCasedSeparators));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
@@ -117,10 +117,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorsWithinLines));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("insert into books (name) values ('Great Book');").ExecuteUpdate());
@@ -140,10 +140,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtStartOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -161,10 +161,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            task.Execute(session.Object, messageService.Object, 1, 1);
+            task.Execute(session.Object, 1, 1);
 
             // Assert
             session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
@@ -179,16 +179,16 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
             Exception exception = new Exception();
             session.Setup(s => s.CreateSQLQuery(It.IsAny<string>()).ExecuteUpdate()).Throws(exception);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(session.Object, messageService.Object, 1, 1));
+            Exception thrownException = Record.Exception(() => task.Execute(session.Object, 1, 1));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);
-            Assert.Equal("Failed to execute script \"1\\scripts\\schema.sql\". " + exception.Message, thrownException.Message);
+            Assert.Equal("Failed to execute Batch 1 of script \"1\\scripts\\schema.sql\". " + exception.Message, thrownException.Message);
             Assert.Same(exception, thrownException.InnerException);
         }
 
@@ -200,10 +200,10 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns((Stream)null);
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
 
             // Act
-            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, messageService.Object, 1, 1));
+            Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, 1, 1));
 
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);

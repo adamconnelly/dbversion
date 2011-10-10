@@ -22,6 +22,9 @@ namespace dbversion.Manifests
         [ImportMany]
         public IEnumerable<IDatabaseTaskFactory> Factories { get; set; }
 
+        [Import]
+        public IMessageService MessageService { get; set; }
+
         public IDatabaseVersion Read(Stream stream, string manifestPath, IDatabaseArchive archive)
         {
             Validate.NotNull(() => stream);
@@ -55,7 +58,7 @@ namespace dbversion.Manifests
                 IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanCreate(element));
                 if (factory != null)
                 {
-                    return factory.Create(element, element.ElementsBeforeSelf().Count(), version);
+                    return factory.Create(element, element.ElementsBeforeSelf().Count(), version, MessageService);
                 }
             }
 
