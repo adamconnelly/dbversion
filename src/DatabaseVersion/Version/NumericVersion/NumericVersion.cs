@@ -26,6 +26,14 @@ namespace dbversion.Version.NumericVersion
 
         public virtual IEnumerable<NumericVersionTask> Tasks { get; set; }
 
+        public override string VersionText
+        {
+            get
+            {
+                return this.Version.ToString();
+            }
+        }
+
         public override bool Equals(object obj)
         {
             NumericVersion version = obj as NumericVersion;

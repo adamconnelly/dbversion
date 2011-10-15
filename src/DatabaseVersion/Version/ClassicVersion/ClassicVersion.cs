@@ -6,6 +6,8 @@ namespace dbversion.Version.ClassicVersion
 {
     public class ClassicVersion : VersionBase
     {
+        private System.Version _version;
+
         public virtual IEnumerable<ClassicVersionTask> Tasks { get; set; }
 
         public virtual string Version
@@ -19,7 +21,13 @@ namespace dbversion.Version.ClassicVersion
             get { return _version; }
         }
 
-        private System.Version _version;
+        public override string VersionText
+        {
+            get
+            {
+                return this._version.ToString();
+            }
+        }
 
         public ClassicVersion()
             : this("1.0")

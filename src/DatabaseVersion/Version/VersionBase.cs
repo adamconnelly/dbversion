@@ -42,6 +42,11 @@ namespace dbversion.Version
             }
         }
 
+        /// <summary>
+        /// Gets a textual description of the version.
+        /// </summary>
+        public abstract string VersionText { get; }
+
         public abstract void AddTask(IDatabaseTask task);
 
         public abstract bool HasExecutedTask(IDatabaseTask task);
