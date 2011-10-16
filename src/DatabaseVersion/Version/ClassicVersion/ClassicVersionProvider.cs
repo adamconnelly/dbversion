@@ -19,7 +19,7 @@ namespace dbversion.Version.ClassicVersion
     using dbversion.Version;
 
     [Export(typeof(IVersionProvider))]
-    public class ClasicVersionProvider : IVersionProvider
+    public class ClassicVersionProvider : IVersionProvider
     {
         [Import]
         public ISessionFactoryProvider SessionFactoryProvider
@@ -97,7 +97,12 @@ namespace dbversion.Version.ClassicVersion
             return false;
         }
 
-        private class ClassicVersionComparer : Comparer<object>
+        public IEnumerable<VersionBase> GetAllVersions(ISession session)
+        {
+            return session.QueryOver<ClassicVersion>().List();
+        }
+
+        public class ClassicVersionComparer : Comparer<object>
         {
             public override int Compare(object x, object y)
             {

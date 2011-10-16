@@ -70,6 +70,7 @@
     <Compile Include="Command\CommandParameter.cs" />
     <Compile Include="Command\History\HistoryCommand.cs" />
     <Compile Include="Command\History\HistoryArguments.cs" />
+    <Compile Include="Command\History\HistoryOrder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">

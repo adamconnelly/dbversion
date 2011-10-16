@@ -49,7 +49,8 @@ namespace dbversion.Console.Command.History
                     new CommandParameter("-c", "--connectionString", "The database connection string."),
                     new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
-                    new CommandParameter("-l", "--dialect", "The hibernate dialect.")
+                    new CommandParameter("-l", "--dialect", "The hibernate dialect."),
+                    new CommandParameter("-o", "--order", "The order to sort the versions by [asc|desc].")
                 };
             }
         }
@@ -83,20 +84,39 @@ namespace dbversion.Console.Command.History
                 {
                     using (var transaction = session.BeginTransaction())
                     {
-                        var currentVersion = this.VersionProvider.GetCurrentVersion(session);
-
-                        string versionString = string.Format(
-                            "{0} Installed - {1}, Updated - {2}",
-                            currentVersion.VersionText,
-                            currentVersion.CreatedOnLocal,
-                            currentVersion.UpdatedOnLocal);
-
-                        this.MessageService.WriteLine(versionString);
+                        foreach (var version in this.GetSortedVersions(arguments, session))
+                        {
+                            this.WriteVersion(version);
+                        }
 
                         transaction.Commit();
                     }
                 }
             }
+        }
+
+        private IEnumerable<VersionBase> GetSortedVersions (HistoryArguments arguments, NHibernate.ISession session)
+        {
+            var versions = this.VersionProvider.GetAllVersions(session);
+            if (arguments.SortOrder == HistoryOrder.asc || arguments.SortOrder == HistoryOrder.Ascending)
+            {
+                return versions.OrderBy(v => v, this.VersionProvider.GetComparer());
+            }
+            else
+            {
+                return versions.OrderByDescending(v => v, this.VersionProvider.GetComparer());
+            }
+        }
+
+        private void WriteVersion (VersionBase currentVersion)
+        {
+            string versionString = string.Format(
+                "{0} Installed - {1}, Updated - {2}",
+                currentVersion.VersionText,
+                currentVersion.CreatedOnLocal,
+                currentVersion.UpdatedOnLocal);
+
+            this.MessageService.WriteLine(versionString);
         }
 
         /// <summary>

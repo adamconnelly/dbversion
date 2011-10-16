@@ -27,6 +27,12 @@ namespace dbversion.Console.Command.History
         /// </summary>
         [Option("l", "dialect", HelpText = "The hibernate dialect.")]
         public string Dialect;
+
+        /// <summary>
+        /// The sort order.
+        /// </summary>
+        [Option("o", "order")]
+        public HistoryOrder SortOrder = HistoryOrder.Descending;
     }
 }
 
