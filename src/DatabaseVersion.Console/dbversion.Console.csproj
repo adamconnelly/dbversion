@@ -88,8 +88,12 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="scripts\dbversion.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Command\History\" />
+    <Folder Include="scripts\" />
   </ItemGroup>
 </Project>
