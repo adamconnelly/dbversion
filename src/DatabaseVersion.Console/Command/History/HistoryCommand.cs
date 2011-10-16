@@ -13,9 +13,15 @@ namespace dbversion.Console.Command.History
 
     using Session = dbversion.Session;
 
+    /// <summary>
+    /// A command for outputting the history of versions installed in the database.
+    /// </summary>
     [Export(typeof(IConsoleCommand))]
     public class HistoryCommand : IConsoleCommand
     {
+        /// <summary>
+        /// Gets the command name.
+        /// </summary>
         public string Name
         {
             get
@@ -24,6 +30,9 @@ namespace dbversion.Console.Command.History
             }
         }
 
+        /// <summary>
+        /// Gets a description of the command.
+        /// </summary>
         public string Description
         {
             get
@@ -32,6 +41,9 @@ namespace dbversion.Console.Command.History
             }
         }
 
+        /// <summary>
+        /// Gets the usage of the command.
+        /// </summary>
         public string Usage
         {
             get
@@ -40,6 +52,9 @@ namespace dbversion.Console.Command.History
             }
         }
 
+        /// <summary>
+        /// Gets the command parameters.
+        /// </summary>
         public IEnumerable<CommandParameter> Parameters
         {
             get
@@ -50,26 +65,48 @@ namespace dbversion.Console.Command.History
                     new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
                     new CommandParameter("-l", "--dialect", "The hibernate dialect."),
-                    new CommandParameter("-o", "--order", "The order to sort the versions by [asc|desc].")
+                    new CommandParameter("-o", "--order", "The order to sort the versions by [asc|desc]."),
+                    new CommandParameter("-t", "--showTasks", "Indicates whether the tasks for each version should be output.")
                 };
             }
         }
 
+        /// <summary>
+        /// Gets or sets the message service.
+        /// </summary>
         [Import]
         public IMessageService MessageService { get; set; }
 
+        /// <summary>
+        /// Gets or sets the session factory provider.
+        /// </summary>
         [Import]
         public ISessionFactoryProvider SessionFactoryProvider { get; set; }
 
+        /// <summary>
+        /// Gets or sets the version provider.
+        /// </summary>
         [Import]
         public IVersionProvider VersionProvider { get; set; }
 
+        /// <summary>
+        /// Gets or sets the property service.
+        /// </summary>
         [Import]
         public IPropertyService PropertyService { get; set; }
 
+        /// <summary>
+        /// Gets or sets the settings service.
+        /// </summary>
         [Import]
         public ISettingsService SettingsService { get; set; }
 
+        /// <summary>
+        /// Execute the command with the specified arguments.
+        /// </summary>
+        /// <param name='args'>
+        /// The arguments.
+        /// </param>
         public void Execute (string[] args)
         {
             var arguments = ParseArguments(args);
@@ -86,7 +123,7 @@ namespace dbversion.Console.Command.History
                     {
                         foreach (var version in this.GetSortedVersions(arguments, session))
                         {
-                            this.WriteVersion(version);
+                            this.WriteVersion(version, arguments);
                         }
 
                         transaction.Commit();
@@ -95,7 +132,19 @@ namespace dbversion.Console.Command.History
             }
         }
 
-        private IEnumerable<VersionBase> GetSortedVersions (HistoryArguments arguments, NHibernate.ISession session)
+        /// <summary>
+        /// Gets the versions sorted in the correct order.
+        /// </summary>
+        /// <returns>
+        /// The sorted versions.
+        /// </returns>
+        /// <param name='arguments'>
+        /// The command arguments.
+        /// </param>
+        /// <param name='session'>
+        /// The NHibernate session.
+        /// </param>
+        private IEnumerable<VersionBase> GetSortedVersions(HistoryArguments arguments, NHibernate.ISession session)
         {
             var versions = this.VersionProvider.GetAllVersions(session);
             if (arguments.SortOrder == HistoryOrder.asc || arguments.SortOrder == HistoryOrder.Ascending)
@@ -108,15 +157,61 @@ namespace dbversion.Console.Command.History
             }
         }
 
-        private void WriteVersion (VersionBase currentVersion)
+        /// <summary>
+        /// Writes the specified version.
+        /// </summary>
+        /// <param name='version'>
+        /// The version to write.
+        /// </param>
+        /// <param name='arguments'>
+        /// The command arguments.
+        /// </param>
+        private void WriteVersion (VersionBase version, HistoryArguments arguments)
         {
             string versionString = string.Format(
                 "{0} Installed - {1}, Updated - {2}",
-                currentVersion.VersionText,
-                currentVersion.CreatedOnLocal,
-                currentVersion.UpdatedOnLocal);
+                version.VersionText,
+                version.CreatedOnLocal,
+                version.UpdatedOnLocal);
 
             this.MessageService.WriteLine(versionString);
+
+            if (arguments.ShowTasks)
+            {
+                this.WriteTasks(version, arguments.SortOrder);
+            }
+        }
+
+        /// <summary>
+        /// Writes the tasks.
+        /// </summary>
+        /// <param name='version'>
+        /// The version containing the tasks.
+        /// </param>
+        /// <param name='sortOrder'>
+        /// The order to write the tasks in.
+        /// </param>
+        private void WriteTasks(VersionBase version, HistoryOrder sortOrder)
+        {
+            IEnumerable<Task> sortedTasks;
+            if (sortOrder == HistoryOrder.asc || sortOrder == HistoryOrder.Ascending)
+            {
+                sortedTasks = version.Tasks.OrderBy(t => t.ExecutionOrder);
+            }
+            else
+            {
+                sortedTasks = version.Tasks.OrderByDescending(t => t.ExecutionOrder);
+            }
+
+            foreach (var task in sortedTasks)
+            {
+                string taskString = string.Format(
+                    "  {0} - {1}",
+                    task.Name,
+                    task.UpdatedOnLocal);
+
+                this.MessageService.WriteLine(taskString);
+            }
         }
 
         /// <summary>

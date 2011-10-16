@@ -10,6 +10,8 @@ namespace dbversion.Console.Tests.Command.History
     using dbversion.Property;
     using dbversion.Session;
     using dbversion.Settings;
+    using dbversion.Tasks;
+    using dbversion.Version;
     using dbversion.Version.ClassicVersion;
 
     using Moq;
@@ -103,7 +105,7 @@ namespace dbversion.Console.Tests.Command.History
 
             versionProvider.Setup(v => v.GetAllVersions(It.IsAny<ISession>())).Returns(versions);
             versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
-            
+
             // Act
             command.Execute(new[] { "history", "-o", "asc" });
 
@@ -111,7 +113,61 @@ namespace dbversion.Console.Tests.Command.History
             Assert.Equal(CreateExpectedOutput(versions, HistoryOrder.Ascending), messageService.Contents);
         }
 
-        private HistoryCommand CreateCommand ()
+        [Fact]
+        public void ShouldBeAbleToShowTasks()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            var tasks = CreateTasks();
+
+            var versions = new[]
+            {
+                new ClassicVersion("1.23")
+                {
+                    CreatedOn = new DateTime(2011, 10, 13, 11, 12, 53), UpdatedOn = new DateTime(2011, 10, 13, 11, 12, 53),
+                    Tasks = tasks
+                },
+            };
+
+            versionProvider.Setup(v => v.GetAllVersions(It.IsAny<ISession>())).Returns(versions);
+            versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+
+            // Act
+            command.Execute(new[] { "history", "-t" });
+
+            // Assert
+            Assert.Equal(CreateExpectedOutput(versions, HistoryOrder.Descending, true), messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldNotShowTasksWhenShowTasksIsNotSpecified()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            var tasks = CreateTasks();
+
+            var versions = new[]
+            {
+                new ClassicVersion("1.23")
+                {
+                    CreatedOn = new DateTime(2011, 10, 13, 11, 12, 53), UpdatedOn = new DateTime(2011, 10, 13, 11, 12, 53),
+                    Tasks = tasks
+                },
+            };
+
+            versionProvider.Setup(v => v.GetAllVersions(It.IsAny<ISession>())).Returns(versions);
+            versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+
+            // Act
+            command.Execute(new[] { "history" });
+
+            // Assert
+            Assert.Equal(CreateExpectedOutput(versions, HistoryOrder.Descending, false), messageService.Contents);
+        }
+
+        private HistoryCommand CreateCommand()
         {
             var command = new HistoryCommand();
 
@@ -124,7 +180,23 @@ namespace dbversion.Console.Tests.Command.History
             return command;
         }
 
-        private static string CreateExpectedOutput(IEnumerable<ClassicVersion> versions, HistoryOrder sortOrder = HistoryOrder.Descending)
+        private static IList<Task> CreateTasks ()
+        {
+            var task1 = new Mock<Task>();
+            var task2 = new Mock<Task>();
+
+            task1.Setup(t => t.Name).Returns("/path/to/mytask.sql");
+            task1.Setup(t => t.UpdatedOnLocal).Returns(new DateTime(2011, 1, 1, 10, 59, 23));
+            task1.Setup(t => t.ExecutionOrder).Returns(1);
+
+            task2.Setup(t => t.Name).Returns("/path/to/another/task.sql");
+            task2.Setup(t => t.UpdatedOnLocal).Returns(new DateTime(2011, 1, 1, 11, 00, 46));
+            task2.Setup(t => t.ExecutionOrder).Returns(2);
+
+            return new[] { task1.Object, task2.Object };
+        }
+
+        private static string CreateExpectedOutput(IEnumerable<ClassicVersion> versions, HistoryOrder sortOrder = HistoryOrder.Descending, bool showTasks = false)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -146,6 +218,28 @@ namespace dbversion.Console.Tests.Command.History
                         version.VersionText,
                         version.CreatedOnLocal,
                         version.UpdatedOnLocal));
+
+                if (showTasks)
+                {
+                    IEnumerable<Task> sortedTasks;
+                    if (sortOrder == HistoryOrder.asc || sortOrder == HistoryOrder.Ascending)
+                    {
+                        sortedTasks = version.Tasks.OrderBy(t => t.ExecutionOrder);
+                    }
+                    else
+                    {
+                        sortedTasks = version.Tasks.OrderByDescending(t => t.ExecutionOrder);
+                    }
+
+                    foreach (var task in sortedTasks)
+                    {
+                        builder.AppendLine(
+                            string.Format(
+                                "  {0} - {1}",
+                                task.Name,
+                                task.UpdatedOnLocal));
+                    }
+                }
             }
 
             return builder.ToString();

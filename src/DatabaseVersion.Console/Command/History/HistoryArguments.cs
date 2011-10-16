@@ -2,6 +2,9 @@ namespace dbversion.Console.Command.History
 {
     using CommandLine;
 
+    /// <summary>
+    /// The arguments for the history command.
+    /// </summary>
     public class HistoryArguments
     {
         /// <summary>
@@ -33,6 +36,12 @@ namespace dbversion.Console.Command.History
         /// </summary>
         [Option("o", "order")]
         public HistoryOrder SortOrder = HistoryOrder.Descending;
+
+        /// <summary>
+        /// Indicates whether the tasks for each version should also be output.
+        /// </summary>
+        [Option("t", "showTasks")]
+        public bool ShowTasks;
     }
 }
 

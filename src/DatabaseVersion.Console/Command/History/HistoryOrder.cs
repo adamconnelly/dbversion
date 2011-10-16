@@ -1,5 +1,8 @@
 namespace dbversion.Console.Command.History
 {
+    /// <summary>
+    /// Used to specify the order that the output of the history command should be displayed.
+    /// </summary>
     public enum HistoryOrder
     {
         /// <summary>

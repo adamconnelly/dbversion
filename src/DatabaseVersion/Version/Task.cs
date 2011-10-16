@@ -10,6 +10,20 @@ namespace dbversion.Version
         public virtual Guid Id { get; set; }
         public virtual string Name { get; set; }
         public virtual DateTime? UpdatedOn { get; set; }
+
+        public virtual DateTime? UpdatedOnLocal
+        {
+            get
+            {
+                if (this.UpdatedOn != null)
+                {
+                    return this.UpdatedOn.Value.ToLocalTime();
+                }
+
+                return null;
+            }
+        }
+
         public virtual int ExecutionOrder { get; set; }
 
         #endregion

@@ -8,8 +8,6 @@ namespace dbversion.Version.ClassicVersion
     {
         private System.Version _version;
 
-        public virtual IEnumerable<ClassicVersionTask> Tasks { get; set; }
-
         public virtual string Version
         {
             get { return _version.ToString(); }
@@ -38,7 +36,6 @@ namespace dbversion.Version.ClassicVersion
         public ClassicVersion(string version)
         {
             this.Version = version;
-            this.Tasks = new List<ClassicVersionTask>();
         }
 
         public override bool Equals(object obj)
@@ -71,7 +68,7 @@ namespace dbversion.Version.ClassicVersion
         {
             ClassicVersionTask script = new ClassicVersionTask(this, task.FileName);
             script.ExecutionOrder = task.ExecutionOrder;
-            (this.Tasks as IList<ClassicVersionTask>).Add(script);
+            this.Tasks.Add(script);
         }
 
         public override bool HasExecutedTask(IDatabaseTask task)
