@@ -127,6 +127,12 @@ namespace dbversion.Console.Command.History
                 {
                     using (var transaction = session.BeginTransaction())
                     {
+                        if (!this.VersionProvider.VersionTableExists(session))
+                        {
+                            this.MessageService.WriteLine("No versions are currently installed.");
+                            return;
+                        }
+
                         var sortedVersions = this.GetSortedVersions(arguments, requiredVersion, session);
 
                         if (sortedVersions.Count() == 0 && requiredVersion != null)

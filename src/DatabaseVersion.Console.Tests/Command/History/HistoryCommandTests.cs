@@ -28,6 +28,11 @@ namespace dbversion.Console.Tests.Command.History
         private readonly Mock<ISettingsService> settingsService = new Mock<ISettingsService>();
         private readonly Mock<IPropertyService> propertyService = new Mock<IPropertyService>();
 
+        public HistoryCommandTests()
+        {
+            this.versionProvider.Setup(v => v.VersionTableExists(It.IsAny<ISession>())).Returns(true);
+        }
+
         [Fact]
         public void ShouldHaveCorrectCommandName()
         {
@@ -217,6 +222,21 @@ namespace dbversion.Console.Tests.Command.History
 
             // Assert
             Assert.Equal("The specified version, 1.24, was not found." + Environment.NewLine, messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldOutputAnErrorMessageIfTheVersionTableDoesNotExist()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            versionProvider.Setup(v => v.VersionTableExists(It.IsAny<ISession>())).Returns(false);
+
+            // Act
+            command.Execute(new[] { "history" });
+
+            // Assert
+            Assert.Equal("No versions are currently installed." + Environment.NewLine, messageService.Contents);
         }
 
         private HistoryCommand CreateCommand()
