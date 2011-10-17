@@ -42,6 +42,9 @@ namespace dbversion.Console.Command.History
         /// </summary>
         [Option("t", "showTasks")]
         public bool ShowTasks;
+
+        [Option("v", "version")]
+        public string Version;
     }
 }
 

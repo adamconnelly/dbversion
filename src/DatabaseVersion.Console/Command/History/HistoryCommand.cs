@@ -115,13 +115,28 @@ namespace dbversion.Console.Command.History
             this.MergePropertiesFromSettings();
             this.SetPropertiesFromCommandArguments(arguments);
 
+            VersionBase requiredVersion = null;
+            if (!string.IsNullOrEmpty(arguments.Version))
+            {
+                requiredVersion = this.VersionProvider.CreateVersion(arguments.Version);
+            }
+
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {
                 using (var session = sessionFactory.OpenSession())
                 {
                     using (var transaction = session.BeginTransaction())
                     {
-                        foreach (var version in this.GetSortedVersions(arguments, session))
+                        var sortedVersions = this.GetSortedVersions(arguments, requiredVersion, session);
+
+                        if (sortedVersions.Count() == 0 && requiredVersion != null)
+                        {
+                            this.MessageService.WriteLine(
+                                string.Format("The specified version, {0}, was not found.", arguments.Version));
+                            return;
+                        }
+
+                        foreach (var version in sortedVersions)
                         {
                             this.WriteVersion(version, arguments);
                         }
@@ -144,17 +159,24 @@ namespace dbversion.Console.Command.History
         /// <param name='session'>
         /// The NHibernate session.
         /// </param>
-        private IEnumerable<VersionBase> GetSortedVersions(HistoryArguments arguments, NHibernate.ISession session)
+        private IEnumerable<VersionBase> GetSortedVersions(HistoryArguments arguments, VersionBase version, NHibernate.ISession session)
         {
             var versions = this.VersionProvider.GetAllVersions(session);
             if (arguments.SortOrder == HistoryOrder.asc || arguments.SortOrder == HistoryOrder.Ascending)
             {
-                return versions.OrderBy(v => v, this.VersionProvider.GetComparer());
+                versions = versions.OrderBy(v => v, this.VersionProvider.GetComparer());
             }
             else
             {
-                return versions.OrderByDescending(v => v, this.VersionProvider.GetComparer());
+                versions = versions.OrderByDescending(v => v, this.VersionProvider.GetComparer());
             }
+
+            if (version != null)
+            {
+                return versions.Where(v => object.Equals(v, version));
+            }
+
+            return versions;
         }
 
         /// <summary>

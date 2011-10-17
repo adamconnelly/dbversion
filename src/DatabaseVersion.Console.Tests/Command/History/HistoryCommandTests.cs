@@ -68,7 +68,7 @@ namespace dbversion.Console.Tests.Command.History
         }
 
         [Fact]
-        public void ShouldUseVersionProviderToGetCurrentVersion()
+        public void ShouldUseVersionProviderToGetHistory()
         {
             // Arrange
             var command = this.CreateCommand();
@@ -165,6 +165,58 @@ namespace dbversion.Console.Tests.Command.History
 
             // Assert
             Assert.Equal(CreateExpectedOutput(versions, HistoryOrder.Descending, false), messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldBeAbleToSpecifyASpecificVersion()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            var outputVersion = new ClassicVersion("1.24")
+            {
+                CreatedOn = new DateTime(2011, 10, 14, 9, 14, 29), UpdatedOn = new DateTime(2011, 10, 14, 10, 00, 23)
+            };
+
+            var versions = new[]
+            {
+                new ClassicVersion("1.23") { CreatedOn = new DateTime(2011, 10, 13, 11, 12, 53), UpdatedOn = new DateTime(2011, 10, 13, 11, 12, 53) },
+                outputVersion,
+                new ClassicVersion("1.24.1") { CreatedOn = new DateTime(2011, 10, 16, 21, 59, 53), UpdatedOn = new DateTime(2011, 10, 16, 21, 59, 53) }
+            };
+
+            versionProvider.Setup(v => v.GetAllVersions(It.IsAny<ISession>())).Returns(versions);
+            versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+            versionProvider.Setup(v => v.CreateVersion("1.24")).Returns(outputVersion);
+
+            // Act
+            command.Execute(new[] { "history", "-v", "1.24" });
+
+            // Assert
+            Assert.Equal(CreateExpectedOutput(new[] { outputVersion }), messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldOutputAnErrorMessageIfTheSpecifiedVersionIsNotFound()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            var versions = new[]
+            {
+                new ClassicVersion("1.23") { CreatedOn = new DateTime(2011, 10, 13, 11, 12, 53), UpdatedOn = new DateTime(2011, 10, 13, 11, 12, 53) },
+                new ClassicVersion("1.24.1") { CreatedOn = new DateTime(2011, 10, 16, 21, 59, 53), UpdatedOn = new DateTime(2011, 10, 16, 21, 59, 53) }
+            };
+
+            versionProvider.Setup(v => v.GetAllVersions(It.IsAny<ISession>())).Returns(versions);
+            versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+            versionProvider.Setup(v => v.CreateVersion("1.24")).Returns(new ClassicVersion("1.24"));
+
+            // Act
+            command.Execute(new[] { "history", "-v", "1.24" });
+
+            // Assert
+            Assert.Equal("The specified version, 1.24, was not found." + Environment.NewLine, messageService.Contents);
         }
 
         private HistoryCommand CreateCommand()
