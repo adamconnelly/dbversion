@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{18389508-A214-446A-A166-CFE7DD83DF23}</ProjectGuid>
@@ -12,7 +12,7 @@
     <AssemblyName>dbversion</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <Commandlineparameters>create -c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/console-command/samples/classic-sample.zip -v 16.0</Commandlineparameters>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -72,12 +72,6 @@
     <Compile Include="Command\History\HistoryArguments.cs" />
     <Compile Include="Command\History\HistoryOrder.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
-      <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
-      <Name>dbversion</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -89,12 +83,19 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="scripts\dbversion.sh">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="scripts\dbversion" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Command\History\" />
     <Folder Include="scripts\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
+      <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
+      <Name>dbversion</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="scripts\dbversion" DestinationFolder="$(OutputPath)" />
+  </Target>
 </Project>

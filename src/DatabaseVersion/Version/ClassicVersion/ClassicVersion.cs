@@ -56,7 +56,7 @@ namespace dbversion.Version.ClassicVersion
 
         public override string ToString()
         {
-            if (UpdatedOn == null)
+            if (this.UpdatedOnLocal == null)
             {
                 return this.Version.ToString();
             }
