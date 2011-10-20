@@ -1,2 +1,2 @@
 #!/bin/bash
-mono dbversion.exe $@
+mono dbversion.exe "$@"
