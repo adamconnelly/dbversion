@@ -117,7 +117,19 @@ namespace dbversion.Settings
 
             if (stream != null)
             {
-                return XmlSerializer.DeSerialize<T>(stream);
+                try
+                {
+                    return XmlSerializer.DeSerialize<T>(stream);
+                }
+                catch (Exception)
+                {
+                    // TODO: Add logging?
+                    return default(T);
+                }
+                finally
+                {
+                    stream.Dispose();
+                }
             }
 
             return default(T);
