@@ -72,7 +72,10 @@ namespace dbversion.Console.Command.SavedConnection
                     new CommandParameter("-c", "--connectionString", "The database connection string."),
                     new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
-                    new CommandParameter("-l", "--dialect", "The hibernate dialect.")
+                    new CommandParameter("-l", "--dialect", "The hibernate dialect."),
+                    new CommandParameter("-r", "--remove", "Deletes the connection specified using the -n option."),
+                    new CommandParameter(string.Empty, "--default", "Sets the connection specified using the -n option as the default."),
+                    new CommandParameter("-t", "--template", "Uses the specified connection as a template.")
                 };
             }
         }
@@ -98,6 +101,42 @@ namespace dbversion.Console.Command.SavedConnection
             this.SavedConnectionService.LoadConnections();
 
             if (!string.IsNullOrEmpty(arguments.Name) &&
+                !string.IsNullOrEmpty(arguments.TemplateConnection))
+            {
+                var template = this.SavedConnectionService.SavedConnections.FirstOrDefault(
+                    c => c.Name == arguments.TemplateConnection);
+
+                if (template != null)
+                {
+                    var connectionString = !string.IsNullOrEmpty(arguments.ConnectionString)
+                        ? arguments.ConnectionString : template.ConnectionString;
+                    var driverClass = !string.IsNullOrEmpty(arguments.DriverClass)
+                        ? arguments.DriverClass : template.DriverClass;
+                    var dialect = !string.IsNullOrEmpty(arguments.Dialect)
+                        ? arguments.Dialect : template.Dialect;
+                    var provider = !string.IsNullOrEmpty(arguments.ConnectionProvider)
+                        ? arguments.ConnectionProvider : template.ConnectionProvider;
+    
+                    var connection = this.SavedConnectionService.CreateSavedConnection(
+                        arguments.Name,
+                        connectionString,
+                        provider,
+                        driverClass,
+                        dialect);
+                    this.SavedConnectionService.SaveConnections();
+    
+                    this.MessageService.WriteLine(
+                        string.Format(
+                            "Created a new connection \"{0}\" based on \"{1}\".", arguments.Name, arguments.TemplateConnection));
+                    this.WriteConnectionInfo(connection);
+                }
+                else
+                {
+                    this.MessageService.WriteLine(
+                        string.Format("Template connection \"{0}\" could not be found.", arguments.TemplateConnection));
+                }
+            }
+            else if (!string.IsNullOrEmpty(arguments.Name) &&
                 !string.IsNullOrEmpty(arguments.ConnectionProvider) &&
                 !string.IsNullOrEmpty(arguments.ConnectionString) &&
                 !string.IsNullOrEmpty(arguments.Dialect) &&

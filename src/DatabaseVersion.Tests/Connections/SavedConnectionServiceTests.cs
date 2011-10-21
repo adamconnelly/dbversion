@@ -209,7 +209,7 @@ namespace DatabaseVersion.Tests.Connections
             Assert.Null(service.SavedConnections.SingleOrDefault(c => c.Name == "b"));
         }
 
-        // TODO: Do we need to set a new default if the default is deleted, or is it ok to leave it?
+        #region Default
 
         [Fact]
         public void ShouldBeAbleToSetConnectionAsDefault()
@@ -249,6 +249,38 @@ namespace DatabaseVersion.Tests.Connections
             Assert.True(connectionA.IsDefault, "Connection A should still be default");
 
             Assert.False(success, "The method should not have succeeded");
+        }
+
+        #endregion
+
+        [Fact]
+        public void ShouldBeAbleToAddANewConnection()
+        {
+            // Arrange
+            var service = new SavedConnectionService();
+
+            var connection = new SavedConnection("connection", "connString", null, null, null, false);
+
+            // Act
+            service.AddConnection(connection);
+
+            // Assert
+            Assert.Same(connection, service.SavedConnections.Single(c => c.Name == "connection"));
+        }
+
+        [Fact]
+        public void ShouldNotAddAConnectionAsDefault()
+        {
+            // Arrange
+            var service = new SavedConnectionService();
+
+            var connection = new SavedConnection("connection", "connString", null, null, null, true);
+
+            // Act
+            service.AddConnection(connection);
+
+            // Assert
+            Assert.False(service.SavedConnections.Single(c => c.Name == "connection").IsDefault);
         }
     }
 }

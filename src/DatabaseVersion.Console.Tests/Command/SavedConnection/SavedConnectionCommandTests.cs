@@ -267,6 +267,226 @@ namespace dbversion.Console.Tests.Command.SavedConnection
             service.Verify(s => s.SaveConnections(), Times.Never());
         }
 
+        [Fact]
+        public void ShouldBeAbleToCreateAConnectionFromATemplate()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+            service.Setup(s => s.CreateSavedConnection("connection5", "newConnString", "newProvider", "newDriver", "newDialect"))
+                .Returns(new SavedConnection("connection5", "newConnString", "newProvider", "newDriver", "newDialect", false));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "connection1",
+                    "-c", "newConnString",
+                    "-d", "newDriver",
+                    "-l", "newDialect",
+                    "-p", "newProvider"
+                });
+
+            // Assert
+            var expectedMessage = "Created a new connection \"connection5\" based on \"connection1\"." + Environment.NewLine +
+                "  Connection String: newConnString" + Environment.NewLine +
+                "  Driver Class: newDriver" + Environment.NewLine +
+                "  Provider: newProvider" + Environment.NewLine +
+                "  Dialect: newDialect" + Environment.NewLine +
+                "  Default: False" + Environment.NewLine + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteConnectionStringWhenCreatingFromTemplate()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+            service.Setup(s => s.CreateSavedConnection("connection5", "connString", "newProvider", "newDriver", "newDialect"))
+                .Returns(new SavedConnection("connection5", "connString", "newProvider", "newDriver", "newDialect", false));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "connection1",
+                    "-d", "newDriver",
+                    "-l", "newDialect",
+                    "-p", "newProvider"
+                });
+
+            // Assert
+            var expectedMessage = "Created a new connection \"connection5\" based on \"connection1\"." + Environment.NewLine +
+                "  Connection String: connString" + Environment.NewLine +
+                "  Driver Class: newDriver" + Environment.NewLine +
+                "  Provider: newProvider" + Environment.NewLine +
+                "  Dialect: newDialect" + Environment.NewLine +
+                "  Default: False" + Environment.NewLine + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteDriverClassWhenCreatingFromTemplate()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+            service.Setup(s => s.CreateSavedConnection("connection5", "newConnString", "newProvider", "driver", "newDialect"))
+                .Returns(new SavedConnection("connection5", "newConnString", "newProvider", "driver", "newDialect", false));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "connection1",
+                    "-c", "newConnString",
+                    "-l", "newDialect",
+                    "-p", "newProvider"
+                });
+
+            // Assert
+            var expectedMessage = "Created a new connection \"connection5\" based on \"connection1\"." + Environment.NewLine +
+                "  Connection String: newConnString" + Environment.NewLine +
+                "  Driver Class: driver" + Environment.NewLine +
+                "  Provider: newProvider" + Environment.NewLine +
+                "  Dialect: newDialect" + Environment.NewLine +
+                "  Default: False" + Environment.NewLine + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteDialectWhenCreatingFromTemplate()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+            service.Setup(s => s.CreateSavedConnection("connection5", "newConnString", "newProvider", "newDriver", "dialect"))
+                .Returns(new SavedConnection("connection5", "newConnString", "newProvider", "newDriver", "dialect", false));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "connection1",
+                    "-c", "newConnString",
+                    "-d", "newDriver",
+                    "-p", "newProvider"
+                });
+
+            // Assert
+            var expectedMessage = "Created a new connection \"connection5\" based on \"connection1\"." + Environment.NewLine +
+                "  Connection String: newConnString" + Environment.NewLine +
+                "  Driver Class: newDriver" + Environment.NewLine +
+                "  Provider: newProvider" + Environment.NewLine +
+                "  Dialect: dialect" + Environment.NewLine +
+                "  Default: False" + Environment.NewLine + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteProviderWhenCreatingFromTemplate()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+            service.Setup(s => s.CreateSavedConnection("connection5", "newConnString", "provider", "newDriver", "newDialect"))
+                .Returns(new SavedConnection("connection5", "newConnString", "provider", "newDriver", "newDialect", false));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "connection1",
+                    "-c", "newConnString",
+                    "-d", "newDriver",
+                    "-l", "newDialect"
+                });
+
+            // Assert
+            var expectedMessage = "Created a new connection \"connection5\" based on \"connection1\"." + Environment.NewLine +
+                "  Connection String: newConnString" + Environment.NewLine +
+                "  Driver Class: newDriver" + Environment.NewLine +
+                "  Provider: provider" + Environment.NewLine +
+                "  Dialect: newDialect" + Environment.NewLine +
+                "  Default: False" + Environment.NewLine + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
+        public void ShouldPrintErrorIfTemplateCannotBeFound()
+        {
+            // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(CreateConnections());
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection5",
+                    "-t", "missingConnection",
+                    "-c", "newConnString"
+                });
+
+            // Assert
+            var expectedMessage =
+                "Template connection \"missingConnection\" could not be found." + Environment.NewLine;
+            Assert.Equal(expectedMessage, messageService.Contents);
+        }
+
         private static IEnumerable<SavedConnection> CreateConnections()
         {
             return new[]

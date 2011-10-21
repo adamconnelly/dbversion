@@ -45,5 +45,8 @@ namespace dbversion.Console.Command.SavedConnection
 
         [Option(null, "default")]
         public bool SetDefaultConnection;
+
+        [Option("t", "template")]
+        public string TemplateConnection;
     }
 }

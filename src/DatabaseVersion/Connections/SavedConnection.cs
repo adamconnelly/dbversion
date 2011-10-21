@@ -88,6 +88,15 @@ namespace dbversion.Connections
             get;
             set;
         }
+
+        /// <summary>
+        /// Makes a copy of the connection.
+        /// </summary>
+        public SavedConnection Copy()
+        {
+            return new SavedConnection(
+                this.Name, this.ConnectionString, this.ConnectionProvider, this.DriverClass, this.Dialect, this.IsDefault);
+        }
     }
 }
 
