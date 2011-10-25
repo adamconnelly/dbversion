@@ -43,9 +43,9 @@ namespace dbversion.Console.Command
         /// <summary>
         /// Executes the command with the specified arguments.
         /// </summary>
-        /// <param name='arguments'>
+        /// <param name='args'>
         /// The command line arguments.
         /// </param>
-        void Execute(string[] arguments);
+        void Execute(string[] args);
     }
 }
