@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -10,6 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>dbversion.Console</RootNamespace>
     <AssemblyName>dbversion</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -21,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>saved-connection -n library -c"Server=localhost; Database=library;…" -lPostgreSQL82Dialect -pNHibernate.Connection.DriverConnectionProvider -dNHibernate.Driver.NpgsqlDriver</Commandlineparameters>
+    <Commandlineparameters>create -c "Server=localhost;Database=library;User ID=adam;Password=adam;" -a /home/adam/bzr/dbversion/console-command/samples/classic-sample.zip -v 16.0</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -39,17 +40,20 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
+    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\FluentNHibernate\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="CommandLine, Version=1.8.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\lib\CommandLine\libcmdline\bin\Release\CommandLine.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
-    <Reference Include="Castle.Core">
-      <HintPath>..\..\lib\FluentNHibernate\Castle.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle">
+    <Reference Include="NHibernate.ByteCode.Castle, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\FluentNHibernate\NHibernate.ByteCode.Castle.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate">
+    <Reference Include="System.Data" />
+    <Reference Include="NHibernate, Version=3.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -68,8 +72,6 @@
     <Compile Include="Command\Version\DisplayVersionCommand.cs" />
     <Compile Include="Command\Help\HelpCommand.cs" />
     <Compile Include="Command\CommandParameter.cs" />
-    <Compile Include="Command\SavedConnection\SavedConnectionCommand.cs" />
-    <Compile Include="Command\SavedConnection\SavedConnectionArguments.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
@@ -88,8 +90,5 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Command\SavedConnection\" />
   </ItemGroup>
 </Project>
