@@ -101,6 +101,11 @@ namespace dbversion.Version.NumericVersion
 
             return false;
         }
+
+        public IEnumerable<VersionBase> GetAllVersions(ISession session)
+        {
+            return session.QueryOver<NumericVersion>().List();
+        }
         
         private class NumericVersionComparer : Comparer<object>
         {

@@ -6,7 +6,7 @@ namespace dbversion.Version.ClassicVersion
 {
     public class ClassicVersion : VersionBase
     {
-        public virtual IEnumerable<ClassicVersionTask> Tasks { get; set; }
+        private System.Version _version;
 
         public virtual string Version
         {
@@ -19,7 +19,13 @@ namespace dbversion.Version.ClassicVersion
             get { return _version; }
         }
 
-        private System.Version _version;
+        public override string VersionText
+        {
+            get
+            {
+                return this._version.ToString();
+            }
+        }
 
         public ClassicVersion()
             : this("1.0")
@@ -30,7 +36,6 @@ namespace dbversion.Version.ClassicVersion
         public ClassicVersion(string version)
         {
             this.Version = version;
-            this.Tasks = new List<ClassicVersionTask>();
         }
 
         public override bool Equals(object obj)
@@ -51,7 +56,7 @@ namespace dbversion.Version.ClassicVersion
 
         public override string ToString()
         {
-            if (UpdatedOn == null)
+            if (this.UpdatedOnLocal == null)
             {
                 return this.Version.ToString();
             }
@@ -63,7 +68,7 @@ namespace dbversion.Version.ClassicVersion
         {
             ClassicVersionTask script = new ClassicVersionTask(this, task.FileName);
             script.ExecutionOrder = task.ExecutionOrder;
-            (this.Tasks as IList<ClassicVersionTask>).Add(script);
+            this.Tasks.Add(script);
         }
 
         public override bool HasExecutedTask(IDatabaseTask task)

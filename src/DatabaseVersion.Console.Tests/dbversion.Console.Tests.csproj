@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>dbversion.Console.Tests</RootNamespace>
     <AssemblyName>DatabaseVersion.Console.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,13 +30,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="xunit, Version=1.8.0.1545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="xunit">
       <HintPath>..\..\tools\xUnit.net\xunit.dll</HintPath>
     </Reference>
-    <Reference Include="Moq, Version=4.0.10531.7, Culture=neutral, PublicKeyToken=69f491c39445e920">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Moq">
       <HintPath>..\..\tools\Moq\NET40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +47,7 @@
     <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
     <Compile Include="Command\Help\HelpCommandTests.cs" />
     <Compile Include="MessageServiceMock.cs" />
+    <Compile Include="Command\History\HistoryCommandTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -54,6 +55,7 @@
     <Folder Include="Command\Create\" />
     <Folder Include="Command\Version\" />
     <Folder Include="Command\Help\" />
+    <Folder Include="Command\History\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion.Console\dbversion.Console.csproj">
