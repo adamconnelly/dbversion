@@ -1,10 +1,17 @@
-using System;
-using dbversion.Tasks;
-
 namespace dbversion.Version
 {
+    using System;
+    using System.Collections.Generic;
+
+    using dbversion.Tasks;
+
     public abstract class VersionBase
     {
+        public VersionBase()
+        {
+            this.Tasks = new List<Task>();
+        }
+
         public virtual Guid Id { get; set; }
         public virtual DateTime? UpdatedOn { get; set; }
         
@@ -41,6 +48,13 @@ namespace dbversion.Version
                 return null;
             }
         }
+
+        /// <summary>
+        /// Gets a textual description of the version.
+        /// </summary>
+        public abstract string VersionText { get; }
+
+        public virtual IList<Task> Tasks { get; set; }
 
         public abstract void AddTask(IDatabaseTask task);
 

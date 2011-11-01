@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{18389508-A214-446A-A166-CFE7DD83DF23}</ProjectGuid>
@@ -12,8 +12,8 @@
     <AssemblyName>dbversion</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,8 +23,8 @@
     <WarningLevel>4</WarningLevel>
     <Commandlineparameters>create -a "/Users/adamconnelly/bzr/dbversion/saved-connection/samples/classic-sample"</Commandlineparameters>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -68,14 +68,11 @@
     <Compile Include="Command\Version\DisplayVersionCommand.cs" />
     <Compile Include="Command\Help\HelpCommand.cs" />
     <Compile Include="Command\CommandParameter.cs" />
+    <Compile Include="Command\History\HistoryCommand.cs" />
+    <Compile Include="Command\History\HistoryArguments.cs" />
+    <Compile Include="Command\History\HistoryOrder.cs" />
     <Compile Include="Command\SavedConnection\SavedConnectionCommand.cs" />
     <Compile Include="Command\SavedConnection\SavedConnectionArguments.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
-      <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
-      <Name>dbversion</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -88,8 +85,20 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="scripts\dbversion" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Command\SavedConnection\" />
+    <Folder Include="Command\History\" />
+    <Folder Include="scripts\" />
+  </ItemGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="scripts\dbversion" DestinationFolder="$(OutputPath)" />
+  </Target>
+  <ItemGroup>
+    <ProjectReference Include="..\DatabaseVersion\dbversion.csproj">
+      <Project>{694D9BDF-DCE8-4FC6-A416-CE4573F2F00C}</Project>
+      <Name>dbversion</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

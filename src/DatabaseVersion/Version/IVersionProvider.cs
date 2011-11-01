@@ -67,5 +67,10 @@ namespace dbversion
         /// <param name="task"></param>
         /// <returns></returns>
         bool HasExecutedScript(VersionBase currentVersion, VersionBase targetVersion, IDatabaseTask task);
+
+        /// <summary>
+        /// Gets all the versions that have been installed.
+        /// </summary>
+        IEnumerable<VersionBase> GetAllVersions(ISession session);
     }
 }

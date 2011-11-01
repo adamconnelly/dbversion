@@ -14,17 +14,21 @@ namespace dbversion.Version.NumericVersion
         public NumericVersion(int version)
         {
             this.Version = version;
-            this.Tasks = new List<NumericVersionTask>();
         }
 
         public NumericVersion()
         {
-            
         }
 
         public virtual int Version { get; set; }
 
-        public virtual IEnumerable<NumericVersionTask> Tasks { get; set; }
+        public override string VersionText
+        {
+            get
+            {
+                return this.Version.ToString();
+            }
+        }
 
         public override bool Equals(object obj)
         {
@@ -56,7 +60,7 @@ namespace dbversion.Version.NumericVersion
         {
             NumericVersionTask script = new NumericVersionTask(this, task.FileName);
             script.ExecutionOrder = task.ExecutionOrder;
-            (this.Tasks as IList<NumericVersionTask>).Add(script);
+            this.Tasks.Add(script);
         }
 
         public override bool HasExecutedTask(IDatabaseTask task)

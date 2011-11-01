@@ -112,9 +112,9 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Connections\SavedConnectionService.cs" />
-    <Compile Include="Connections\SavedConnection.cs" />
     <Compile Include="Connections\ISavedConnectionService.cs" />
+    <Compile Include="Connections\SavedConnection.cs" />
+    <Compile Include="Connections\SavedConnectionService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -125,7 +125,4 @@
   </Target>
   -->
   <ItemGroup />
-  <ItemGroup>
-    <Folder Include="Connections\" />
-  </ItemGroup>
 </Project>

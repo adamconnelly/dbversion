@@ -36,6 +36,9 @@
     <Reference Include="Moq">
       <HintPath>..\..\tools\Moq\NET40\Moq.dll</HintPath>
     </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -44,7 +47,7 @@
     <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
     <Compile Include="Command\Help\HelpCommandTests.cs" />
     <Compile Include="MessageServiceMock.cs" />
-    <Compile Include="Command\SavedConnection\SavedConnectionCommandTests.cs" />
+    <Compile Include="Command\History\HistoryCommandTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -52,7 +55,7 @@
     <Folder Include="Command\Create\" />
     <Folder Include="Command\Version\" />
     <Folder Include="Command\Help\" />
-    <Folder Include="Command\SavedConnection\" />
+    <Folder Include="Command\History\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion.Console\dbversion.Console.csproj">

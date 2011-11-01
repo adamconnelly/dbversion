@@ -32,7 +32,7 @@ namespace dbversion.Version.ClassicVersion
 
         public override int GetHashCode()
         {
-            return this.Version.GetHashCode();
+            return this.Version.GetHashCode() ^ this.Name.GetHashCode();
         }
 
         public override string ToString()
