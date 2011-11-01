@@ -13,6 +13,11 @@ namespace dbversion.Connections
     public class SavedConnectionService : ISavedConnectionService
     {
         /// <summary>
+        /// The name of the file to store the saved connections in.
+        /// </summary>
+        public const string SettingsFileName = "saved-connections.xml";
+
+        /// <summary>
         /// The saved connections.
         /// </summary>
         private List<SavedConnection> savedConnections = new List<SavedConnection>();
@@ -44,20 +49,12 @@ namespace dbversion.Connections
             }
         }
 
-        /// <summary>
-        /// Adds the connection.
-        /// </summary>
-        /// <param name='connection'>
-        /// The connection to add.
-        /// </param>
-        /// <remarks>
-        /// The <see cref="SavedConnection.IsDefault"/> property of the connection will be set to <c>false</c>.
-        /// </remarks>
-        public void AddConnection(SavedConnection connection)
+        public SavedConnection DefaultConnection
         {
-            connection.IsDefault = false;
-
-            this.savedConnections.Add(connection);
+            get
+            {
+                return this.savedConnections.FirstOrDefault(c => c.IsDefault);
+            }
         }
 
         /// <summary>
@@ -109,7 +106,7 @@ namespace dbversion.Connections
         /// </summary>
         public void SaveConnections()
         {
-            this.SettingsService.Serialize(savedConnections, "saved-connections.xml");
+            this.SettingsService.Serialize(savedConnections, SettingsFileName);
         }
 
         /// <summary>
@@ -117,7 +114,7 @@ namespace dbversion.Connections
         /// </summary>
         public void LoadConnections()
         {
-            var connections = this.SettingsService.DeSerialize<List<SavedConnection>>("saved-connections.xml");
+            var connections = this.SettingsService.DeSerialize<List<SavedConnection>>(SettingsFileName);
             if (connections != null)
             {
                 this.savedConnections = connections;

@@ -8,6 +8,7 @@ namespace dbversion.Console.Command.Create
     using CommandLine;
 
     using dbversion.Archives;
+    using dbversion.Connections;
     using dbversion.Property;
     using dbversion.Session;
     using dbversion.Settings;
@@ -52,7 +53,8 @@ namespace dbversion.Console.Command.Create
                     new CommandParameter("-v", "--version", "The version to create or upgrade to."),
                     new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
-                    new CommandParameter("-l", "--dialect", "The hibernate dialect.")
+                    new CommandParameter("-l", "--dialect", "The hibernate dialect."),
+                    new CommandParameter("-s", "--saved-connection", "The name of the saved connection to use.")
                 };
             }
         }
@@ -92,6 +94,13 @@ namespace dbversion.Console.Command.Create
             set;
         }
 
+        [Import]
+        public ISavedConnectionService SavedConnectionService
+        {
+            get;
+            set;
+        }
+
         /// <summary>
         /// Execute the command with the specified arguments.
         /// </summary>
@@ -114,9 +123,12 @@ namespace dbversion.Console.Command.Create
                 return;
             }
 
+            this.SavedConnectionService.LoadConnections();
+
             this.PropertyService.SetDefaultProperties();
             this.MergePropertiesFromSettings();
             this.PropertyService.Merge(archive.Properties);
+            this.MergeDefaultConnectionProperties();
             this.SetPropertiesFromCommandArguments(arguments);
 
             try
@@ -236,6 +248,16 @@ namespace dbversion.Console.Command.Create
                      Value = arguments.Dialect
                  });
             }
+
+            if (!string.IsNullOrEmpty(arguments.SavedConnection))
+            {
+                var savedConnection =
+                    this.SavedConnectionService.SavedConnections.FirstOrDefault(c => c.Name == arguments.SavedConnection);
+                if (savedConnection != null)
+                {
+                    this.PropertyService.Merge(savedConnection.GetConnectionProperties());
+                }
+            }
         }
 
         /// <summary>
@@ -247,6 +269,15 @@ namespace dbversion.Console.Command.Create
             if (propertyCollection != null)
             {
                 this.PropertyService.Merge(propertyCollection.Properties);
+            }
+        }
+
+        private void MergeDefaultConnectionProperties()
+        {
+            var defaultConnection = this.SavedConnectionService.DefaultConnection;
+            if (defaultConnection != null)
+            {
+                this.PropertyService.Merge(defaultConnection.GetConnectionProperties());
             }
         }
     }

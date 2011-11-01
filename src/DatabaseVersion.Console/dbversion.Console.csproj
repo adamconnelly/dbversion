@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>saved-connection -n library -c"Server=localhost; Database=library;…" -lPostgreSQL82Dialect -pNHibernate.Connection.DriverConnectionProvider -dNHibernate.Driver.NpgsqlDriver</Commandlineparameters>
+    <Commandlineparameters>create -a "/Users/adamconnelly/bzr/dbversion/saved-connection/samples/classic-sample"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>

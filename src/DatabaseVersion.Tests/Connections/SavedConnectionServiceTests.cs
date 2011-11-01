@@ -41,6 +41,62 @@ namespace DatabaseVersion.Tests.Connections
             // Assert
             Assert.False(connection.IsDefault);
         }
+
+        [Fact]
+        public void ShouldReturnTheDefaultConnection()
+        {
+            // Arrange
+            var service = new SavedConnectionService();
+            var settingsService = new Mock<ISettingsService>();
+
+            service.SettingsService = settingsService.Object;
+
+            var savedConnections = new List<SavedConnection>()
+            {
+                new SavedConnection { Name = "connection1", IsDefault = false },
+                new SavedConnection { Name = "connection2", IsDefault = true },
+                new SavedConnection { Name = "connection3", IsDefault = false }
+            };
+
+            settingsService.Setup(
+                s => s.DeSerialize<List<SavedConnection>>(SavedConnectionService.SettingsFileName))
+                .Returns(savedConnections);
+
+            service.LoadConnections();
+
+            // Act
+            var defaultConnection = service.DefaultConnection;
+
+            // Assert
+            Assert.Equal("connection2", defaultConnection.Name);
+        }
+
+        [Fact]
+        public void ShouldReturnNullDefaultConnectionIfThereIsNoDefaultConnection()
+        {
+            // Arrange
+            var service = new SavedConnectionService();
+            var settingsService = new Mock<ISettingsService>();
+
+            service.SettingsService = settingsService.Object;
+
+            var savedConnections = new List<SavedConnection>()
+            {
+                new SavedConnection { Name = "connection1", IsDefault = false }
+            };
+
+            settingsService.Setup(
+                s => s.DeSerialize<List<SavedConnection>>(SavedConnectionService.SettingsFileName))
+                .Returns(savedConnections);
+
+            service.LoadConnections();
+
+            // Act
+            var defaultConnection = service.DefaultConnection;
+
+            // Assert
+            Assert.Null(defaultConnection);
+        }
         #endregion
 
         #region Connection Properties
@@ -252,36 +308,6 @@ namespace DatabaseVersion.Tests.Connections
         }
 
         #endregion
-
-        [Fact]
-        public void ShouldBeAbleToAddANewConnection()
-        {
-            // Arrange
-            var service = new SavedConnectionService();
-
-            var connection = new SavedConnection("connection", "connString", null, null, null, false);
-
-            // Act
-            service.AddConnection(connection);
-
-            // Assert
-            Assert.Same(connection, service.SavedConnections.Single(c => c.Name == "connection"));
-        }
-
-        [Fact]
-        public void ShouldNotAddAConnectionAsDefault()
-        {
-            // Arrange
-            var service = new SavedConnectionService();
-
-            var connection = new SavedConnection("connection", "connString", null, null, null, true);
-
-            // Act
-            service.AddConnection(connection);
-
-            // Assert
-            Assert.False(service.SavedConnections.Single(c => c.Name == "connection").IsDefault);
-        }
     }
 }
 

@@ -46,6 +46,9 @@ namespace dbversion.Console
         [Option("l", "dialect", HelpText = "The hibernate dialect.")]
         public string Dialect;
 
+        [Option("s", "saved-connection")]
+        public string SavedConnection;
+
         [HelpOption("h", "help", HelpText = "Display this help screen.")]
         public string GetHelp()
         {

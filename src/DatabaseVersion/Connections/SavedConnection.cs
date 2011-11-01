@@ -1,5 +1,10 @@
 namespace dbversion.Connections
 {
+    using System.Collections.Generic;
+
+    using dbversion.Property;
+    using dbversion.Session;
+
     public class SavedConnection
     {
         public SavedConnection()
@@ -96,6 +101,49 @@ namespace dbversion.Connections
         {
             return new SavedConnection(
                 this.Name, this.ConnectionString, this.ConnectionProvider, this.DriverClass, this.Dialect, this.IsDefault);
+        }
+
+        /// <summary>
+        /// Returns the set of connection properties based on the values in this instance.
+        /// These properties can be used by the <see cref="SessionFactoryProvider"/> to
+        /// create a session factory.
+        /// </summary>
+        /// <returns>
+        /// The connection properties.
+        /// </returns>
+        public IEnumerable<Property> GetConnectionProperties()
+        {
+            if (!string.IsNullOrEmpty(this.ConnectionString))
+            {
+                yield return new Property
+                {
+                    Key = SessionFactoryProvider.ConnectionStringProperty, Value = this.ConnectionString
+                };
+            }
+
+            if (!string.IsNullOrEmpty(this.Dialect))
+            {
+                yield return new Property
+                {
+                    Key = SessionFactoryProvider.DialectProperty, Value = this.Dialect
+                };
+            }
+
+            if (!string.IsNullOrEmpty(this.DriverClass))
+            {
+                yield return new Property
+                {
+                    Key = SessionFactoryProvider.DriverClassProperty, Value = this.DriverClass
+                };
+            }
+
+            if (!string.IsNullOrEmpty(this.ConnectionProvider))
+            {
+                yield return new Property
+                {
+                    Key = SessionFactoryProvider.ProviderProperty, Value = this.ConnectionProvider
+                };
+            }
         }
     }
 }

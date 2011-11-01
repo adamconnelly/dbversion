@@ -93,6 +93,7 @@ namespace dbversion.Console.Command.SavedConnection
             get;
             set;
         }
+        
 
         public void Execute (string[] args)
         {
@@ -103,38 +104,7 @@ namespace dbversion.Console.Command.SavedConnection
             if (!string.IsNullOrEmpty(arguments.Name) &&
                 !string.IsNullOrEmpty(arguments.TemplateConnection))
             {
-                var template = this.SavedConnectionService.SavedConnections.FirstOrDefault(
-                    c => c.Name == arguments.TemplateConnection);
-
-                if (template != null)
-                {
-                    var connectionString = !string.IsNullOrEmpty(arguments.ConnectionString)
-                        ? arguments.ConnectionString : template.ConnectionString;
-                    var driverClass = !string.IsNullOrEmpty(arguments.DriverClass)
-                        ? arguments.DriverClass : template.DriverClass;
-                    var dialect = !string.IsNullOrEmpty(arguments.Dialect)
-                        ? arguments.Dialect : template.Dialect;
-                    var provider = !string.IsNullOrEmpty(arguments.ConnectionProvider)
-                        ? arguments.ConnectionProvider : template.ConnectionProvider;
-    
-                    var connection = this.SavedConnectionService.CreateSavedConnection(
-                        arguments.Name,
-                        connectionString,
-                        provider,
-                        driverClass,
-                        dialect);
-                    this.SavedConnectionService.SaveConnections();
-    
-                    this.MessageService.WriteLine(
-                        string.Format(
-                            "Created a new connection \"{0}\" based on \"{1}\".", arguments.Name, arguments.TemplateConnection));
-                    this.WriteConnectionInfo(connection);
-                }
-                else
-                {
-                    this.MessageService.WriteLine(
-                        string.Format("Template connection \"{0}\" could not be found.", arguments.TemplateConnection));
-                }
+                this.CreateFromTemplate(arguments);
             }
             else if (!string.IsNullOrEmpty(arguments.Name) &&
                 !string.IsNullOrEmpty(arguments.ConnectionProvider) &&
@@ -142,69 +112,134 @@ namespace dbversion.Console.Command.SavedConnection
                 !string.IsNullOrEmpty(arguments.Dialect) &&
                 !string.IsNullOrEmpty(arguments.DriverClass))
             {
-                var connection = this.SavedConnectionService.CreateSavedConnection(
-                    arguments.Name,
-                    arguments.ConnectionString,
-                    arguments.ConnectionProvider,
-                    arguments.DriverClass,
-                    arguments.Dialect);
-                this.SavedConnectionService.SaveConnections();
-
-                this.MessageService.WriteLine(
-                    string.Format("Created new saved connection \"{0}\":", connection.Name));
-                this.WriteConnectionInfo(connection);
+                this.CreateNewConnection(arguments);
             }
             else if (!string.IsNullOrEmpty(arguments.Name) && arguments.SetDefaultConnection)
             {
-                if (this.SavedConnectionService.SetDefaultConnection(arguments.Name))
-                {
-                    this.SavedConnectionService.SaveConnections();
-                    this.MessageService.WriteLine(
-                        string.Format("\"{0}\" is now the default connection.", arguments.Name));
-                }
-                else
-                {
-                    this.MessageService.WriteLine(
-                        string.Format("There is no saved connection called \"{0}\".", arguments.Name));
-                }
+                this.SetDefaultConnection(arguments);
             }
             else if (!string.IsNullOrEmpty(arguments.Name) && arguments.Delete)
             {
-                if (this.SavedConnectionService.DeleteConnection(arguments.Name))
-                {
-                    this.SavedConnectionService.SaveConnections();
-                    this.MessageService.WriteLine(
-                       string.Format("\"{0}\" has been deleted.", arguments.Name));
-                }
-                else
+                this.DeleteConnection(arguments);
+            }
+            else
+            {
+                this.ListConnections(arguments);
+            }
+        }
+
+        private void CreateFromTemplate (SavedConnectionArguments arguments)
+        {
+            var template = this.SavedConnectionService.SavedConnections.FirstOrDefault(
+             c => c.Name == arguments.TemplateConnection);
+         
+            if (template != null)
+            {
+                var connectionString = !string.IsNullOrEmpty(arguments.ConnectionString)
+                    ? arguments.ConnectionString : template.ConnectionString;
+                var driverClass = !string.IsNullOrEmpty(arguments.DriverClass)
+                    ? arguments.DriverClass : template.DriverClass;
+                var dialect = !string.IsNullOrEmpty(arguments.Dialect)
+                    ? arguments.Dialect : template.Dialect;
+                var provider = !string.IsNullOrEmpty(arguments.ConnectionProvider)
+                    ? arguments.ConnectionProvider : template.ConnectionProvider;
+
+                var connection = this.SavedConnectionService.CreateSavedConnection(
+                    arguments.Name,
+                    connectionString,
+                    provider,
+                    driverClass,
+                    dialect);
+                this.SavedConnectionService.SaveConnections();
+
+                this.MessageService.WriteLine(
+                    string.Format(
+                        "Created a new connection \"{0}\" based on \"{1}\".", arguments.Name, arguments.TemplateConnection));
+                this.WriteConnectionInfo(connection);
+            }
+            else
+            {
+                this.MessageService.WriteLine(
+                string.Format("Template connection \"{0}\" could not be found.", arguments.TemplateConnection));
+            }
+        }
+
+        /// <summary>
+        /// Creates the new connection.
+        /// </summary>
+        /// <param name='arguments'>
+        /// The arguments to create the connection with.
+        /// </param>
+        /// <returns>
+        /// The new connection.
+        /// </returns>
+        private void CreateNewConnection(SavedConnectionArguments arguments)
+        {
+            var connection = this.SavedConnectionService.CreateSavedConnection(
+                arguments.Name,
+                arguments.ConnectionString,
+                arguments.ConnectionProvider,
+                arguments.DriverClass,
+                arguments.Dialect);
+            this.SavedConnectionService.SaveConnections();
+
+            this.MessageService.WriteLine(
+                string.Format("Created new saved connection \"{0}\":", connection.Name));
+            this.WriteConnectionInfo(connection);
+        }
+
+        private void SetDefaultConnection (SavedConnectionArguments arguments)
+        {
+            if (this.SavedConnectionService.SetDefaultConnection(arguments.Name))
+            {
+                this.SavedConnectionService.SaveConnections();
+                this.MessageService.WriteLine(
+                    string.Format("\"{0}\" is now the default connection.", arguments.Name));
+            }
+            else
+            {
+                this.MessageService.WriteLine(
+                    string.Format("There is no saved connection called \"{0}\".", arguments.Name));
+            }
+        }
+
+        private void DeleteConnection (SavedConnectionArguments arguments)
+        {
+            if (this.SavedConnectionService.DeleteConnection(arguments.Name))
+            {
+                this.SavedConnectionService.SaveConnections();
+                this.MessageService.WriteLine(
+                    string.Format("\"{0}\" has been deleted.", arguments.Name));
+            }
+            else
+            {
+                this.MessageService.WriteLine(
+                    string.Format("There is no saved connection called \"{0}\".", arguments.Name));
+            }
+        }
+
+        private void ListConnections (SavedConnectionArguments arguments)
+        {
+            var connections = this.GetConnections(arguments);
+
+            if (connections.Count() == 0)
+            {
+                if (!string.IsNullOrEmpty(arguments.Name))
                 {
                     this.MessageService.WriteLine(
                         string.Format("There is no saved connection called \"{0}\".", arguments.Name));
+                }
+                else
+                {
+                    this.MessageService.WriteLine("There are no saved connections.");
                 }
             }
             else
             {
-                var connections = this.GetConnections(arguments);
-
-                if (connections.Count() == 0)
+                foreach (var connection in connections)
                 {
-                    if (!string.IsNullOrEmpty(arguments.Name))
-                    {
-                        this.MessageService.WriteLine(
-                            string.Format("There is no saved connection called \"{0}\".", arguments.Name));
-                    }
-                    else
-                    {
-                        this.MessageService.WriteLine("There are no saved connections.");
-                    }
-                }
-                else
-                {
-                    foreach (var connection in connections)
-                    {
-                        this.MessageService.WriteLine(connection.Name + ":");
-                        this.WriteConnectionInfo(connection);
-                    }
+                    this.MessageService.WriteLine(connection.Name + ":");
+                    this.WriteConnectionInfo(connection);
                 }
             }
         }

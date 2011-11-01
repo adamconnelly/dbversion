@@ -21,15 +21,15 @@ namespace dbversion.Connections
         }
 
         /// <summary>
-        /// Adds the connection.
+        /// Gets the default connection.
         /// </summary>
-        /// <param name='connection'>
-        /// The connection to add.
-        /// </param>
-        /// <remarks>
-        /// The <see cref="SavedConnection.IsDefault"/> property of the connection will be set to <c>false</c>.
-        /// </remarks>
-        void AddConnection(SavedConnection connection);
+        /// <value>
+        /// The default connection.
+        /// </value>
+        SavedConnection DefaultConnection
+        {
+            get;
+        }
 
         /// <summary>
         /// Creates a new saved connection or updates an existing saved connection if a connection

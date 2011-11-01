@@ -4,6 +4,7 @@ namespace dbversion.Console.Tests.Command.Create
 
     using dbversion;
     using dbversion.Archives;
+    using dbversion.Connections;
     using dbversion.Console.Command.Create;
     using dbversion.Property;
     using dbversion.Session;
@@ -25,6 +26,7 @@ namespace dbversion.Console.Tests.Command.Create
         private readonly Mock<IDatabaseArchive> archive = new Mock<IDatabaseArchive>();
         private readonly Mock<IDatabaseArchiveFactory> archiveFactory = new Mock<IDatabaseArchiveFactory>();
         private readonly Mock<ISettingsService> settingsService = new Mock<ISettingsService>();
+        private readonly Mock<ISavedConnectionService> savedConnectionService = new Mock<ISavedConnectionService>();
 
         #endregion
 
@@ -324,6 +326,7 @@ namespace dbversion.Console.Tests.Command.Create
             command.SettingsService = this.settingsService.Object;
             command.PropertyService = this.propertyService.Object;
             command.MessageService = this.messageService.Object;
+            command.SavedConnectionService = this.savedConnectionService.Object;
 
             archiveFactory.Setup(f => f.CanCreate("myArchive")).Returns(true);
             archiveFactory.Setup(f => f.Create("myArchive")).Returns(archive.Object);
