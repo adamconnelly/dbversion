@@ -176,6 +176,36 @@ namespace dbversion.Console.Tests.Command.SavedConnection
         }
 
         [Fact]
+        public void ShouldBeAbleToUpdateExistingSavedConnection()
+        {
+                        // Arrange
+            var command = new SavedConnectionCommand();
+            var service = new Mock<ISavedConnectionService>();
+            var messageService = new MessageServiceMock();
+
+            command.SavedConnectionService = service.Object;
+            command.MessageService = messageService;
+
+            service.Setup(s => s.SavedConnections).Returns(
+                new[] { new SavedConnection("connection1", "connString", "provider", "driver", "dialect", true) });
+            service.Setup(s => s.CreateSavedConnection("connection1", "newConnString", "provider", "driver", "dialect"))
+                .Returns(new SavedConnection("connection1", "newConnString", "provider", "driver", "dialect", true));
+
+            // Act
+            command.Execute(
+                new[]
+                {
+                    "saved-connection",
+                    "-n", "connection1",
+                    "-c", "newConnString"
+                });
+
+            // Assert
+            service.Verify(s => s.CreateSavedConnection("connection1", "newConnString", "provider", "driver", "dialect"));
+            service.Verify(s => s.SaveConnections());
+        }
+
+        [Fact]
         public void ShouldBeAbleToDeleteSavedConnection()
         {
             // Arrange

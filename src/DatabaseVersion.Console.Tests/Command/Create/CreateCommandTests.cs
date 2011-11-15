@@ -60,8 +60,7 @@ namespace dbversion.Console.Tests.Command.Create
         public void ShouldPrintMessageIfArchiveIsNotSpecified()
         {
             // Arrange
-            var command = new CreateCommand();
-            command.MessageService = messageService.Object;
+            var command = this.CreateCommand();
 
             // Act
             command.Execute(new string[] { });
@@ -87,10 +86,9 @@ namespace dbversion.Console.Tests.Command.Create
         public void ShouldPrintMessageIfArchiveIsNotSupported()
         {
             // Arrange
-            var command = new CreateCommand();
-            command.MessageService = messageService.Object;
-            var archiveFactory = new Mock<IDatabaseArchiveFactory>();
-            command.ArchiveFactories = new[] { archiveFactory.Object };
+            var command = this.CreateCommand();
+            command.ArchiveFactories = new[] { this.archiveFactory.Object };
+            this.archiveFactory.Setup(f => f.Create(It.IsAny<string>())).Returns((IDatabaseArchive)null);
 
             // Act
             command.Execute(new[] { "-a", "myArchive" });

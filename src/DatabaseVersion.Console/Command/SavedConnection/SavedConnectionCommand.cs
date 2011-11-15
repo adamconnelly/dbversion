@@ -107,10 +107,10 @@ namespace dbversion.Console.Command.SavedConnection
                 this.CreateFromTemplate(arguments);
             }
             else if (!string.IsNullOrEmpty(arguments.Name) &&
-                !string.IsNullOrEmpty(arguments.ConnectionProvider) &&
-                !string.IsNullOrEmpty(arguments.ConnectionString) &&
-                !string.IsNullOrEmpty(arguments.Dialect) &&
-                !string.IsNullOrEmpty(arguments.DriverClass))
+                (!string.IsNullOrEmpty(arguments.ConnectionProvider) ||
+                !string.IsNullOrEmpty(arguments.ConnectionString) ||
+                !string.IsNullOrEmpty(arguments.Dialect) ||
+                !string.IsNullOrEmpty(arguments.DriverClass)))
             {
                 this.CreateNewConnection(arguments);
             }
@@ -175,12 +175,42 @@ namespace dbversion.Console.Command.SavedConnection
         /// </returns>
         private void CreateNewConnection(SavedConnectionArguments arguments)
         {
+            var existingConnection =
+                this.SavedConnectionService.SavedConnections.FirstOrDefault(c => c.Name == arguments.Name);
+
+            string name;
+            string connectionString;
+            string connectionProvider;
+            string driverClass;
+            string dialect;
+
+            if (existingConnection != null)
+            {
+                name = existingConnection.Name;
+                connectionString = !string.IsNullOrEmpty(arguments.ConnectionString)
+                    ? arguments.ConnectionString : existingConnection.ConnectionString;
+                connectionProvider = !string.IsNullOrEmpty(arguments.ConnectionProvider)
+                    ? arguments.ConnectionProvider : existingConnection.ConnectionProvider;
+                driverClass = !string.IsNullOrEmpty(arguments.DriverClass)
+                    ? arguments.DriverClass : existingConnection.DriverClass;
+                dialect = !string.IsNullOrEmpty(arguments.Dialect)
+                    ? arguments.Dialect : existingConnection.Dialect;
+            }
+            else
+            {
+                name = arguments.Name;
+                connectionString = arguments.ConnectionString;
+                connectionProvider = arguments.ConnectionProvider;
+                driverClass = arguments.DriverClass;
+                dialect = arguments.Dialect;
+            }
+
             var connection = this.SavedConnectionService.CreateSavedConnection(
-                arguments.Name,
-                arguments.ConnectionString,
-                arguments.ConnectionProvider,
-                arguments.DriverClass,
-                arguments.Dialect);
+                name,
+                connectionString,
+                connectionProvider,
+                driverClass,
+                dialect);
             this.SavedConnectionService.SaveConnections();
 
             this.MessageService.WriteLine(

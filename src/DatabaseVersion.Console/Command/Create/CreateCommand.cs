@@ -1,24 +1,16 @@
 namespace dbversion.Console.Command.Create
 {
-    using System;
     using System.Collections.Generic;
     using System.ComponentModel.Composition;
-    using System.Linq;
-
-    using CommandLine;
 
     using dbversion.Archives;
-    using dbversion.Connections;
-    using dbversion.Property;
-    using dbversion.Session;
-    using dbversion.Settings;
-    using dbversion.Tasks;
     using dbversion.Version;
+    using dbversion.Tasks;
 
     [Export(typeof(IConsoleCommand))]
-    public class CreateCommand : IConsoleCommand
+    public class CreateCommand : ConnectionCommandBase<CreateArguments>
     {
-        public string Name
+        public override string Name
         {
             get
             {
@@ -26,7 +18,7 @@ namespace dbversion.Console.Command.Create
             }
         }
 
-        public string Description
+        public override string Description
         {
             get
             {
@@ -34,7 +26,7 @@ namespace dbversion.Console.Command.Create
             }
         }
 
-        public string Usage
+        public override string Usage
         {
             get
             {
@@ -42,7 +34,7 @@ namespace dbversion.Console.Command.Create
             }
         }
 
-        public IEnumerable<CommandParameter> Parameters
+        public override IEnumerable<CommandParameter> Parameters
         {
             get
             {
@@ -66,70 +58,25 @@ namespace dbversion.Console.Command.Create
             set;
         }
 
-        [ImportMany]
-        public IEnumerable<IDatabaseArchiveFactory> ArchiveFactories
-        {
-            get;
-            set;
-        }
-
-        [Import]
-        public IMessageService MessageService
-        {
-            get;
-            set;
-        }
-
-        [Import]
-        public IPropertyService PropertyService
-        {
-            get;
-            set;
-        }
-
-        [Import]
-        public ISettingsService SettingsService
-        {
-            get;
-            set;
-        }
-
-        [Import]
-        public ISavedConnectionService SavedConnectionService
-        {
-            get;
-            set;
-        }
-
         /// <summary>
         /// Execute the command with the specified arguments.
         /// </summary>
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        public void Execute(string[] args)
+        protected override void Execute (string[] args, CreateArguments arguments, IDatabaseArchive archive)
         {
-            Arguments arguments = ParseArguments(args);
             if (string.IsNullOrEmpty(arguments.Archive))
             {
                 this.MessageService.WriteLine("Please specify an archive using the -a switch");
                 return;
             }
 
-            var archive = GetArchive(arguments.Archive);
             if (archive == null)
             {
                 this.MessageService.WriteLine("The specified archive is not supported");
                 return;
             }
-
-            this.SavedConnectionService.LoadConnections();
-
-            this.PropertyService.SetDefaultProperties();
-            this.MergePropertiesFromSettings();
-            this.PropertyService.Merge(archive.Properties);
-            this.MergeDefaultConnectionProperties();
-            this.SetPropertiesFromCommandArguments(arguments);
 
             try
             {
@@ -142,142 +89,6 @@ namespace dbversion.Console.Command.Create
             catch (TaskExecutionException t)
             {
                 this.MessageService.WriteLine(t.Message);
-            }
-        }
-
-        /// <summary>
-        /// Parses the arguments.
-        /// </summary>
-        /// <param name='args'>
-        /// The command line arguments.
-        /// </param>
-        /// <returns>
-        /// The parsed arguments.
-        /// </returns>
-        private static Arguments ParseArguments(string[] args)
-        {
-            Arguments arguments = new Arguments();
-            var parserSettings = new CommandLineParserSettings();
-            parserSettings.CaseSensitive = true;
-            parserSettings.HelpWriter = System.Console.Out;
-
-            var parser = new CommandLineParser(parserSettings);
-            parser.ParseArguments(args, arguments);
-
-            return arguments;
-        }
-
-        /// <summary>
-        /// Gets the archive.
-        /// </summary>
-        /// <param name='archivePath'>
-        /// Archive path.
-        /// </param>
-        /// <returns>
-        /// The archive or null if none could be created.
-        /// </returns>
-        private IDatabaseArchive GetArchive(string archivePath)
-        {
-            IDatabaseArchiveFactory archiveFactory = GetArchiveFactory(archivePath);
-            if (archiveFactory == null)
-            {
-                return null;
-            }
-
-            return archiveFactory.Create(archivePath);
-        }
-
-        /// <summary>
-        /// Gets the archive factory.
-        /// </summary>
-        /// <param name='archivePath'>
-        /// Archive path.
-        /// </param>
-        /// <returns>
-        /// The archive factory or null if none can be found.
-        /// </returns>
-        private IDatabaseArchiveFactory GetArchiveFactory(string archivePath)
-        {
-            return this.ArchiveFactories.FirstOrDefault(f => f.CanCreate(archivePath));
-        }
-
-        /// <summary>
-        /// Sets the properties from the command arguments.
-        /// </summary>
-        /// <param name='arguments'>
-        /// The command arguments.
-        /// </param>
-        private void SetPropertiesFromCommandArguments(Arguments arguments)
-        {
-            if (!string.IsNullOrEmpty(arguments.ConnectionString))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = SessionFactoryProvider.ConnectionStringProperty,
-                     Value = arguments.ConnectionString
-                 });
-            }
-         
-            if (!string.IsNullOrEmpty(arguments.ConnectionProvider))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = SessionFactoryProvider.ProviderProperty,
-                     Value = arguments.ConnectionProvider
-                 });
-            }
-         
-            if (!string.IsNullOrEmpty(arguments.DriverClass))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = SessionFactoryProvider.DriverClassProperty,
-                     Value = arguments.DriverClass
-                 });
-            }
-         
-            if (!string.IsNullOrEmpty(arguments.Dialect))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = SessionFactoryProvider.DialectProperty,
-                     Value = arguments.Dialect
-                 });
-            }
-
-            if (!string.IsNullOrEmpty(arguments.SavedConnection))
-            {
-                var savedConnection =
-                    this.SavedConnectionService.SavedConnections.FirstOrDefault(c => c.Name == arguments.SavedConnection);
-                if (savedConnection != null)
-                {
-                    this.PropertyService.Merge(savedConnection.GetConnectionProperties());
-                }
-            }
-        }
-
-        /// <summary>
-        /// Merges the properties from user settings.
-        /// </summary>
-        private void MergePropertiesFromSettings()
-        {
-            var propertyCollection = this.SettingsService.DeSerialize<PropertyCollection>("properties.xml");
-            if (propertyCollection != null)
-            {
-                this.PropertyService.Merge(propertyCollection.Properties);
-            }
-        }
-
-        private void MergeDefaultConnectionProperties()
-        {
-            var defaultConnection = this.SavedConnectionService.DefaultConnection;
-            if (defaultConnection != null)
-            {
-                this.PropertyService.Merge(defaultConnection.GetConnectionProperties());
             }
         }
     }

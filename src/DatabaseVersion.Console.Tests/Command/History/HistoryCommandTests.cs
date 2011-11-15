@@ -6,6 +6,8 @@ namespace dbversion.Console.Tests.Command.History
     using System.Linq;
     using System.Text;
 
+    using dbversion.Archives;
+    using dbversion.Connections;
     using dbversion.Console.Command.History;
     using dbversion.Property;
     using dbversion.Session;
@@ -27,6 +29,8 @@ namespace dbversion.Console.Tests.Command.History
         private readonly Mock<ISessionFactoryProvider> sessionFactoryProvider = new Mock<ISessionFactoryProvider>() { DefaultValue = DefaultValue.Mock };
         private readonly Mock<ISettingsService> settingsService = new Mock<ISettingsService>();
         private readonly Mock<IPropertyService> propertyService = new Mock<IPropertyService>();
+        private readonly Mock<IDatabaseArchiveFactory> archiveFactory = new Mock<IDatabaseArchiveFactory>();
+        private readonly Mock<ISavedConnectionService> savedConnectionService = new Mock<ISavedConnectionService>();
 
         public HistoryCommandTests()
         {
@@ -248,6 +252,8 @@ namespace dbversion.Console.Tests.Command.History
             command.SessionFactoryProvider = this.sessionFactoryProvider.Object;
             command.SettingsService = this.settingsService.Object;
             command.PropertyService = this.propertyService.Object;
+            command.ArchiveFactories = new[] { this.archiveFactory.Object };
+            command.SavedConnectionService = this.savedConnectionService.Object;
 
             return command;
         }

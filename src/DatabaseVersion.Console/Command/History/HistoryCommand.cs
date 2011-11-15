@@ -17,12 +17,12 @@ namespace dbversion.Console.Command.History
     /// A command for outputting the history of versions installed in the database.
     /// </summary>
     [Export(typeof(IConsoleCommand))]
-    public class HistoryCommand : IConsoleCommand
+    public class HistoryCommand : ConnectionCommandBase<HistoryArguments>
     {
         /// <summary>
         /// Gets the command name.
         /// </summary>
-        public string Name
+        public override string Name
         {
             get
             {
@@ -33,7 +33,7 @@ namespace dbversion.Console.Command.History
         /// <summary>
         /// Gets a description of the command.
         /// </summary>
-        public string Description
+        public override string Description
         {
             get
             {
@@ -44,7 +44,7 @@ namespace dbversion.Console.Command.History
         /// <summary>
         /// Gets the usage of the command.
         /// </summary>
-        public string Usage
+        public override string Usage
         {
             get
             {
@@ -55,7 +55,7 @@ namespace dbversion.Console.Command.History
         /// <summary>
         /// Gets the command parameters.
         /// </summary>
-        public IEnumerable<CommandParameter> Parameters
+        public override IEnumerable<CommandParameter> Parameters
         {
             get
             {
@@ -66,16 +66,11 @@ namespace dbversion.Console.Command.History
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
                     new CommandParameter("-l", "--dialect", "The hibernate dialect."),
                     new CommandParameter("-o", "--order", "The order to sort the versions by [asc|desc]."),
-                    new CommandParameter("-t", "--showTasks", "Indicates whether the tasks for each version should be output.")
+                    new CommandParameter("-t", "--showTasks", "Indicates whether the tasks for each version should be output."),
+                    new CommandParameter("-s", "--saved-connection", "The name of the saved connection to use.")
                 };
             }
         }
-
-        /// <summary>
-        /// Gets or sets the message service.
-        /// </summary>
-        [Import]
-        public IMessageService MessageService { get; set; }
 
         /// <summary>
         /// Gets or sets the session factory provider.
@@ -90,31 +85,13 @@ namespace dbversion.Console.Command.History
         public IVersionProvider VersionProvider { get; set; }
 
         /// <summary>
-        /// Gets or sets the property service.
-        /// </summary>
-        [Import]
-        public IPropertyService PropertyService { get; set; }
-
-        /// <summary>
-        /// Gets or sets the settings service.
-        /// </summary>
-        [Import]
-        public ISettingsService SettingsService { get; set; }
-
-        /// <summary>
         /// Execute the command with the specified arguments.
         /// </summary>
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        public void Execute (string[] args)
+        protected override void Execute (string[] args, HistoryArguments arguments, dbversion.Archives.IDatabaseArchive archive)
         {
-            var arguments = ParseArguments(args);
-
-            this.PropertyService.SetDefaultProperties();
-            this.MergePropertiesFromSettings();
-            this.SetPropertiesFromCommandArguments(arguments);
-
             VersionBase requiredVersion = null;
             if (!string.IsNullOrEmpty(arguments.Version))
             {
@@ -239,89 +216,6 @@ namespace dbversion.Console.Command.History
                     task.UpdatedOnLocal);
 
                 this.MessageService.WriteLine(taskString);
-            }
-        }
-
-        /// <summary>
-        /// Parses the arguments.
-        /// </summary>
-        /// <param name='args'>
-        /// The command line arguments.
-        /// </param>
-        /// <returns>
-        /// The parsed arguments.
-        /// </returns>
-        private static HistoryArguments ParseArguments(string[] args)
-        {
-            HistoryArguments arguments = new HistoryArguments();
-            var parserSettings = new CommandLineParserSettings();
-            parserSettings.CaseSensitive = true;
-            parserSettings.HelpWriter = System.Console.Out;
-
-            var parser = new CommandLineParser(parserSettings);
-            parser.ParseArguments(args, arguments);
-
-            return arguments;
-        }
-
-        /// <summary>
-        /// Merges the properties from user settings.
-        /// </summary>
-        private void MergePropertiesFromSettings()
-        {
-            var propertyCollection = this.SettingsService.DeSerialize<PropertyCollection>("properties.xml");
-            if (propertyCollection != null)
-            {
-                this.PropertyService.Merge(propertyCollection.Properties);
-            }
-        }
-
-        /// <summary>
-        /// Sets the properties from the command arguments.
-        /// </summary>
-        /// <param name='arguments'>
-        /// The command arguments.
-        /// </param>
-        private void SetPropertiesFromCommandArguments(HistoryArguments arguments)
-        {
-            if (!string.IsNullOrEmpty(arguments.ConnectionString))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = Session.SessionFactoryProvider.ConnectionStringProperty,
-                     Value = arguments.ConnectionString
-                 });
-            }
-
-            if (!string.IsNullOrEmpty(arguments.ConnectionProvider))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = Session.SessionFactoryProvider.ProviderProperty,
-                     Value = arguments.ConnectionProvider
-                 });
-            }
-         
-            if (!string.IsNullOrEmpty(arguments.DriverClass))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = Session.SessionFactoryProvider.DriverClassProperty,
-                     Value = arguments.DriverClass
-                 });
-            }
-         
-            if (!string.IsNullOrEmpty(arguments.Dialect))
-            {
-                this.PropertyService.Add(
-                 new Property
-                 {
-                     Key = Session.SessionFactoryProvider.DialectProperty,
-                     Value = arguments.Dialect
-                 });
             }
         }
     }

@@ -5,32 +5,8 @@ namespace dbversion.Console.Command.History
     /// <summary>
     /// The arguments for the history command.
     /// </summary>
-    public class HistoryArguments
+    public class HistoryArguments : ConnectionArguments
     {
-        /// <summary>
-        /// The connection string.
-        /// </summary>
-        [Option("c", "connectionString")]
-        public string ConnectionString;
-        
-        /// <summary>
-        /// Gets or sets the hibernate connection provider.
-        /// </summary>
-        [Option("p", "connectionProvider", HelpText = "The hibernate connection provider.")]
-        public string ConnectionProvider;
-
-        /// <summary>
-        /// Gets or sets the hibernate driver class.
-        /// </summary>
-        [Option("d", "driverClass", HelpText = "The hibernate driver class.")]
-        public string DriverClass;
-
-        /// <summary>
-        /// Gets or sets the hibernate dialect.
-        /// </summary>
-        [Option("l", "dialect", HelpText = "The hibernate dialect.")]
-        public string Dialect;
-
         /// <summary>
         /// The sort order.
         /// </summary>
