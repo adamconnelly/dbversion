@@ -116,8 +116,12 @@ namespace dbversion.Tasks.Sql
         {
             MessageService.WriteDebugLine(String.Format("{0}", batch));
 
-            var query = session.CreateSQLQuery(batch);
-            query.ExecuteUpdate();
+            using (var command = session.Connection.CreateCommand())
+            {
+                session.Transaction.Enlist(command);
+                command.CommandText = batch;
+                command.ExecuteNonQuery();
+            }
         }
 
         public bool Equals(ScriptTask x, ScriptTask y)

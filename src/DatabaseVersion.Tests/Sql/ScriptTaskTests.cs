@@ -16,7 +16,13 @@ namespace dbversion.Tests.Sql
     public class ScriptTaskTests
     {
         private readonly Mock<ISession> session = new Mock<ISession>() { DefaultValue = DefaultValue.Mock };
+        private readonly Mock<IDbCommand> command = new Mock<IDbCommand>();
         private readonly Mock<IMessageService> messageService = new Mock<IMessageService> { DefaultValue = DefaultValue.Mock };
+
+        public ScriptTaskTests()
+        {
+            this.session.Setup(s => s.Connection.CreateCommand()).Returns(command.Object);
+        }
 
         [Fact]
         public void ShouldUseDatabaseArchiveToGetScript()
@@ -49,7 +55,8 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "ABCDE");
+            command.Verify(c => c.ExecuteNonQuery());
         }
 
         [Fact]
@@ -66,8 +73,8 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("FGHIJ").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "ABCDE");
+            command.VerifySet(c => c.CommandText = "FGHIJ");
         }
 
         private static readonly string ScriptWithDifferentCasedSeparators =
@@ -95,11 +102,11 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("ABCDE").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("FGHIJ").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("DEFJAB").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("LDKSIE").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("dkjsaks").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "ABCDE");
+            command.VerifySet(c => c.CommandText = "FGHIJ");
+            command.VerifySet(c => c.CommandText = "DEFJAB");
+            command.VerifySet(c => c.CommandText = "LDKSIE");
+            command.VerifySet(c => c.CommandText = "dkjsaks");
         }
 
         private static readonly string ScriptWithSeparatorsWithinLines =
@@ -123,9 +130,9 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("insert into books (name) values ('Great Book');").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
-            session.Verify(s => s.CreateSQLQuery("delete from books;").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "insert into books (name) values ('Great Book');");
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
+            command.VerifySet(c => c.CommandText = "delete from books;");
         }
 
         private static readonly string ScriptWithSeparatorAtStartOfScript =
@@ -146,7 +153,7 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
         }
 
         private static readonly string ScriptWithSeparatorAtEndOfScript =
@@ -167,7 +174,7 @@ namespace dbversion.Tests.Sql
             task.Execute(session.Object, 1, 1);
 
             // Assert
-            session.Verify(s => s.CreateSQLQuery("update books set name = 'Good to go' where name = 'Great Book';").ExecuteUpdate());
+            command.VerifySet(c => c.CommandText = "update books set name = 'Good to go' where name = 'Great Book';");
         }
 
         [Fact]
@@ -181,7 +188,7 @@ namespace dbversion.Tests.Sql
                 GetStream(ScriptWithSeparatorAtEndOfScript));
             ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
             Exception exception = new Exception();
-            session.Setup(s => s.CreateSQLQuery(It.IsAny<string>()).ExecuteUpdate()).Throws(exception);
+            command.Setup(c=>c.ExecuteNonQuery()).Throws(exception);
 
             // Act
             Exception thrownException = Record.Exception(() => task.Execute(session.Object, 1, 1));

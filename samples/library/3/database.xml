@@ -1,0 +1,4 @@
+<database version="0.3">
+  <script file="ddl.sql"/>
+  <script file="llAreasNearLocation.sql"/>
+</database>
