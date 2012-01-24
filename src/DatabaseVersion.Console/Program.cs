@@ -7,6 +7,8 @@ namespace dbversion.Console
     using System.ComponentModel.Composition;
 
     using dbversion.Console.Command;
+    using System.Collections.Generic;
+    using System.ComponentModel.Composition.Primitives;
 
     /// <summary>
     /// Contains the entry point of the application.
@@ -21,7 +23,7 @@ namespace dbversion.Console
         /// </param>
         public static void Main(string[] args)
         {
-            var container = CreateContainer("plugins");
+            var container = CreateContainer();
             var commandManager = container.GetExportedValue<ICommandManager>();
             commandManager.Execute(args);
         }
@@ -35,18 +37,22 @@ namespace dbversion.Console
         /// <returns>
         /// The MEF container.
         /// </returns>
-        private static CompositionContainer CreateContainer(string pluginPath)
+        private static CompositionContainer CreateContainer()
         {
-            DirectoryInfo pluginPathInfo = new DirectoryInfo(pluginPath);
-            if (!pluginPathInfo.Exists)
+            var catalogs = new List<ComposablePartCatalog>
             {
-                pluginPathInfo.Create();
-            }
-
-            var aggregateCatalog = new AggregateCatalog(
                 new AssemblyCatalog(Assembly.GetExecutingAssembly()),
                 new AssemblyCatalog(typeof(DatabaseCreator).Assembly),
-                new DirectoryCatalog(pluginPath));
+            };
+
+            var fileInfo = new FileInfo(typeof(Program).Assembly.Location);
+            DirectoryInfo pluginPathInfo = new DirectoryInfo(Path.Combine(fileInfo.DirectoryName, "plugins"));
+            if (pluginPathInfo.Exists)
+            {
+                catalogs.Add(new DirectoryCatalog(pluginPathInfo.FullName));
+            }
+
+            var aggregateCatalog = new AggregateCatalog(catalogs);
 
             return new CompositionContainer(aggregateCatalog);
         }
