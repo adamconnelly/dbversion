@@ -90,7 +90,8 @@ namespace dbversion.Console.Command.History
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        protected override void Execute (string[] args, HistoryArguments arguments, dbversion.Archives.IDatabaseArchive archive)
+        /// <returns>Returns the result of Executing the Command</returns>
+        protected override bool Execute(string[] args, HistoryArguments arguments, dbversion.Archives.IDatabaseArchive archive)
         {
             VersionBase requiredVersion = null;
             if (!string.IsNullOrEmpty(arguments.Version))
@@ -107,7 +108,7 @@ namespace dbversion.Console.Command.History
                         if (!this.VersionProvider.VersionTableExists(session))
                         {
                             this.MessageService.WriteLine("No versions are currently installed.");
-                            return;
+                            return false;
                         }
 
                         var sortedVersions = this.GetSortedVersions(arguments, requiredVersion, session);
@@ -116,7 +117,7 @@ namespace dbversion.Console.Command.History
                         {
                             this.MessageService.WriteLine(
                                 string.Format("The specified version, {0}, was not found.", arguments.Version));
-                            return;
+                            return false;
                         }
 
                         foreach (var version in sortedVersions)
@@ -128,6 +129,7 @@ namespace dbversion.Console.Command.History
                     }
                 }
             }
+            return true;
         }
 
         /// <summary>

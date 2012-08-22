@@ -64,23 +64,24 @@ namespace dbversion.Console.Command.Create
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        protected override void Execute (string[] args, CreateArguments arguments, IDatabaseArchive archive)
+        /// <returns>Returns the result of Executing the Command</returns>
+        protected override bool Execute(string[] args, CreateArguments arguments, IDatabaseArchive archive)
         {
             if (string.IsNullOrEmpty(arguments.Archive))
             {
                 this.MessageService.WriteLine("Please specify an archive using the -a switch");
-                return;
+                return false;
             }
 
             if (archive == null)
             {
                 this.MessageService.WriteLine("The specified archive is not supported");
-                return;
+                return false;
             }
 
             try
             {
-                this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService));
+                return this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService));
             }
             catch (VersionNotFoundException v)
             {
@@ -90,6 +91,7 @@ namespace dbversion.Console.Command.Create
             {
                 this.MessageService.WriteLine(t.Message);
             }
+            return false;
         }
     }
 }

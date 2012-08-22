@@ -11,7 +11,8 @@ namespace dbversion.Console.Command
         /// <param name='args'>
         /// The command arguments.
         /// </param>
-        void Execute(string[] args);
+        /// <returns>Returns the result of Executing the Command</returns>
+        bool Execute(string[] args);
     }
 }
 

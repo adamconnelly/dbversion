@@ -95,7 +95,7 @@ namespace dbversion.Console.Command.SavedConnection
         }
         
 
-        public void Execute (string[] args)
+        public bool Execute (string[] args)
         {
             var arguments = ParseArguments(args);
 
@@ -126,6 +126,7 @@ namespace dbversion.Console.Command.SavedConnection
             {
                 this.ListConnections(arguments);
             }
+            return true;
         }
 
         private void CreateFromTemplate (SavedConnectionArguments arguments)

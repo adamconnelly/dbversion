@@ -62,7 +62,8 @@ namespace dbversion.Console.Command.Version
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        public void Execute(string[] args)
+        /// <returns>Returns the result of Executing the Command</returns>
+        public bool Execute(string[] args)
         {
             var assembly = typeof(DisplayVersionCommand).Assembly;
             var assemblyName = typeof(DisplayVersionCommand).Assembly.GetName();
@@ -73,6 +74,8 @@ namespace dbversion.Console.Command.Version
             this.MessageService.WriteLine("License MIT: The MIT License");
             this.MessageService.WriteLine("This is free software: you are free to change and redistribute it.");
             this.MessageService.WriteLine("There is NO WARRANTY, to the extent permitted by law.");
+
+            return true;
         }
     }
 }

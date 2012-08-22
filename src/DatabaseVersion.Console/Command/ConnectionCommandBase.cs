@@ -66,7 +66,8 @@ namespace dbversion.Console.Command
         /// <param name='args'>
         /// The arguments.
         /// </param>
-        public void Execute(string[] args)
+        /// <returns>Returns the result of Executing the Command</returns>
+        public bool Execute(string[] args)
         {
             T arguments = ParseArguments(args);
 
@@ -85,10 +86,10 @@ namespace dbversion.Console.Command
             this.MergeDefaultConnectionProperties();
             this.SetPropertiesFromCommandArguments(arguments);
 
-            this.Execute(args, arguments, archive);
+            return this.Execute(args, arguments, archive);
         }
 
-        protected abstract void Execute(string[] args, T arguments, IDatabaseArchive archive);
+        protected abstract bool Execute(string[] args, T arguments, IDatabaseArchive archive);
 
         /// <summary>
         /// Parses the arguments.

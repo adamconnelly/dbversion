@@ -81,7 +81,8 @@ namespace dbversion.Console.Command.Help
         /// <param name='args'>
         /// The arguments to the command.
         /// </param>
-        public void Execute(string[] args)
+        /// <returns>Returns the result of Executing the Command</returns>
+        public bool Execute(string[] args)
         {
             if (args.Length == 2)
             {
@@ -91,6 +92,7 @@ namespace dbversion.Console.Command.Help
             {
                 this.DisplayCommandSummary();
             }
+            return true;
         }
 
         /// <summary>

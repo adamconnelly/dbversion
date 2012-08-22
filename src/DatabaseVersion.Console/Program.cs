@@ -25,7 +25,8 @@ namespace dbversion.Console
         {
             var container = CreateContainer();
             var commandManager = container.GetExportedValue<ICommandManager>();
-            commandManager.Execute(args);
+            bool result = commandManager.Execute(args);
+            Environment.ExitCode = result ? 0 : 1;
         }
 
         /// <summary>

@@ -5,7 +5,7 @@ namespace dbversion
 
     public interface IDatabaseCreator
     {
-        void Create(IDatabaseArchive archive, string version, ITaskExecuter taskExecuter);
+        bool Create(IDatabaseArchive archive, string version, ITaskExecuter taskExecuter);
     }
 }
 

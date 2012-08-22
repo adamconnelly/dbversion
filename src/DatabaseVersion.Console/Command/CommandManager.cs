@@ -42,8 +42,10 @@ namespace dbversion.Console.Command
         /// <param name='args'>
         /// The command to execute.
         /// </param>
-        public void Execute(string[] args)
+        /// <returns>Returns the result of Executing the Command</returns>
+        public bool Execute(string[] args)
         {
+            bool result = false;
             if (args == null || args.Length == 0)
             {
                 this.MessageService.WriteLine("Usage: dbversion command [Options]");
@@ -57,9 +59,10 @@ namespace dbversion.Console.Command
                 }
                 else
                 {
-                    command.Execute(args);
+                    result = command.Execute(args);
                 }
             }
+            return result;
         }
     }
 }

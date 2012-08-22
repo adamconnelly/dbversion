@@ -73,13 +73,14 @@ namespace dbversion
         /// Creates a database at the specified version or upgrades the existing database to the specified version.
         /// </summary>
         /// <param name="version">The version of database to create.</param>
+        /// <returns>Returns the result of Executing the Command</returns>
         /// <exception cref="VersionNotFoundException">
         /// Thrown if the version to create could not be found.
         /// </exception>
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public void Create(IDatabaseArchive archive, string version, ITaskExecuter executer)
+        public bool Create(IDatabaseArchive archive, string version, ITaskExecuter executer)
         {
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {
@@ -136,6 +137,7 @@ namespace dbversion
                     }
                 }
             }
+            return true;
         }
 
         private void AddTasksToExecuter(IDatabaseArchive archive, ITaskExecuter executer, VersionBase currentVersion, object targetVersion)
