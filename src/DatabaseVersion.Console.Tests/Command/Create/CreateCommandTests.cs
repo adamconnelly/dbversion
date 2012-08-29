@@ -299,6 +299,24 @@ namespace dbversion.Console.Tests.Command.Create
         }
 
         [Fact]
+        public void ShouldReturnFalseIfVersionNotFoundExceptionIsThrownByCreator()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+            var exception = new VersionNotFoundException("12345");
+
+            this.creator.Setup(
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                .Throws(exception);
+
+            // Act
+            var result = command.Execute(new[] { "-a", "myArchive" });
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
         public void ShouldPrintExceptionMessageIfTaskExecutionExceptionIsThrownByCreator()
         {
             // Arrange
@@ -314,6 +332,24 @@ namespace dbversion.Console.Tests.Command.Create
 
             // Assert
             this.messageService.Verify(m => m.WriteLine(exception.Message));
+        }
+
+        [Fact]
+        public void ShouldReturnFalseIfTaskExecutionExceptionIsThrownByCreator()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+            var exception = new TaskExecutionException("The task failed to execute");
+
+            this.creator.Setup(
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                .Throws(exception);
+
+            // Act
+            var result = command.Execute(new[] { "-a", "myArchive" });
+
+            // Assert
+            Assert.False(result);
         }
 
         private CreateCommand CreateCommand()
