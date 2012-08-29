@@ -51,6 +51,17 @@ namespace dbversion.Property
         /// The prefix to look for.
         /// </param>
         IEnumerable<Property> StartingWith(string prefix);
+
+        /// <summary>
+        /// Gets the specified property as an int.
+        /// </summary>
+        /// <param name='key'>
+        /// The property key.
+        /// </param>
+        /// <returns>
+        /// The int value or null if the property is not defined, or is not an int.
+        /// </returns>
+        int? GetInt(string key);
     }
 }
 

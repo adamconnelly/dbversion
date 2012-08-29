@@ -53,14 +53,7 @@ namespace dbversion.Property
         {
             get
             {
-                Property propertyValue;
-
-                if (this.properties.TryGetValue(propertyName, out propertyValue))
-                {
-                    return propertyValue;
-                }
-
-                return null;
+                return this.Get(propertyName);
             }
         }
 
@@ -87,6 +80,47 @@ namespace dbversion.Property
         public IEnumerable<Property> StartingWith(string prefix)
         {
             return this.properties.Where(p => p.Key.StartsWith(prefix)).Select(p => p.Value);
+        }
+
+        /// <summary>
+        /// Gets the specified property as an int.
+        /// </summary>
+        /// <param name='key'>
+        /// The property key.
+        /// </param>
+        /// <returns>
+        /// The int value or null if the property is not defined, or is not an int.
+        /// </returns>
+        public int? GetInt(string key)
+        {
+            Validate.NotNull(() => key);
+
+            int value;
+            var property = this.Get(key);
+
+            if (property != null && int.TryParse(property.Value, out value))
+            {
+                return value;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Get the property with the specified name.
+        /// </summary>
+        /// <param name='propertyName'>
+        /// The name of the property.
+        /// </param>
+        private Property Get(string propertyName)
+        {
+            Property propertyValue;
+            if (this.properties.TryGetValue(propertyName, out propertyValue))
+            {
+                return propertyValue;
+            }
+
+            return null;
         }
     }
 }

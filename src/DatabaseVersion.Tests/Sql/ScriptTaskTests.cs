@@ -231,7 +231,7 @@ namespace dbversion.Tests.Sql
                 GetStream(ScriptWithSeparatorAtEndOfScript));
             var task = new ScriptTask("scripts\\test.sql", 0, version.Object, this.messageService.Object, this.propertyService.Object);
 
-            propertyService.Setup(p => p["dbversion.sql.command_timeout"]).Returns(new Property { Value = "100" });
+            propertyService.Setup(p => p.GetInt(ScriptTask.CommandTimeoutPropertyName)).Returns(100);
 
             // Act
             task.Execute(this.session.Object, 1, 1);
