@@ -63,7 +63,7 @@ namespace dbversion.Tests.Sql
                 new XAttribute(XName.Get("file"), "path/file.sql"));
 
             // Act
-            IDatabaseTask task = this.factory.Create(element, 0, null, null);
+            IDatabaseTask task = this.factory.Create(element, 0, null);
 
             // Assert
             Assert.IsType<ScriptTask>(task);
@@ -78,7 +78,7 @@ namespace dbversion.Tests.Sql
                 new XAttribute(XName.Get("file"), "path/file.sql"));
 
             // Act
-            IDatabaseTask task = this.factory.Create(element, 0, null, null);
+            IDatabaseTask task = this.factory.Create(element, 0, null);
 
             // Assert
             Assert.Equal("path/file.sql", ((ScriptTask)task).FileName);
@@ -93,7 +93,7 @@ namespace dbversion.Tests.Sql
                 new XAttribute(XName.Get("file"), "path/file.sql"));
 
             // Act
-            IDatabaseTask task = this.factory.Create(element, 25, null, null);
+            IDatabaseTask task = this.factory.Create(element, 25, null);
 
             // Assert
             Assert.Equal(25, task.ExecutionOrder);

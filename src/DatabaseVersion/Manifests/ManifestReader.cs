@@ -58,7 +58,7 @@ namespace dbversion.Manifests
                 IDatabaseTaskFactory factory = this.Factories.FirstOrDefault(f => f.CanCreate(element));
                 if (factory != null)
                 {
-                    return factory.Create(element, element.ElementsBeforeSelf().Count(), version, MessageService);
+                    return factory.Create(element, element.ElementsBeforeSelf().Count(), version);
                 }
             }
 

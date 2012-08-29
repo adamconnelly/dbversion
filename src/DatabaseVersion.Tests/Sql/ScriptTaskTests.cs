@@ -9,6 +9,7 @@ namespace dbversion.Tests.Sql
     using Moq;
     using System.Data;
     using System.IO;
+    using dbversion.Property;
     using dbversion.Tasks;
     using dbversion.Version;
     using NHibernate;
@@ -18,10 +19,12 @@ namespace dbversion.Tests.Sql
         private readonly Mock<ISession> session = new Mock<ISession>() { DefaultValue = DefaultValue.Mock };
         private readonly Mock<IDbCommand> command = new Mock<IDbCommand>();
         private readonly Mock<IMessageService> messageService = new Mock<IMessageService> { DefaultValue = DefaultValue.Mock };
+        private readonly Mock<IPropertyService> propertyService = new Mock<IPropertyService>();
 
         public ScriptTaskTests()
         {
             this.session.Setup(s => s.Connection.CreateCommand()).Returns(command.Object);
+            this.command.SetupProperty(c => c.CommandTimeout);
         }
 
         [Fact]
@@ -32,7 +35,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(this.GetStream("A"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -49,7 +52,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile("1\\scripts\\schema.sql")).Returns(GetStream("ABCDE"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -67,7 +70,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream("ABCDE" + Environment.NewLine + "GO" + Environment.NewLine + "FGHIJ"));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -96,7 +99,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithDifferentCasedSeparators));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -124,7 +127,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorsWithinLines));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -147,7 +150,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtStartOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -168,7 +171,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             task.Execute(session.Object, 1, 1);
@@ -186,7 +189,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
                 GetStream(ScriptWithSeparatorAtEndOfScript));
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
             Exception exception = new Exception();
             command.Setup(c=>c.ExecuteNonQuery()).Throws(exception);
 
@@ -207,7 +210,7 @@ namespace dbversion.Tests.Sql
             version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
             version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
             version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns((Stream)null);
-            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object);
+            ScriptTask task = new ScriptTask("scripts\\schema.sql", 0, version.Object, messageService.Object, this.propertyService.Object);
 
             // Act
             Exception thrownException = Record.Exception(() => task.Execute(new Mock<ISession>().Object, 1, 1));
@@ -215,6 +218,44 @@ namespace dbversion.Tests.Sql
             // Assert
             Assert.IsType<TaskExecutionException>(thrownException);
             Assert.Equal("The script file \"1\\scripts\\schema.sql\" does not exist in the archive.", thrownException.Message);
+        }
+
+        [Fact]
+        public void ShouldSetCommandTimeoutIfSpecified()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion>{ DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorAtEndOfScript));
+            var task = new ScriptTask("scripts\\test.sql", 0, version.Object, this.messageService.Object, this.propertyService.Object);
+
+            propertyService.Setup(p => p["dbversion.sql.command_timeout"]).Returns(new Property { Value = "100" });
+
+            // Act
+            task.Execute(this.session.Object, 1, 1);
+
+            // Assert
+            Assert.Equal(100, task.TaskTimeout);
+        }
+
+        [Fact]
+        public void ShouldNotSetCommandTimeoutIfNotSpecified()
+        {
+            // Arrange
+            Mock<IDatabaseVersion> version = new Mock<IDatabaseVersion> { DefaultValue = DefaultValue.Mock };
+            version.Setup(v => v.ManifestPath).Returns("1\\database.xml");
+            version.Setup(v => v.Archive.GetScriptPath("1\\database.xml", "scripts\\schema.sql")).Returns("1\\scripts\\schema.sql");
+            version.Setup(v => v.Archive.GetFile(It.IsAny<string>())).Returns(
+                GetStream(ScriptWithSeparatorAtEndOfScript));
+            var task = new ScriptTask("scripts\\test.sql", 0, version.Object, this.messageService.Object, this.propertyService.Object);
+
+            // Act
+            task.Execute(this.session.Object, 1, 1);
+
+            // Assert
+            Assert.Null(task.TaskTimeout);
         }
 
         private Stream GetStream(string contents)

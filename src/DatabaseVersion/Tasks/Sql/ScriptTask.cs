@@ -9,6 +9,7 @@ namespace dbversion.Tasks.Sql
     using System.Diagnostics;
     using System.Text.RegularExpressions;
 
+    using dbversion.Property;
     using dbversion.Version;
 
     using NHibernate;
@@ -36,15 +37,38 @@ namespace dbversion.Tasks.Sql
         /// </summary>
         private readonly IDatabaseVersion version;
 
+        private readonly IPropertyService propertyService;
+
         protected override string GetTaskDescription()
         {
             return string.Format("Executing script \"{0}\"", this.GetScriptPath());
         }
 
-        public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version, IMessageService messageService)
+        /// <summary>
+        /// The Timeout in seconds for the task
+        /// </summary>
+        /// <returns>The Timeout in seconds or if none set null</returns>
+        public int? TaskTimeout
+        {
+            get
+            {
+                var property = this.propertyService["dbversion.sql.command_timeout"];
+                if (property != null)
+                {
+                    int commandTimeout;
+                    if (Int32.TryParse(property.Value, out commandTimeout))
+                        return commandTimeout;
+                }
+
+                return null;
+            }
+        }
+
+        public ScriptTask(string fileName, int executionOrder, IDatabaseVersion version, IMessageService messageService, IPropertyService propertyService)
             : base(fileName, executionOrder, messageService)
         {
             this.version = version;
+            this.propertyService = propertyService;
 
             this.StringSplitRegex = GetStringSplitRegex();
         }
@@ -119,6 +143,7 @@ namespace dbversion.Tasks.Sql
             using (var command = session.Connection.CreateCommand())
             {
                 session.Transaction.Enlist(command);
+                if (TaskTimeout.HasValue) command.CommandTimeout = TaskTimeout.Value;
                 command.CommandText = batch;
                 command.ExecuteNonQuery();
             }

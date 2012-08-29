@@ -95,9 +95,8 @@ namespace dbversion.Tests.Manifests
 
             Mock<IDatabaseTaskFactory > factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask > task = new Mock<IDatabaseTask>();
-            Mock<IMessageService> messageService = new Mock<IMessageService>();
             factory.Setup(f => f.CanCreate(It.Is<XElement>(r => r.Name == "script"))).Returns(true);
-            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0, It.IsAny<IDatabaseVersion>(), messageService.Object)).Returns(task.Object);
+            factory.Setup(f => f.Create(It.Is<XElement>(r => r.Name == "script"), 0, It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 
@@ -116,9 +115,8 @@ namespace dbversion.Tests.Manifests
 
             Mock<IDatabaseTaskFactory > factory = new Mock<IDatabaseTaskFactory>();
             Mock<IDatabaseTask > task = new Mock<IDatabaseTask>();
-            Mock<IMessageService> messageService = new Mock<IMessageService>();
             factory.Setup(f => f.CanCreate(It.IsAny<XElement>())).Returns(true);
-            factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>(), It.IsAny<IDatabaseVersion>(), messageService.Object)).Returns(task.Object);
+            factory.Setup(f => f.Create(It.IsAny<XElement>(), It.IsAny<int>(), It.IsAny<IDatabaseVersion>())).Returns(task.Object);
 
             reader.Factories = new[] { factory.Object };
 
@@ -129,7 +127,7 @@ namespace dbversion.Tests.Manifests
             int expectedOrder = 0;
             foreach (IDatabaseTask createdTask in version.Tasks)
             {
-                factory.Verify(f => f.Create(It.IsAny<XElement>(), expectedOrder, It.IsAny<IDatabaseVersion>(), messageService.Object));
+                factory.Verify(f => f.Create(It.IsAny<XElement>(), expectedOrder, It.IsAny<IDatabaseVersion>()));
                 expectedOrder++;
             }
         }
