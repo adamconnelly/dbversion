@@ -28,6 +28,11 @@ namespace dbversion.Tasks.Sql
             "{0}{1}|{0}{1}{0}|{1}{0}";
 
         /// <summary>
+        /// The name of the command timeout property.
+        /// </summary>
+        public const string CommandTimeoutPropertyName = "dbversion.sql.command_timeout";
+
+        /// <summary>
         /// The regex object created from the regex format.
         /// </summary>
         private readonly Regex StringSplitRegex;
@@ -52,15 +57,7 @@ namespace dbversion.Tasks.Sql
         {
             get
             {
-                var property = this.propertyService["dbversion.sql.command_timeout"];
-                if (property != null)
-                {
-                    int commandTimeout;
-                    if (Int32.TryParse(property.Value, out commandTimeout))
-                        return commandTimeout;
-                }
-
-                return null;
+                return this.propertyService.GetInt(CommandTimeoutPropertyName);
             }
         }
 

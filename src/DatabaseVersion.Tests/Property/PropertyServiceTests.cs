@@ -85,6 +85,6 @@ using Moq;namespace dbversion.Tests.Property{
 
             // Assert
             Assert.Equal(0, service.Properties.Count());
-        }
+        }        [Fact]        public void ShouldBeAbleToReturnPropertyAsInt()        {            // Arrange            var service = new PropertyService();            service.Add(new Property { Key = "myProperty", Value = "100" });            // Act            var value = service.GetInt("myProperty");            // Assert            Assert.Equal(100, value);        }        [Fact]        public void ShouldReturnNullIfPropertyIsNotAnInt()        {            // Arrange            var service = new PropertyService();            service.Add(new Property { Key = "myProperty", Value = "abcd" });            // Act            var value = service.GetInt("myProperty");            // Assert            Assert.Null(value);        }        [Fact]        public void ShouldReturnNullFromGetIntIfPropertyIsNotSet()        {            // Arrange            var service = new PropertyService();            // Act            var value = service.GetInt("myProperty");            // Assert            Assert.Null(value);        }
     }
 }
