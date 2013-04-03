@@ -53,7 +53,7 @@ namespace dbversion.Console.Tests.Command.Create
             command.Execute(new[] { "-a", "myArchive", "-v", "12345" });
 
             // Assert
-            creator.Verify(c => c.Create(archive.Object, "12345", It.Is<ITaskExecuter>(t => t.GetType() == typeof(ConsoleTaskExecuter))));
+            creator.Verify(c => c.Create(archive.Object, "12345", It.Is<ITaskExecuter>(t => t.GetType() == typeof(ConsoleTaskExecuter)), It.Is<bool>(t => t)));
         }
 
         [Fact]
@@ -288,7 +288,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new VersionNotFoundException("12345");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t=>t)))
                 .Throws(exception);
 
             // Act
@@ -306,7 +306,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new VersionNotFoundException("12345");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
                 .Throws(exception);
 
             // Act
@@ -324,7 +324,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new TaskExecutionException("The task failed to execute");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
                 .Throws(exception);
 
             // Act
@@ -342,7 +342,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new TaskExecutionException("The task failed to execute");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>()))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
                 .Throws(exception);
 
             // Act

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -44,6 +44,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Command\CommandManagerTests.cs" />
     <Compile Include="Command\Create\CreateCommandTests.cs" />
+    <Compile Include="Command\Verify\VerifyCommandTests.cs" />
     <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
     <Compile Include="Command\Help\HelpCommandTests.cs" />
     <Compile Include="MessageServiceMock.cs" />
@@ -51,13 +52,7 @@
     <Compile Include="Command\SavedConnection\SavedConnectionCommandTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Command\" />
-    <Folder Include="Command\Create\" />
-    <Folder Include="Command\Version\" />
-    <Folder Include="Command\Help\" />
-    <Folder Include="Command\History\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\DatabaseVersion.Console\dbversion.Console.csproj">
       <Project>{18389508-A214-446A-A166-CFE7DD83DF23}</Project>

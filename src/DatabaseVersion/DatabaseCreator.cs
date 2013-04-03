@@ -62,9 +62,11 @@ namespace dbversion
             MessageService.WriteLine("Starting Database Update");
         }
 
-        private void LogUpdateComplete()
+        private void LogUpdateComplete(bool commit)
         {
-            MessageService.WriteLine(String.Format("Finished Database Update. Time Taken: {0}", DateTime.Now.Subtract(_updateStartTime)));
+            MessageService.WriteLine(String.Format("{0} Database Update. Time Taken: {1}", 
+                commit ? "Finished" : "Rolled back", 
+                DateTime.Now.Subtract(_updateStartTime)));
         }
 
         #endregion
@@ -80,7 +82,7 @@ namespace dbversion
         /// <exception cref="TaskExecutionException">
         /// Thrown if an error occurs while executing one of the tasks in the archive.
         /// </exception>
-        public bool Create(IDatabaseArchive archive, string version, ITaskExecuter executer)
+        public bool Create(IDatabaseArchive archive, string version, ITaskExecuter executer, bool commit)
         {
             using (var sessionFactory = this.SessionFactoryProvider.CreateSessionFactory())
             {
@@ -131,9 +133,16 @@ namespace dbversion
 
                         executer.ExecuteTasks(session);
 
-                        transaction.Commit();
+                        if (commit)
+                        {
+                            transaction.Commit();
+                        }
+                        else
+                        {
+                            transaction.Rollback();
+                        }
 
-                        LogUpdateComplete();
+                        LogUpdateComplete(commit);           
                     }
                 }
             }

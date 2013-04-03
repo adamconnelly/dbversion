@@ -59,6 +59,14 @@ namespace dbversion.Console.Command.Create
         }
 
         /// <summary>
+        /// If true, commit the overall transaction. By returning false, the effect of the upgrade can be 'tested'
+        /// </summary>
+        protected virtual bool Commit()
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Execute the command with the specified arguments.
         /// </summary>
         /// <param name='args'>
@@ -81,7 +89,7 @@ namespace dbversion.Console.Command.Create
 
             try
             {
-                return this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService));
+                return this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService), Commit());
             }
             catch (VersionNotFoundException v)
             {
