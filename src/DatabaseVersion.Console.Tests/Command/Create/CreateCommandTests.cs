@@ -288,7 +288,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new VersionNotFoundException("12345");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t=>t)))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
                 .Throws(exception);
 
             // Act
