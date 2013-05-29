@@ -42,17 +42,6 @@ namespace dbversion.Console.Command.History
         }
 
         /// <summary>
-        /// Gets the usage of the command.
-        /// </summary>
-        public override string Usage
-        {
-            get
-            {
-                return string.Format("dbversion {0} [options]", this.Name);
-            }
-        }
-
-        /// <summary>
         /// Gets the command parameters.
         /// </summary>
         public override IEnumerable<CommandParameter> Parameters

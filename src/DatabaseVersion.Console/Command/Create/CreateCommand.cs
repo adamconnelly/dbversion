@@ -26,14 +26,6 @@ namespace dbversion.Console.Command.Create
             }
         }
 
-        public override string Usage
-        {
-            get
-            {
-                return "dbversion " + this.Name + " [options]";
-            }
-        }
-
         public override IEnumerable<CommandParameter> Parameters
         {
             get

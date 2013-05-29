@@ -26,14 +26,6 @@ namespace dbversion.Console.Command.Verify
             }
         }
 
-        public override string Usage
-        {
-            get
-            {
-                return "dbversion " + this.Name + " [options]";
-            }
-        }
-
         protected override bool Commit()
         {
             return false;

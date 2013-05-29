@@ -44,6 +44,13 @@ namespace dbversion.Version.NumericVersion
                     .FirstOrDefault();
         }
 
+        public VersionBase GetVersion(ISession session, VersionBase requiredVersion)
+        {
+            var numericVersion = requiredVersion as NumericVersion;
+
+            return session.QueryOver<NumericVersion>().Where(v => v.Version == numericVersion.Version).SingleOrDefault();
+        }
+
         public void CreateVersionTable(ISession session)
         {
             Configuration config = null;

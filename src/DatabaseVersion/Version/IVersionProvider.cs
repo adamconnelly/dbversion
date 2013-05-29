@@ -40,6 +40,14 @@ namespace dbversion
         VersionBase GetCurrentVersion(ISession session);
 
         /// <summary>
+        /// Gets the specified version from the database.
+        /// </summary>
+        /// <param name="session">The database connection.</param>
+        /// <param name="versionObject">The version to get.</param>
+        /// <returns>The version or null if the version has not been installed in the database.</returns>
+        VersionBase GetVersion(ISession session, VersionBase versionObject);
+
+        /// <summary>
         /// Creates the version table.
         /// </summary>
         /// <param name="session">The database connection.</param>

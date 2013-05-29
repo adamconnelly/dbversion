@@ -56,7 +56,10 @@ namespace dbversion.Console.Command
 
         public abstract string Description { get; }
 
-        public abstract string Usage { get; }
+        public virtual string Usage
+        {
+            get { return "dbversion " + this.Name + " [options]"; }
+        }
 
         public abstract IEnumerable<CommandParameter> Parameters { get; }
 

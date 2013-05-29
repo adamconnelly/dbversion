@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Command\CheckCommandTests.cs" />
     <Compile Include="Command\CommandManagerTests.cs" />
     <Compile Include="Command\Create\CreateCommandTests.cs" />
     <Compile Include="Command\Verify\VerifyCommandTests.cs" />
