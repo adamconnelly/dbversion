@@ -185,7 +185,7 @@
             var result = command.Execute(new string[] { });
 
             // Assert
-            Assert.Equal("A database archive must be specified for the check command to work.",
+            Assert.Equal("Please specify an archive using the -a switch.",
                          this.messageService.Contents.TrimEnd());
             Assert.False(result);
         }

@@ -74,7 +74,7 @@
         {
             if (archive == null)
             {
-                this.MessageService.WriteLine("A database archive must be specified for the check command to work.");
+                this.MessageService.WriteLine("Please specify an archive using the -a switch.");
                 return false;
             }
 
