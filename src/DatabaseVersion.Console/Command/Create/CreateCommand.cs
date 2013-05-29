@@ -38,7 +38,8 @@ namespace dbversion.Console.Command.Create
                     new CommandParameter("-p", "--connectionProvider", "The hibernate connection provider."),
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
                     new CommandParameter("-l", "--dialect", "The hibernate dialect."),
-                    new CommandParameter("-s", "--saved-connection", "The name of the saved connection to use.")
+                    new CommandParameter("-s", "--saved-connection", "The name of the saved connection to use."),
+                    new CommandParameter(null, "--simulate", "Indicates that the update should be simulated and no actual changes should be made.")
                 };
             }
         }
@@ -64,6 +65,12 @@ namespace dbversion.Console.Command.Create
         /// <param name='args'>
         /// The arguments.
         /// </param>
+        /// <param name="arguments">
+        /// The parsed arguments.
+        /// </param>
+        /// <param name="archive">
+        /// The database archive containing the versions.
+        /// </param>
         /// <returns>Returns the result of Executing the Command</returns>
         protected override bool Execute(string[] args, CreateArguments arguments, IDatabaseArchive archive)
         {
@@ -81,7 +88,7 @@ namespace dbversion.Console.Command.Create
 
             try
             {
-                return this.Creator.Create(archive, arguments.Version, new ConsoleTaskExecuter(MessageService), Commit());
+                return this.Creator.Create(archive, arguments.Version, CreateTaskExecuter(arguments), Commit() && !arguments.IsSimulatingUpdate);
             }
             catch (VersionNotFoundException v)
             {
@@ -92,6 +99,16 @@ namespace dbversion.Console.Command.Create
                 this.MessageService.WriteLine(t.Message);
             }
             return false;
+        }
+
+        private ITaskExecuter CreateTaskExecuter(CreateArguments arguments)
+        {
+            if (arguments.IsSimulatingUpdate)
+            {
+                return new SimulatingTaskExecuter(this.MessageService);
+            }
+
+            return new ConsoleTaskExecuter(MessageService);
         }
     }
 }

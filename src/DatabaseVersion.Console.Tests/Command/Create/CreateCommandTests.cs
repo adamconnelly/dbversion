@@ -352,6 +352,24 @@ namespace dbversion.Console.Tests.Command.Create
             Assert.False(result);
         }
 
+        [Fact]
+        public void ShouldBeAbleToSimulateRunningTasks()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            // Act
+            command.Execute(new[] { "-a", "myArchive", "-v", "12345", "--simulate" });
+
+            // Assert
+
+            // Make sure that we rollback any changes that may have been made by NHibernate without us realising
+            creator.Verify(
+                c =>
+                c.Create(archive.Object, "12345",
+                         It.Is<ITaskExecuter>(t => t.GetType() == typeof (SimulatingTaskExecuter)), false));
+        }
+
         private CreateCommand CreateCommand()
         {
             var command = new CreateCommand();

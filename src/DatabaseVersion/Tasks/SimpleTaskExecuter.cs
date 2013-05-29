@@ -9,6 +9,11 @@ namespace dbversion.Tasks
 
         public IMessageService MessageService;
 
+        protected Queue<IDatabaseTask> Tasks
+        {
+            get { return this.tasks; }
+        }
+
         public SimpleTaskExecuter(IMessageService messageService)
         {
             MessageService = messageService;
@@ -19,7 +24,7 @@ namespace dbversion.Tasks
             this.tasks.Enqueue(task);
         }
 
-        public void ExecuteTasks(ISession session)
+        public virtual void ExecuteTasks(ISession session)
         {
             int count = tasks.Count;
             for (int i = 1; i < count + 1; i++)
