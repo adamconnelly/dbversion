@@ -45,7 +45,6 @@
     <Compile Include="Command\CheckCommandTests.cs" />
     <Compile Include="Command\CommandManagerTests.cs" />
     <Compile Include="Command\Create\CreateCommandTests.cs" />
-    <Compile Include="Command\Verify\VerifyCommandTests.cs" />
     <Compile Include="Command\Version\DisplayVersionCommandTests.cs" />
     <Compile Include="Command\Help\HelpCommandTests.cs" />
     <Compile Include="MessageServiceMock.cs" />

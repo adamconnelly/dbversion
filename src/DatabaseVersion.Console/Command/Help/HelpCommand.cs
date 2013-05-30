@@ -126,23 +126,18 @@ namespace dbversion.Console.Command.Help
             {
                 this.MessageService.WriteLine("Usage: " + command.Usage);
 
-                if (command.Parameters != null && command.Parameters.Count() > 0)
+                if (command.Parameters != null && command.Parameters.Any())
                 {
                     this.MessageService.WriteLine();
                     this.MessageService.WriteLine("Options:");
 
-                    var maxParameterLength = command.Parameters.Max(p => p.ShortOption.Length + p.LongOption.Length + 2);
+                    var maxParameterLength = command.Parameters.Max(p => (p.ShortOption ?? string.Empty).Length + (p.LongOption ?? string.Empty).Length + 2);
                     foreach (var parameter in command.Parameters)
                     {
                         var padding = new string(
-                        ' ', maxParameterLength - (parameter.ShortOption.Length + parameter.LongOption.Length));
+                        ' ', maxParameterLength - ((parameter.ShortOption ?? string.Empty).Length + (parameter.LongOption ?? string.Empty).Length));
                         this.MessageService.WriteLine(
-                    string.Format(
-                        "  {0}, {1}{2}{3}",
-                        parameter.ShortOption,
-                        parameter.LongOption,
-                        padding,
-                        parameter.Description));
+                            GetParameterUsage(parameter, padding));
                     }
                 }
             }
@@ -152,6 +147,32 @@ namespace dbversion.Console.Command.Help
                 this.MessageService.WriteLine();
                 this.MessageService.WriteLine("Usage: " + this.Usage);
             }
+        }
+
+        private static string GetParameterUsage(CommandParameter parameter, string padding)
+        {
+            if (!string.IsNullOrEmpty(parameter.ShortOption) && !string.IsNullOrEmpty(parameter.LongOption))
+            {
+                return string.Format(
+                    "  {0}, {1}{2}{3}",
+                    parameter.ShortOption,
+                    parameter.LongOption,
+                    padding,
+                    parameter.Description);
+            }
+
+            if (!string.IsNullOrEmpty(parameter.ShortOption))
+            {
+                return string.Format("  {0}  {1}{2}",
+                                     parameter.ShortOption,
+                                     padding,
+                                     parameter.Description);
+            }
+
+            return string.Format("  {0}  {1}{2}",
+                                 parameter.LongOption,
+                                 padding,
+                                 parameter.Description);
         }
     }
 }

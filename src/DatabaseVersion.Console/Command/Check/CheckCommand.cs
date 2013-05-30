@@ -96,6 +96,12 @@
             using (var session = sessionFactory.OpenSession())
             using (session.BeginTransaction())
             {
+                if (!this.VersionProvider.VersionTableExists(session))
+                {
+                    this.MessageService.WriteLine("No versions are currently installed.");
+                    return true;
+                }
+
                 if (!string.IsNullOrEmpty(arguments.Version))
                 {
                     isDatabaseUpToDate = CheckSpecificVersion(arguments, archive, session, out errorOccurred);

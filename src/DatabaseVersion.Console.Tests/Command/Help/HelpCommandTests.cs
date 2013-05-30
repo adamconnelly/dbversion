@@ -80,6 +80,76 @@ namespace dbversion.Console.Tests.Command.Help
         }
 
         [Fact]
+        public void ShouldNotPrintShortOptionIfItIsNullOrEmpty()
+        {
+            // Arrange
+            var command = new HelpCommand();
+            var createCommand = new Mock<IConsoleCommand>();
+            var messageService = new MessageServiceMock();
+
+            createCommand.Setup(c => c.Name).Returns("create");
+            createCommand.Setup(c => c.Description).Returns("Creates or upgrades a database");
+            createCommand.Setup(c => c.Usage).Returns("dbversion create [options]");
+            createCommand.Setup(c => c.Parameters).Returns(
+                new[]
+                {
+                    new CommandParameter(null, "--archive", "Specifies the path to the archive."),
+                    new CommandParameter(string.Empty, "--connectionString", "Specifies the database connection string."),
+                    new CommandParameter("-s", "--saved-connection", "Specifies the saved connection to use.")
+                });
+
+            command.Commands = new[] { createCommand.Object };
+            command.MessageService = messageService;
+
+            // Act
+            command.Execute(new[] { "help", "create" });
+
+            // Assert
+            string expected =
+                "Usage: dbversion create [options]" + Environment.NewLine + Environment.NewLine +
+                "Options:" + Environment.NewLine +
+                "  --archive               Specifies the path to the archive." + Environment.NewLine +
+                "  --connectionString      Specifies the database connection string." + Environment.NewLine +
+                "  -s, --saved-connection  Specifies the saved connection to use." + Environment.NewLine;
+            Assert.Equal(expected, messageService.Contents);
+        }
+
+        [Fact]
+        public void ShouldNotPrintLongOptionIfItIsNullOrEmpty()
+        {
+            // Arrange
+            var command = new HelpCommand();
+            var createCommand = new Mock<IConsoleCommand>();
+            var messageService = new MessageServiceMock();
+
+            createCommand.Setup(c => c.Name).Returns("create");
+            createCommand.Setup(c => c.Description).Returns("Creates or upgrades a database");
+            createCommand.Setup(c => c.Usage).Returns("dbversion create [options]");
+            createCommand.Setup(c => c.Parameters).Returns(
+                new[]
+                {
+                    new CommandParameter("-a", null, "Specifies the path to the archive."),
+                    new CommandParameter("-c", string.Empty, "Specifies the database connection string."),
+                    new CommandParameter("-s", "--saved-connection", "Specifies the saved connection to use.")
+                });
+
+            command.Commands = new[] { createCommand.Object };
+            command.MessageService = messageService;
+
+            // Act
+            command.Execute(new[] { "help", "create" });
+
+            // Assert
+            string expected =
+                "Usage: dbversion create [options]" + Environment.NewLine + Environment.NewLine +
+                "Options:" + Environment.NewLine +
+                "  -a                      Specifies the path to the archive." + Environment.NewLine +
+                "  -c                      Specifies the database connection string." + Environment.NewLine +
+                "  -s, --saved-connection  Specifies the saved connection to use." + Environment.NewLine;
+            Assert.Equal(expected, messageService.Contents);
+        }
+
+        [Fact]
         public void ShouldOnlyDisplayCommandUsageIfTheCommandHasNoParameters()
         {
             // Arrange

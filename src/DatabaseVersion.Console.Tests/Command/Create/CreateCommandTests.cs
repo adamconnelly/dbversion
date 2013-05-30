@@ -53,7 +53,10 @@ namespace dbversion.Console.Tests.Command.Create
             command.Execute(new[] { "-a", "myArchive", "-v", "12345" });
 
             // Assert
-            creator.Verify(c => c.Create(archive.Object, "12345", It.Is<ITaskExecuter>(t => t.GetType() == typeof(ConsoleTaskExecuter)), It.Is<bool>(t => t)));
+            creator.Verify(
+                c =>
+                c.Create(archive.Object, "12345", It.Is<ITaskExecuter>(t => t.GetType() == typeof (ConsoleTaskExecuter)),
+                         true, false));
         }
 
         [Fact]
@@ -288,7 +291,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new VersionNotFoundException("12345");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Throws(exception);
 
             // Act
@@ -306,7 +309,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new VersionNotFoundException("12345");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Throws(exception);
 
             // Act
@@ -324,7 +327,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new TaskExecutionException("The task failed to execute");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Throws(exception);
 
             // Act
@@ -342,7 +345,7 @@ namespace dbversion.Console.Tests.Command.Create
             var exception = new TaskExecutionException("The task failed to execute");
 
             this.creator.Setup(
-                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.Is<bool>(t => t)))
+                c => c.Create(It.IsAny<IDatabaseArchive>(), It.IsAny<string>(), It.IsAny<ITaskExecuter>(), It.IsAny<bool>(), It.IsAny<bool>()))
                 .Throws(exception);
 
             // Act
@@ -367,7 +370,20 @@ namespace dbversion.Console.Tests.Command.Create
             creator.Verify(
                 c =>
                 c.Create(archive.Object, "12345",
-                         It.Is<ITaskExecuter>(t => t.GetType() == typeof (SimulatingTaskExecuter)), false));
+                         It.Is<ITaskExecuter>(t => t.GetType() == typeof (SimulatingTaskExecuter)), false, false));
+        }
+
+        [Fact]
+        public void ShouldBeAbleToAddMissingTasks()
+        {
+            // Arrange
+            var command = this.CreateCommand();
+
+            // Act
+            command.Execute(new[] {"-a", "myArchive", "-m"});
+
+            // Assert
+            creator.Verify(c => c.Create(archive.Object, It.IsAny<string>(), It.IsAny<ITaskExecuter>(), true, true));
         }
 
         private CreateCommand CreateCommand()

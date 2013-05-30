@@ -1,0 +1,7 @@
+<database version="1.0">
+  <script file="schema/ddl.sql"/>
+  <script file="data/authors.sql"/>
+  <script file="data/books.sql"/>
+  <script file="data/users.sql"/>
+  <script file="data/users-2.sql"/>
+</database>

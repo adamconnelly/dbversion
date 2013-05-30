@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\Check\CheckCommand.cs" />
-    <Compile Include="Command\Verify\VerifyCommand.cs" />
     <Compile Include="ConsoleTaskExecuter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

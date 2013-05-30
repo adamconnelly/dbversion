@@ -190,6 +190,24 @@
             Assert.False(result);
         }
 
+        [Fact]
+        public void ShouldIndicateIfNoVersionsHaveBeenInstalled()
+        {
+            // Arrange
+            var command = CreateCommand();
+            
+            var versions = new[] { CreateVersionWithTask().Object, CreateVersionWithTask().Object };
+            archive.Setup(a => a.Versions).Returns(versions);
+
+            this.versionProvider.Setup(s => s.VersionTableExists(this.session.Object)).Returns(false);
+
+            // Act
+            command.Execute(new string[] { });
+
+            // Assert
+            Assert.Equal("No versions are currently installed.", this.messageService.Contents.TrimEnd());
+        }
+
         private bool CatchVersion(VersionBase input, out VersionBase actualVersion)
         {
             actualVersion = input;
@@ -201,7 +219,8 @@
             archiveFactory.Setup(s => s.CanCreate(It.IsAny<string>())).Returns(true);
             archiveFactory.Setup(s => s.Create(It.IsAny<string>())).Returns(archive.Object);
 
-            versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+            this.versionProvider.Setup(v => v.GetComparer()).Returns(new ClassicVersionProvider.ClassicVersionComparer());
+            this.versionProvider.Setup(v => v.VersionTableExists(this.session.Object)).Returns(true);
 
             this.sessionFactoryProvider.Setup(p => p.CreateSessionFactory()).Returns(this.sessionFactory.Object);
             this.sessionFactory.Setup(s => s.OpenSession()).Returns(session.Object);

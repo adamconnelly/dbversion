@@ -39,7 +39,9 @@ namespace dbversion.Console.Command.Create
                     new CommandParameter("-d", "--driverClass", "The hibernate driver class."),
                     new CommandParameter("-l", "--dialect", "The hibernate dialect."),
                     new CommandParameter("-s", "--saved-connection", "The name of the saved connection to use."),
-                    new CommandParameter(null, "--simulate", "Indicates that the update should be simulated and no actual changes should be made.")
+                    new CommandParameter(null, "--simulate", "Indicates that the update should be simulated and no actual changes should be made."),
+                    new CommandParameter("-m", "--missing", "Indicates that any missing tasks should be executed. If the -v flag is used, only that version will be checked."), 
+                    new CommandParameter("-r", "--rollback", "Indicates that any changes made by the command should be rolled back.")
                 };
             }
         }
@@ -49,14 +51,6 @@ namespace dbversion.Console.Command.Create
         {
             get;
             set;
-        }
-
-        /// <summary>
-        /// If true, commit the overall transaction. By returning false, the effect of the upgrade can be 'tested'
-        /// </summary>
-        protected virtual bool Commit()
-        {
-            return true;
         }
 
         /// <summary>
@@ -88,7 +82,9 @@ namespace dbversion.Console.Command.Create
 
             try
             {
-                return this.Creator.Create(archive, arguments.Version, CreateTaskExecuter(arguments), Commit() && !arguments.IsSimulatingUpdate);
+                return this.Creator.Create(archive, arguments.Version, CreateTaskExecuter(arguments),
+                                           !arguments.ShouldRollbackChanges && !arguments.IsSimulatingUpdate,
+                                           arguments.ShouldExecuteMissingTasks);
             }
             catch (VersionNotFoundException v)
             {
