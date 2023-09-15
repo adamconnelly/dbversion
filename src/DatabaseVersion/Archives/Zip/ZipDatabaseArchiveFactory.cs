@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Ionic.Zip;
 using dbversion.Manifests;
 using System.ComponentModel.Composition;
+using Ionic.Zip;
 
 namespace dbversion.Archives.Zip
 {

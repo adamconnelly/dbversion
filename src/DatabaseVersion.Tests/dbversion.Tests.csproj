@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DotNetZip, Version=1.16.0.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.1.16.0\lib\net40\DotNetZip.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,9 +45,6 @@
     </Reference>
     <Reference Include="xunit, Version=1.8.0.1545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c">
       <HintPath>..\..\tools\xUnit.net\xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\..\lib\DotNetZip\Ionic.Zip.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\lib\FluentNHibernate\NHibernate.dll</HintPath>
@@ -97,7 +97,9 @@
     <EmbeddedResource Include="TestArchive\_1\data\books.sql" />
     <EmbeddedResource Include="TestArchive\_1\schema\ddl.sql" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -106,11 +108,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Property\" />
-    <Folder Include="Settings\" />
-    <Folder Include="Session\" />
-    <Folder Include="Version\" />
-    <Folder Include="Version\ClassicVersion\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

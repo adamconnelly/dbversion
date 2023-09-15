@@ -1,5 +1,4 @@
 using Xunit;
-using Ionic.Zip;
 using dbversion.Archives.Zip;
 using System.IO;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using dbversion.Archives;
 using dbversion.Manifests;
 using Moq;
+
 namespace dbversion.Tests.Archives.Zip
 {
     public class ZipDatabaseArchiveFactoryTests : IDisposable
@@ -78,7 +78,7 @@ namespace dbversion.Tests.Archives.Zip
         [Fact]
         public void ShouldCreateAZipDatabaseArchive()
         {
-            using (ZipFile zipFile = new ZipFile())
+            using (var zipFile = new ZipFile())
             {
                 // Arrange
                 ZipDatabaseArchiveFactory factory = new ZipDatabaseArchiveFactory();

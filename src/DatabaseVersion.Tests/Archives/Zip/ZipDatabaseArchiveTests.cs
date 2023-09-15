@@ -2,7 +2,6 @@ namespace dbversion.Tests.Archives.Zip
 {
     using System.IO;
     using System.Linq;
-
     using dbversion.Archives;
     using dbversion.Archives.Zip;
     using dbversion.Manifests;
@@ -49,7 +48,7 @@ namespace dbversion.Tests.Archives.Zip
         {
             // Arrange
             string path = Path.GetTempFileName();
-            using (var zipFile = new ZipFile())
+            using (ZipFile zipFile = new ZipFile())
             {
                 var tempDir = FileUtil.CreateTempDirectory();
                 var propertiesFileName = Path.Combine(tempDir.FullName, "properties.xml");
