@@ -48,7 +48,7 @@ namespace dbversion.Tests.Archives.Zip
         {
             // Arrange
             string path = Path.GetTempFileName();
-            using (var zipFile = new ZipFile())
+            using (ZipFile zipFile = new ZipFile())
             {
                 var tempDir = FileUtil.CreateTempDirectory();
                 var propertiesFileName = Path.Combine(tempDir.FullName, "properties.xml");
