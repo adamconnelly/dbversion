@@ -10,7 +10,6 @@ namespace dbversion.Archives.Zip
     using dbversion.Property;
     using dbversion.Utils;
     using dbversion.Version;
-
     using Ionic.Zip;
 
     /// <summary>
@@ -103,7 +102,7 @@ namespace dbversion.Archives.Zip
         /// </returns>
         public System.IO.Stream GetFile(string path)
         {
-            using (ZipFile zipFile = new ZipFile(this.ArchivePath))
+            using (var zipFile = new ZipFile(this.ArchivePath))
             {
                 foreach (ZipEntry entry in zipFile)
                 {

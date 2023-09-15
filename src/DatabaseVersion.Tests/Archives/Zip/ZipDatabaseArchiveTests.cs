@@ -2,7 +2,6 @@ namespace dbversion.Tests.Archives.Zip
 {
     using System.IO;
     using System.Linq;
-
     using dbversion.Archives;
     using dbversion.Archives.Zip;
     using dbversion.Manifests;
