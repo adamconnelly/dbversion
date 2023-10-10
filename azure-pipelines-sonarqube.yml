@@ -47,7 +47,7 @@ stages:
         version: '5.0.x'      
 
     - powershell: |
-        $url = "https://download.microsoft.com/download/E/0/5/E05E4EB0-BA5B-4AEC-810B-7BB25ECD3B59/NDP40-KB4502569-x86-x64-AllOS-ENU.exe"
+        $url = "https://rdprovisioningeuwprod.blob.core.windows.net/dependencies/NDP40-KB2468871-v2-x64.exe"
         $installerPath = "$(Agent.TempDirectory)\dotnet-framework-devpack.exe"
 
         # Download the .NET Framework Developer Pack
@@ -59,7 +59,7 @@ stages:
         # Clean up the installer
         Remove-Item -Path $installerPath -Force
       displayName: 'Install .NET Framework Developer Pack 4.0'
-      
+
     - task: NodeTool@0
       inputs:
         versionSpec: "12.x"
