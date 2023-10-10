@@ -1,0 +1,104 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - remote-run/*
+
+resources:
+  repositories:
+  - repository: self
+  - repository: templates
+    type: github
+    name: ResDiary/ResDiary-AzureDevOpsTemplates
+    endpoint: ResDiary
+    ref: 'refs/heads/master'
+
+variables:
+- group: sonarqube
+
+- name: vmImageNameWindows
+  value: 'windows-latest'
+
+stages:
+- stage: SonarQube
+  displayName: Run SonarQube tasks
+  dependsOn: []
+  jobs:        
+  - job: SonarQube
+    displayName: SonarQube
+    pool:
+      vmImage: $(vmImageNameWindows)
+    steps:
+    - task: PowerShell@2
+      displayName: Download Thrift, Set Path Env Variable and Display Version
+      inputs:
+        targetType: 'inline'
+        script: |
+          mkdir "C:\Thrift\"
+          $WebClient = New-Object System.Net.WebClient
+          $WebClient.DownloadFile("https://archive.apache.org/dist/thrift/0.13.0/thrift-0.13.0.exe","C:\Thrift\thrift.exe")
+          $env:Path += ';C:\Thrift'
+          thrift -version
+
+    - task: UseDotNet@2
+      displayName: "Setting .NET version"
+      inputs:
+        version: '7.0.x'      
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "12.x"
+        checkLatest: true
+
+    - task: SonarQubePrepare@5
+      displayName: "SonarQube - Prepare Analysis Configuration task - MSBuild mode"
+      inputs:
+        scannerMode: 'MSBuild'
+        ProjectKey: '$(SonarQube.ProjectKey)'
+        SonarQube: 'SonarQube-dbversion'
+    
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build'
+      inputs:
+        command: 'build'
+        publishWebProjects: false
+        projects: '**/*.csproj'
+        arguments: '-c Release -o $(Build.ArtifactStagingDirectory)/Output'
+        zipAfterPublish: true
+        modifyOutputPath: true    
+  
+    - task: SonarQubeAnalyze@5
+      displayName: "SonarQube - Run Code Analysis task - MSBuild mode"
+    
+    - task: SonarQubePublish@5
+      displayName: "SonarQube - Publish Quality Gate Result task - MSBuild mode"
+      inputs:
+        pollingTimeoutSec: '300'                
+
+- stage: SonarQubeOther
+  displayName: Run SonarQube tasks other
+  dependsOn: []
+  jobs:
+  - job: SonarQube
+    displayName: SonarQube
+    pool:
+      vmImage: $(vmImageNameWindows)
+    steps:
+    - task: SonarQubePrepare@5
+      displayName: "SonarQube - Prepare Analysis Configuration task - CLI Mode"
+      inputs:
+        cliProjectKey: '$(SonarQube.ProjectKey.Other)'
+        SonarQube: 'SonarQube-dbversion-Other'
+        scannerMode: 'CLI'
+        configMode: 'manual'
+        extraProperties: |
+          sonar.exclusions=/src/**/* 
+
+    - task: SonarQubeAnalyze@5
+      displayName: "SonarQube - Run Code Analysis task - CLI Mode"    
+
+    - task: SonarQubePublish@5
+      displayName: "SonarQube - Publish Quality Gate Result task - CLI mode"
+      inputs:
+        pollingTimeoutSec: '300' 
