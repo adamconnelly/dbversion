@@ -46,6 +46,20 @@ stages:
       inputs:
         version: '5.0.x'      
 
+    - powershell: |
+        $url = "https://download.microsoft.com/download/E/0/5/E05E4EB0-BA5B-4AEC-810B-7BB25ECD3B59/NDP40-KB4502569-x86-x64-AllOS-ENU.exe"
+        $installerPath = "$(Agent.TempDirectory)\dotnet-framework-devpack.exe"
+
+        # Download the .NET Framework Developer Pack
+        Invoke-WebRequest -Uri $url -OutFile $installerPath
+
+        # Install the Developer Pack (silent installation)
+        Start-Process -FilePath $installerPath -ArgumentList "/q" -Wait
+
+        # Clean up the installer
+        Remove-Item -Path $installerPath -Force
+      displayName: 'Install .NET Framework Developer Pack 4.0'
+      
     - task: NodeTool@0
       inputs:
         versionSpec: "12.x"
