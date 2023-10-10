@@ -44,7 +44,8 @@ stages:
     - task: UseDotNet@2
       displayName: "Setting .NET version"
       inputs:
-        version: '4.0.x'      
+        packageType: 'sdk'
+        version: '4.x'      
 
     - task: NodeTool@0
       inputs:
