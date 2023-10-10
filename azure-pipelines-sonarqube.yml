@@ -73,6 +73,13 @@ stages:
         SonarQube: 'SonarQube-dbversion'
     
     - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: 'restore'
+        publishWebProjects: false
+        projects: '**/*.csproj'
+
+    - task: DotNetCoreCLI@2
       displayName: 'dotnet build'
       inputs:
         command: 'build'
