@@ -3,6 +3,10 @@ dbversion
 
 A tool for creating and upgrading databases using SQL scripts. dbversion keeps track of what scripts have already been applied to your database so that it can figure out what scripts it needs to run to upgrade your database to the current version.
 
+## Project Status
+
+This project is archived and no-longer actively maintained. Since dbversion was released there are now many other tools that are more widely supported so there is not a good reason to use it anymore.
+
 ## Quick Start
 
 ### Installation
